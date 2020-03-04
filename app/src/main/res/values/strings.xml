@@ -15,4 +15,24 @@
     <string name="complete_basic_info">Complete your basic profile information</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
+    <string name="join_existing_company">Join existing company</string>
+    <string name="create_new_workspace">Create new Workspace</string>
+    <string name="join_oir_create_new_workspace">Join oir create new workspace</string>
+    <string name="choose_a_name_of_your_workspace">Choose a name of your workspace</string>
+    <string name="enter_workspace_name">Enter workspace name</string>
+    <string name="personal_workspace">Personal workspace</string>
+    <string name="my_team_and_me">My team and me</string>
+    <string name="short_password">Password must contains at least 6 characters</string>
+    <string name="how_many_people_work_for_the_company">How many people work for the company</string>
+    <string name="under_20">under 20</string>
+    <string name="under_100">under 100</string>
+    <string name="under_500">under 500</string>
+    <string name="over_500">over 500</string>
+    <string name="back">back</string>
+    <string name="wait_to_be_invited">wait to be invited</string>
+    <string name="create_company">Create company</string>
+    <string name="are_you_planning_to_work_alone_or_with_teammates">Are you planning to work alone or with teammates?</string>
+    <string name="waiting_to_join_existing_company">"Waiting to join existing company "</string>
+    <string name="please_ask_a_member_of_the_company">Please, ask a member of the company with access rights to invite new members to send invitation to your email:</string>
+    <string name="log_out">Log out</string>
 </resources>
