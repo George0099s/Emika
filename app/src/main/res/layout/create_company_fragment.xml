@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.ui.CreateCompany">
+    tools:context=".presentation.ui.auth.CreateCompany">
 
     <TextView
         android:id="@+id/textView"
@@ -144,7 +144,7 @@
         app:layout_constraintVertical_bias="0.551" />
 
     <TextView
-        android:id="@+id/log_out"
+        android:id="@+id/create_company_log_out"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"

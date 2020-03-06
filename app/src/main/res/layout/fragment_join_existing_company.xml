@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.ui.JoinCompanyFragment">
+    tools:context=".presentation.ui.auth.JoinCompanyFragment">
 
     <TextView
         android:id="@+id/waiting_to_join"
@@ -64,7 +64,7 @@
         app:layout_constraintTop_toTopOf="@+id/check_invitation"
         app:layout_constraintVertical_bias="0.586" />
     <TextView
-        android:id="@+id/log_out"
+        android:id="@+id/join_company_log_out"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"

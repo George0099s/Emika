@@ -65,4 +65,7 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:1.1.1"
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
 
+
+    //boardview
+//    implementation 'com.github.woxthebox:draglistview:1.7.0'
 }

@@ -35,4 +35,5 @@
     <string name="waiting_to_join_existing_company">"Waiting to join existing company "</string>
     <string name="please_ask_a_member_of_the_company">Please, ask a member of the company with access rights to invite new members to send invitation to your email:</string>
     <string name="log_out">Log out</string>
+    <string name="add_task">Add task</string>
 </resources>

@@ -4,5 +4,5 @@ import com.emika.app.data.network.pojo.ModelToken;
 import com.emika.app.data.network.pojo.singIn.ModelAuth;
 
 public interface TokenCallback {
-    void getToken(ModelToken model);
+    void getToken(String token);
 }

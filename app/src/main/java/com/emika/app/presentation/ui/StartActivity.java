@@ -8,9 +8,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.emika.app.R;
+import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.api.AuthApi;
 import com.emika.app.data.network.pojo.ModelToken;
 import com.emika.app.data.network.pojo.TokenPayload;
+import com.emika.app.presentation.ui.auth.AuthActivity;
 import com.emika.app.presentation.utils.Constants;
 
 import java.util.concurrent.Callable;
@@ -58,7 +60,10 @@ public class StartActivity extends AppCompatActivity {
                 ModelToken model = response.body();
                 if (model.getOk()){
                     Intent intent = new Intent(StartActivity.this, AuthActivity.class);
-                    intent.putExtra("token", token);
+                    TokenDbManager tokenDbManager = new TokenDbManager();
+                    tokenDbManager.insertToken(token);
+                    Log.d(TAG, "onResponse: " + token);
+//                    intent.putExtra("token", token);
                     startActivity(intent);
                 } else {
                     Toast.makeText(StartActivity.this, "Wrong token", Toast.LENGTH_SHORT).show();
@@ -92,7 +97,6 @@ public class StartActivity extends AppCompatActivity {
                 if (model.getOk()) {
                     TokenPayload payload = model.getTokenPayload();
                     token = payload.getToken();
-                    Log.d(TAG, "onResponse: " + token);
                     Observable.fromCallable((new CallableValidateToken(token)))
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
