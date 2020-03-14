@@ -13,7 +13,7 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.emika.app.features.draglistview.swipe.ListSwipeItem
+<com.emika.app.features.calendar.swipe.ListSwipeItem
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -72,4 +72,4 @@
 
     </LinearLayout>
 
-</com.emika.app.features.draglistview.swipe.ListSwipeItem>
+</com.emika.app.features.calendar.swipe.ListSwipeItem>

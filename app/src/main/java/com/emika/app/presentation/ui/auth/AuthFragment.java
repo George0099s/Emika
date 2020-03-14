@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,8 +19,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.domain.repository.auth.AuthRepository;
@@ -27,6 +30,7 @@ import com.emika.app.data.network.pojo.singIn.ModelAuth;
 import com.emika.app.data.network.pojo.PayloadEmail;
 import com.emika.app.data.network.pojo.singUp.ModelSignUp;
 import com.emika.app.presentation.ui.MainActivity;
+import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.viewModelFactory.auth.AuthViewModelFactory;
 import com.emika.app.presentation.viewmodel.auth.AuthViewModel;
 
@@ -34,13 +38,14 @@ public class AuthFragment extends Fragment implements TokenCallback {
     private static final String TAG = "AuthFragment";
     private AuthViewModel mViewModel;
     private TextView title;
-    private ImageView logo;
     private EditText email, password;
     private String token;
-    private AuthRepository authRepository;
-    private Button next, back;
+    private Button next, back, restorePassBtn;
     private FragmentManager fm;
     private TokenDbManager dbManager;
+    private SharedPreferences sharedPreferences;
+    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+
     public static AuthFragment newInstance() {
 
         return new AuthFragment();
@@ -57,9 +62,11 @@ public class AuthFragment extends Fragment implements TokenCallback {
 
 
     private void initViews(View view) {
+        sharedPreferences = emikaApplication.getSharedPreferences();
         dbManager = new TokenDbManager();
         dbManager.getToken(this);
-
+        restorePassBtn = view.findViewById(R.id.restore_pass);
+        restorePassBtn.setOnClickListener(this::restorePass);
         fm = getParentFragmentManager();
         email = view.findViewById(R.id.auth_email);
         password = view.findViewById(R.id.auth_pass);
@@ -80,9 +87,12 @@ public class AuthFragment extends Fragment implements TokenCallback {
     }
 
     private void checkEmail(View view) {
-        mViewModel = new ViewModelProvider(this, new AuthViewModelFactory(token)).get(AuthViewModel.class);
         mViewModel.setEmail(email.getText().toString());
         mViewModel.getTokenPayloadMutableLiveData().observe(getViewLifecycleOwner(), checkEmail);
+    }
+    private void restorePass(View view) {
+        mViewModel.setEmail(email.getText().toString());
+        mViewModel.getRestorePassword().observe(getViewLifecycleOwner(), restorePass);
     }
 
     private void signIn(View view) {
@@ -126,11 +136,19 @@ public class AuthFragment extends Fragment implements TokenCallback {
     private Observer<ModelAuth> logIn = auth -> {
         if (auth.getOk() && auth.getPayload()){
             Intent intent = new Intent(getContext(), MainActivity.class);
+            sharedPreferences.edit().putBoolean("logged in", true).apply();
             intent.putExtra("token", token);
             startActivity(intent);
         } else {
             password.requestFocus();
             password.setError("Password is not correct");
+        }
+    };
+    private Observer<ModelAuth> restorePass = auth -> {
+        if (auth.getOk() && auth.getPayload()){
+            Toast.makeText(emikaApplication, "Check your email", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(emikaApplication, "Check your email or try later", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -144,5 +162,7 @@ public class AuthFragment extends Fragment implements TokenCallback {
     @Override
     public void getToken(String token) {
         this.token = token;
+        mViewModel = new ViewModelProvider(this, new AuthViewModelFactory(token)).get(AuthViewModel.class);
+
     }
 }

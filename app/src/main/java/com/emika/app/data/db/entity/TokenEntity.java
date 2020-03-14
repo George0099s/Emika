@@ -9,7 +9,6 @@ public class TokenEntity {
     @PrimaryKey
     @NonNull
     private String token;
-
     @NonNull
     public String getToken() {
         return token;

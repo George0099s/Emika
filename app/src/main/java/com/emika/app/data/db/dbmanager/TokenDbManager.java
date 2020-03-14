@@ -39,7 +39,6 @@ public class TokenDbManager {
         tokenDao = db.tokenDao();
         this.token = tokenDao.getToken().getToken();
         if (token != null && !token.isEmpty())
-            Log.d(TAG, "getDBToken: " + token);
         callback.getToken(token);
         return token;
     }
@@ -49,11 +48,9 @@ public class TokenDbManager {
         TokenDao tokenDao;
         tokenDao = db.tokenDao();
         tokenDao.deleteAll();
-        Log.d(TAG, "deleteDbToken: " + tokenDao.getToken().getToken());
         return true;
     }
     public void deleteAll() {
-        Log.d(TAG, "deleteAll: ");
         Observable.fromCallable((new CallableDeleteToken()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

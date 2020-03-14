@@ -8,4 +8,5 @@ public interface AuthCallback {
     void callbackCheckedEmail(PayloadEmail payloadEmail);
     void callbackModelAuthSignIn(ModelAuth modelAuth);
     void callbackModelAuthSignUp(ModelSignUp modelSignUp);
+    void callbackRestorePassword(ModelAuth modelAuth);
 }

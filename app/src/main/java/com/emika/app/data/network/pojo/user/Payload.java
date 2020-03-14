@@ -70,6 +70,9 @@ public class Payload {
     @SerializedName("created_at")
     @Expose
     private String createdAt;
+    @SerializedName("picture_url")
+    @Expose
+    private String pictureUrl;
 
     public String getId() {
         return id;
@@ -239,4 +242,11 @@ public class Payload {
         this.createdAt = createdAt;
     }
 
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
+    }
 }

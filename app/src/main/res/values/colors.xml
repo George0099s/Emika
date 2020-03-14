@@ -6,4 +6,9 @@
     <color name="white">#FFFFFF</color>
     <color name="light_black">#3F3E3E</color>
     <color name="grey">#AFBCC6</color>
+    <color name="low_priority">#7F8188</color>
+    <color name="red">#E43A5A</color>
+    <color name="yellow">#BF9040</color>
+    <color name="blue">#1f75fe</color>
+    <color name="green">#00a86b</color>
 </resources>

@@ -1,8 +1,8 @@
 package com.emika.app.data.network.api;
 
+import com.emika.app.data.network.pojo.ModelEmail;
 import com.emika.app.data.network.pojo.ModelToken;
 import com.emika.app.data.network.pojo.singIn.ModelAuth;
-import com.emika.app.data.network.pojo.ModelEmail;
 import com.emika.app.data.network.pojo.singUp.ModelSignUp;
 
 import retrofit2.Call;
@@ -10,6 +10,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface AuthApi {
@@ -29,6 +30,11 @@ public interface AuthApi {
 
     @POST("public_api/auth/log_out")
     Call<ModelAuth> logOut(@Query("token") String token);
+
+    @FormUrlEncoded
+    @POST("public_api/auth/log_out")
+    Call<ModelAuth> restorePassword(@Query("token") String token,
+                                    @Field("email") String email);
 
     @FormUrlEncoded
     @POST("public_api/auth/sign_in")

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 import java.util.List;
 
-@Entity
+@Entity(tableName = "User")
 public class UserEntity {
 
     @PrimaryKey
@@ -31,6 +31,7 @@ public class UserEntity {
     private Boolean isRemote;
     private String context;
     private String updatedAt;
+    private String pictureUrl;
     public UserEntity(){}
 
 
@@ -184,5 +185,13 @@ public class UserEntity {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
 }

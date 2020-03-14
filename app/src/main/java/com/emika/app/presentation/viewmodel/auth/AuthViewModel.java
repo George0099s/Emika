@@ -15,23 +15,25 @@ public class AuthViewModel extends ViewModel implements AuthCallback, TokenCallb
     private MutableLiveData<PayloadEmail> tokenPayloadMutableLiveData;
     private MutableLiveData<ModelAuth> authMutableLiveData;
     private MutableLiveData<ModelSignUp> signUpMutableLiveData;
-
     private MutableLiveData<String> tokenLiveData;
+
+    private MutableLiveData<ModelAuth> restorePassword;
 
     private AuthRepository authRepository;
 
     private AuthCallback authCallback;
+
     private String token, email, password;
     public AuthViewModel(String token){
         this.token = token;
         authMutableLiveData = new MutableLiveData<>();
         tokenPayloadMutableLiveData = new MutableLiveData<>();
         signUpMutableLiveData = new MutableLiveData<>();
+        restorePassword = new MutableLiveData<>();
         authCallback = this;
         authRepository = new AuthRepository(token);
         tokenLiveData = new MutableLiveData<>();
     }
-
     public void getToken(){
 
     }
@@ -40,6 +42,7 @@ public class AuthViewModel extends ViewModel implements AuthCallback, TokenCallb
 
         return tokenLiveData;
     }
+
     private void init() {
          authRepository.getPayloadEmail(authCallback);
     }
@@ -49,7 +52,12 @@ public class AuthViewModel extends ViewModel implements AuthCallback, TokenCallb
     private void signUp(){
         authRepository.getModelSignUp(authCallback);
     }
+    private void restorePassword(){authRepository.restorePassword(this);}
 
+    public MutableLiveData<ModelAuth> getRestorePassword() {
+        restorePassword();
+        return restorePassword;
+    }
     public MutableLiveData<PayloadEmail> getTokenPayloadMutableLiveData() {
         init();
         return tokenPayloadMutableLiveData;
@@ -84,6 +92,11 @@ public class AuthViewModel extends ViewModel implements AuthCallback, TokenCallb
     @Override
     public void callbackModelAuthSignUp(ModelSignUp modelSignUp) {
         signUpMutableLiveData.postValue(modelSignUp);
+    }
+
+    @Override
+    public void callbackRestorePassword(ModelAuth modelAuth) {
+        restorePassword.postValue(modelAuth);
     }
 
     public void setToken(String token) {

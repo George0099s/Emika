@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
-import com.emika.app.data.network.callback.UserInfoCallback;
+import com.emika.app.data.network.callback.user.UserInfoCallback;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.domain.repository.auth.CreateUserRepository;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;

@@ -2,9 +2,9 @@ package com.emika.app.domain.repository.auth;
 
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
-import com.emika.app.data.network.callback.UserInfoCallback;
+import com.emika.app.data.network.callback.user.UserInfoCallback;
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
-import com.emika.app.data.network.networkManager.auth.UserNetworkManager;
+import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Payload;
 

@@ -36,4 +36,10 @@
     <string name="please_ask_a_member_of_the_company">Please, ask a member of the company with access rights to invite new members to send invitation to your email:</string>
     <string name="log_out">Log out</string>
     <string name="add_task">Add task</string>
+    <string name="job_title">Job title</string>
+    <string name="personal_biography">Personal biography</string>
+    <string name="update_photo">Update photo</string>
+    <string name="save_changes">Save changes</string>
+<!--    //custom view-->
+    <string name="progress_template">%dh</string>
 </resources>

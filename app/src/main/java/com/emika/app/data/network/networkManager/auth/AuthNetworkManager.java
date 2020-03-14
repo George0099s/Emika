@@ -151,6 +151,29 @@ public class AuthNetworkManager {
         });
     }
 
+    public void restorePassword(AuthCallback callback) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.BASIC_URL) // Адрес сервера
+                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+                .build();
+
+        AuthApi service = retrofit.create(AuthApi.class);
+        Call<ModelAuth> call = service.restorePassword(token, email);
+        call.enqueue(new Callback<ModelAuth>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelAuth> call, Response<ModelAuth> response) {
+                if (response.body() != null) {
+                    callback.callbackRestorePassword(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelAuth> call, Throwable t) {
+                Log.d(TAG, "Something went wrong :c");
+            }
+        });
+    }
+
     public Boolean createToken(TokenCallback callback){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.BASIC_URL) // Адрес сервера

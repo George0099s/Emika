@@ -1,11 +1,20 @@
 package com.emika.app.data.network.pojo.task;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
-
-public class PayloadTask {
+@Entity
+public class PayloadTask implements Parcelable {
+    @PrimaryKey
+    @NonNull
     @SerializedName("_id")
     @Expose
     private String id;
@@ -23,7 +32,7 @@ public class PayloadTask {
     private String status;
     @SerializedName("order")
     @Expose
-    private Integer order;
+    private String order;
     @SerializedName("assignee")
     @Expose
     private String assignee;
@@ -44,10 +53,10 @@ public class PayloadTask {
     private String planPeriod;
     @SerializedName("plan_time")
     @Expose
-    private Object planTime;
+    private String planTime;
     @SerializedName("plan_order")
     @Expose
-    private Integer planOrder;
+    private String planOrder;
     @SerializedName("deadline_date")
     @Expose
     private String deadlineDate;
@@ -59,7 +68,7 @@ public class PayloadTask {
     private String deadlinePeriod;
     @SerializedName("deadline_time")
     @Expose
-    private Object deadlineTime;
+    private String deadlineTime;
     @SerializedName("duration")
     @Expose
     private Integer duration;
@@ -68,10 +77,10 @@ public class PayloadTask {
     private Integer durationActual;
     @SerializedName("attachments")
     @Expose
-    private List<Object> attachments = null;
+    private List<String> attachments = null;
     @SerializedName("epic_links")
     @Expose
-    private List<Object> epicLinks = null;
+    private List<String> epicLinks = null;
     @SerializedName("epic_links_emika")
     @Expose
     private Boolean epicLinksEmika;
@@ -89,13 +98,72 @@ public class PayloadTask {
     private String createdAt;
     @SerializedName("parent_task_id")
     @Expose
-    private Object parentTaskId;
+    private String parentTaskId;
     @SerializedName("section_id")
     @Expose
-    private Object sectionId;
+    private String sectionId;
     @SerializedName("duration_logged")
     @Expose
-    private Object durationLogged;
+    private String durationLogged;
+
+    public PayloadTask(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        description = in.readString();
+        type = in.readString();
+        status = in.readString();
+        order = in.readString();
+        assignee = in.readString();
+        priority = in.readString();
+        createdBy = in.readString();
+        planDate = in.readString();
+        byte tmpPlanEmika = in.readByte();
+        planEmika = tmpPlanEmika == 0 ? null : tmpPlanEmika == 1;
+        planPeriod = in.readString();
+        planTime = in.readString();
+        planOrder = in.readString();
+        deadlineDate = in.readString();
+        byte tmpDeadlineEmika = in.readByte();
+        deadlineEmika = tmpDeadlineEmika == 0 ? null : tmpDeadlineEmika == 1;
+        deadlinePeriod = in.readString();
+        deadlineTime = in.readString();
+        if (in.readByte() == 0) {
+            duration = null;
+        } else {
+            duration = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            durationActual = null;
+        } else {
+            durationActual = in.readInt();
+        }
+        attachments = in.createStringArrayList();
+        epicLinks = in.createStringArrayList();
+        byte tmpEpicLinksEmika = in.readByte();
+        epicLinksEmika = tmpEpicLinksEmika == 0 ? null : tmpEpicLinksEmika == 1;
+        companyId = in.readString();
+        projectId = in.readString();
+        updatedAt = in.readString();
+        createdAt = in.readString();
+        parentTaskId = in.readString();
+        sectionId = in.readString();
+        durationLogged = in.readString();
+    }
+
+    public static final Creator<PayloadTask> CREATOR = new Creator<PayloadTask>() {
+        @Override
+        public PayloadTask createFromParcel(Parcel in) {
+            return new PayloadTask(in);
+        }
+
+        @Override
+        public PayloadTask[] newArray(int size) {
+            return new PayloadTask[size];
+        }
+    };
+
+    public PayloadTask() {
+    }
 
     public String getId() {
         return id;
@@ -137,11 +205,11 @@ public class PayloadTask {
         this.status = status;
     }
 
-    public Integer getOrder() {
+    public String getOrder() {
         return order;
     }
 
-    public void setOrder(Integer order) {
+    public void setOrder(String order) {
         this.order = order;
     }
 
@@ -193,24 +261,24 @@ public class PayloadTask {
         this.planPeriod = planPeriod;
     }
 
-    public Object getPlanTime() {
+    public String getPlanTime() {
         return planTime;
     }
 
-    public void setPlanTime(Object planTime) {
+    public void setPlanTime(String planTime) {
         this.planTime = planTime;
     }
 
-    public Integer getPlanOrder() {
+    public String getPlanOrder() {
         return planOrder;
     }
 
-    public void setPlanOrder(Integer planOrder) {
+    public void setPlanOrder(String planOrder) {
         this.planOrder = planOrder;
     }
 
     public String getDeadlineDate() {
-        return deadlineDate;
+     return deadlineDate;
     }
 
     public void setDeadlineDate(String deadlineDate) {
@@ -233,11 +301,11 @@ public class PayloadTask {
         this.deadlinePeriod = deadlinePeriod;
     }
 
-    public Object getDeadlineTime() {
+    public String getDeadlineTime() {
         return deadlineTime;
     }
 
-    public void setDeadlineTime(Object deadlineTime) {
+    public void setDeadlineTime(String deadlineTime) {
         this.deadlineTime = deadlineTime;
     }
 
@@ -250,26 +318,29 @@ public class PayloadTask {
     }
 
     public Integer getDurationActual() {
+        if (durationActual!=null)
         return durationActual;
+        else
+            return 0;
     }
 
     public void setDurationActual(Integer durationActual) {
         this.durationActual = durationActual;
     }
 
-    public List<Object> getAttachments() {
+    public List<String> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(List<Object> attachments) {
+    public void setAttachments(List<String> attachments) {
         this.attachments = attachments;
     }
 
-    public List<Object> getEpicLinks() {
+    public List<String> getEpicLinks() {
         return epicLinks;
     }
 
-    public void setEpicLinks(List<Object> epicLinks) {
+    public void setEpicLinks(List<String> epicLinks) {
         this.epicLinks = epicLinks;
     }
 
@@ -313,27 +384,76 @@ public class PayloadTask {
         this.createdAt = createdAt;
     }
 
-    public Object getParentTaskId() {
+    public String getParentTaskId() {
         return parentTaskId;
     }
 
-    public void setParentTaskId(Object parentTaskId) {
+    public void setParentTaskId(String parentTaskId) {
         this.parentTaskId = parentTaskId;
     }
 
-    public Object getSectionId() {
+    public String getSectionId() {
         return sectionId;
     }
 
-    public void setSectionId(Object sectionId) {
+    public void setSectionId(String sectionId) {
         this.sectionId = sectionId;
     }
 
-    public Object getDurationLogged() {
+    public String getDurationLogged() {
         return durationLogged;
     }
 
-    public void setDurationLogged(Object durationLogged) {
+    public void setDurationLogged(String durationLogged) {
         this.durationLogged = durationLogged;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeString(type);
+        dest.writeString(status);
+        dest.writeString(order);
+        dest.writeString(assignee);
+        dest.writeString(priority);
+        dest.writeString(createdBy);
+        dest.writeString(planDate);
+        dest.writeByte((byte) (planEmika == null ? 0 : planEmika ? 1 : 2));
+        dest.writeString(planPeriod);
+        dest.writeString(planTime);
+        dest.writeString(planOrder);
+        dest.writeString(deadlineDate);
+        dest.writeByte((byte) (deadlineEmika == null ? 0 : deadlineEmika ? 1 : 2));
+        dest.writeString(deadlinePeriod);
+        dest.writeString(deadlineTime);
+        if (duration == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(duration);
+        }
+        if (durationActual == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(durationActual);
+        }
+        dest.writeStringList(attachments);
+        dest.writeStringList(epicLinks);
+        dest.writeByte((byte) (epicLinksEmika == null ? 0 : epicLinksEmika ? 1 : 2));
+        dest.writeString(companyId);
+        dest.writeString(projectId);
+        dest.writeString(updatedAt);
+        dest.writeString(createdAt);
+        dest.writeString(parentTaskId);
+        dest.writeString(sectionId);
+        dest.writeString(durationLogged);
     }
 }

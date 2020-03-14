@@ -46,4 +46,8 @@ public class AuthRepository{
         this.email = email;
         networkManager.setEmail(email);
     }
+
+    public void restorePassword(AuthCallback callback) {
+        networkManager.restorePassword(callback);
+    }
 }

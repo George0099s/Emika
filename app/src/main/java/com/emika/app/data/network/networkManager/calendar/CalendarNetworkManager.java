@@ -11,6 +11,7 @@ import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.presentation.utils.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -35,21 +36,48 @@ public class CalendarNetworkManager {
 
         CalendarApi service = retrofit.create(CalendarApi.class);
         Call<Model> call = service.fetchAllTasks(token);
-        Log.d(TAG, "getAllTask: " + call.request().url());
         call.enqueue(new Callback<Model>() {
             @Override
             public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
                 if (response.body() != null) {
                     Model model = response.body();
+
                     List<PayloadTask> taskList = model.getPayloadTask();
+                    if (taskList != null)
                     callback.setTask(taskList);
+                    else callback.setTask(new ArrayList<>());
                 }
             }
 
             @Override
             public void onFailure(retrofit2.Call<Model> call, Throwable t) {
-                Log.d(TAG, "Something went wrong :c");
+                Log.d(TAG, t.getMessage().toString());
             }
         });
     }
+
+//    public void updateTask(PayloadTask task) {
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(Constants.BASIC_URL) // Адрес сервера
+//                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+//                .build();
+//
+//        CalendarApi service = retrofit.create(CalendarApi.class);
+//        Call<Model> call = service.updateTask(token, task);
+//        Log.d(TAG, "getAllTask: " + call.request());
+//        call.enqueue(new Callback<Model>() {
+//            @Override
+//            public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+//                Log.d(TAG, "onResponse: " + response.body());
+//                if (response.body() != null) {
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(retrofit2.Call<Model> call, Throwable t) {
+//                Log.d(TAG, t.getMessage().toString());
+//            }
+//        });
+//    }
 }

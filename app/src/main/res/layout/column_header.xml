@@ -13,9 +13,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:hour="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -23,17 +25,23 @@
     card_view:cardPreventCornerOverlap="true"
     card_view:cardUseCompatPadding="true"
     card_view:cardElevation="1dp"
-    card_view:cardCornerRadius="0dp"
+    card_view:cardCornerRadius="10dp"
     card_view:cardBackgroundColor="#ffffff">
-
     <LinearLayout
         android:layout_width="match_parent"
+        android:weightSum="1"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:paddingLeft="14dp"
         android:paddingRight="14dp"
+        android:layout_marginEnd="10dp"
         android:gravity="center_vertical">
 
         <TextView
@@ -41,15 +49,37 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="20sp"
-            android:text="Test"/>
+            style="@style/TaskDateTitle"
+            tools:text="Test"/>
 
         <TextView
             android:id="@+id/header_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="Test"/>
+            style="@style/TaskDay"
+            tools:text="Test"/>
 
+    </LinearLayout>
+        <com.emika.app.features.hourcounter.HourCounterView
+            android:id="@+id/hour_counter_estimated"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            hour:textSize="12sp"
+            hour:strokeWidth="2dp"
+            hour:progress="8"
+            hour:color="@color/blue"
+            android:layout_marginEnd="10dp"
+            hour:inactiveColor="#FFF"
+            android:layout_gravity="center" />
+        <com.emika.app.features.hourcounter.HourCounterView
+            android:id="@+id/hour_counter_spent"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            hour:textSize="12sp"
+            hour:color="@color/green"
+            hour:strokeWidth="2dp"
+            hour:progress="8"
+            hour:inactiveColor="#FFF"
+            android:layout_gravity="center" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

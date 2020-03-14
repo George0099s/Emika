@@ -1,6 +1,7 @@
 package com.emika.app.presentation.ui.auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.callback.CreateCompanyCallback;
 import com.emika.app.data.network.callback.TokenCallback;
@@ -40,6 +42,9 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     private TextView logout;
     private CreateAccountViewModel viewModel;
     private TokenDbManager tokenDbManager;
+    private SharedPreferences sharedPreferences;
+    private EmikaApplication emikaApplication;
+
     public static CreateCompany newInstance() {
         return new CreateCompany();
     }
@@ -53,6 +58,8 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     }
 
     private void initView(View view) {
+        emikaApplication = EmikaApplication.getInstance();
+        sharedPreferences = emikaApplication.getSharedPreferences();
         tokenDbManager = new TokenDbManager();
         tokenDbManager.getToken(this);
         fm = getParentFragmentManager();
@@ -125,7 +132,10 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     public void callbackModelAuth(ModelAuth modelAuth) {
         if (modelAuth.getOk() &&  modelAuth.getPayload()) {
             Toast.makeText(getContext(), "Company created", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(getContext(), MainActivity.class));
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            intent.putExtra("token", token);
+            sharedPreferences.edit().putBoolean("logged in", true).apply();
+            startActivity(intent);
         } else
             Toast.makeText(getContext(), modelAuth.getError(), Toast.LENGTH_SHORT).show();
     }

@@ -30,7 +30,7 @@
             android:id="@+id/invitation_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/default_size_indentation" />
+            />
 
         <TextView
             android:id="@+id/invitation_text"
