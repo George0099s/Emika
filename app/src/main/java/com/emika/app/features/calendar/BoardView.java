@@ -25,6 +25,7 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -74,6 +75,8 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         void onColumnDragChangedPosition(int oldPosition, int newPosition);
 
         void onColumnDragEnded(int position);
+        
+        
     }
 
     public static abstract class BoardListenerAdapter implements BoardListener {
@@ -196,7 +199,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         mColumnLayout.setOrientation(LinearLayout.HORIZONTAL);
         mColumnLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
         mColumnLayout.setMotionEventSplittingEnabled(false);
-
         mRootLayout.addView(mColumnLayout);
         mRootLayout.addView(mDragItem.getDragItemView());
         addView(mRootLayout);
@@ -803,7 +805,11 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
             }
         });
     }
-
+    public void setStartColumn(int column){
+        mCurrentColumn = column;
+        scrollToColumn(column, false);
+    
+    }
     private void moveColumn(final int fromIndex, final int toIndex) {
         DragItemRecyclerView list = mLists.remove(fromIndex);
         mLists.add(toIndex, list);

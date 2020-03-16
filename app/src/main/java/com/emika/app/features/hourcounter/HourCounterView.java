@@ -65,8 +65,8 @@ public class HourCounterView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.d(TAG, "onMeasure() called with: widthMeasureSpec = [" + MeasureSpec.toString(widthMeasureSpec) + "]," +
-                " heightMeasureSpec = [" + MeasureSpec.toString(heightMeasureSpec) + "]");
+//        Log.d(TAG, "onMeasure() called with: widthMeasureSpec = [" + MeasureSpec.toString(widthMeasureSpec) + "]," +
+//                " heightMeasureSpec = [" + MeasureSpec.toString(heightMeasureSpec) + "]");
         getTextBounds(formatString(MAX_PROGRESS));
         // PI не трогать!!!
         int requestedSize = (int) (Math.max(mTextBounds.width(), mTextBounds.height()) + Math.PI * mStrokeWidth);
@@ -156,7 +156,7 @@ public class HourCounterView extends View {
                     getResources().getDimensionPixelSize(R.dimen.defaultTextSize));
             mStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.hour_strokeWidth,
                     getResources().getDimensionPixelSize(R.dimen.defaultStrokeWidth));
-            Log.d(TAG, "Progress = " + mProgress + ", " + "Color = " + mColor + ", textSize = " + mTextSize + ", strokeWidth = " + mStrokeWidth);
+//            Log.d(TAG, "Progress = " + mProgress + ", " + "Color = " + mColor + ", textSize = " + mTextSize + ", strokeWidth = " + mStrokeWidth);
         } finally {
             typedArray.recycle();
         }

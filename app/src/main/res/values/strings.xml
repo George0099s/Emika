@@ -40,6 +40,6 @@
     <string name="personal_biography">Personal biography</string>
     <string name="update_photo">Update photo</string>
     <string name="save_changes">Save changes</string>
-<!--    //custom view-->
+    <!--    //custom view-->
     <string name="progress_template">%dh</string>
 </resources>

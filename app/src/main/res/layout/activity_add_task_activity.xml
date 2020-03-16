@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.ui.calendar.AddTaskActivity">
+    <EditText
+
+        android:imeOptions="actionSend|flagNoEnterAction"
+        android:id="@+id/editText3"
+        android:layout_width="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/add_task_plan_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/shape_task_params"
+        android:text="Today"
+        android:drawablePadding="5dp"
+        android:drawableLeft="@drawable/ic_daata"
+        app:layout_constraintStart_toStartOf="@+id/editText3"
+        app:layout_constraintTop_toBottomOf="@+id/editText3" />
+
+    <TextView
+        android:id="@+id/add_task_deadline_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/shape_task_params"
+        android:text="Deadlining date"
+        app:layout_constraintStart_toStartOf="@+id/add_task_plan_date"
+        app:layout_constraintTop_toBottomOf="@+id/add_task_plan_date" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/shape_task_params"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toEndOf="@+id/add_task_plan_date"
+        app:layout_constraintTop_toTopOf="@+id/add_task_plan_date">
+
+        <TextView
+            android:id="@+id/add_task_project"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Emika" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:background="@color/grey" />
+        <TextView
+            android:id="@+id/add_task_project_section"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open tasks" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/shape_task_params"
+        android:drawableLeft="@drawable/ic_estimated_time"
+        android:drawablePadding="5dp"
+        android:text="1h"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout7"
+        app:layout_constraintTop_toTopOf="@+id/linearLayout7" />
+
+    <ImageView
+        android:id="@+id/add_task_user_img"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:src="@mipmap/ic_launcher"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_task_deadline_date" />
+
+    <TextView
+        android:id="@+id/add_task_user_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="George Avakyan"
+        app:layout_constraintBottom_toBottomOf="@+id/add_task_user_img"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/add_task_user_img"
+        app:layout_constraintTop_toTopOf="@+id/add_task_user_img"
+        app:layout_constraintVertical_bias="0.483" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="96dp"
+        android:layout_marginEnd="232dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_task_user_img" />
+</androidx.constraintlayout.widget.ConstraintLayout>
