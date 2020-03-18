@@ -18,9 +18,11 @@ package com.emika.app.presentation.adapter.calendar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,11 +56,6 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         setItemList(list);
     }
 
-    public ItemAdapter() {
-        dateHelper = new DateHelper();
-//        setItemList(list);
-    }
-
     public void setmLayoutId(int mLayoutId) {
         this.mLayoutId = mLayoutId;
     }
@@ -89,6 +86,8 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
+
+//        holder.layout.setPadding(0,0,0,200);
         PayloadTask task = mItemList.get(position).second;
         holder.mText.setText(task.getName());
         holder.itemView.setTag(mItemList.get(position));
@@ -157,10 +156,11 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     class ViewHolder extends DragItemAdapter.ViewHolder {
         TextView mText, spentTime, estimatedTime, deadLine, project, priority;
         CardView cardView;
-
+        FrameLayout layout;
         ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
             mText = (TextView) itemView.findViewById(R.id.text);
+            layout = itemView.findViewById(R.id.item_layout);
             cardView = itemView.findViewById(R.id.card);
             spentTime = itemView.findViewById(R.id.item_task_spent_time);
             estimatedTime = itemView.findViewById(R.id.item_task_estimated_time);

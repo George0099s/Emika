@@ -56,7 +56,6 @@ public class CalendarViewModel extends ViewModel implements TaskCallback, TaskDb
 
     @Override
     public void setDbTask(List<TaskEntity> taskList) {
-        Log.d(TAG, "setDbTask: " + taskList.size());
         List<PayloadTask> payloadTasks = converter.fromTaskEntityToPayloadTaskList(taskList);
         ArrayList<PayloadTask> plannedTask = new ArrayList<>();
 //        for (int i = 0; i < taskList.size(); i++) {

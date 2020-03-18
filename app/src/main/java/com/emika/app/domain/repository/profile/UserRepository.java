@@ -8,6 +8,7 @@ import java.io.File;
 public class UserRepository {
     private String token;
     private UserNetworkManager networkManager;
+
     public UserRepository(String token) {
         networkManager = new UserNetworkManager(token);
         this.token = token;

@@ -10,6 +10,8 @@ import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,5 +48,9 @@ public class CalendarRepository {
     public void sedDbData(List<PayloadTask> taskList) {
         taskDbManager.deleteAll();
         taskDbManager.insertDbAllTask(converter.fromPayloadTaskToTaskEntityList(taskList));
+    }
+
+    public void addTask(TaskCallback callback, JSONObject task){
+        calendarNetworkManager.addTask(callback, task);
     }
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/low"
+        android:icon="@drawable/ic_priority_low"
+        android:title="Low"/>
+    <item
+        android:id="@+id/normal"
+        android:title="Normal"
+        />
+    <item
+        android:id="@+id/high"
+        android:title="High"
+        android:icon="@drawable/ic_priority_high"/>
+    <item
+        android:id="@+id/urgent"
+        android:title="Urgent"
+        android:icon="@drawable/ic_task_urgent"/>
+</menu>

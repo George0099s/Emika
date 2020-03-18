@@ -24,10 +24,30 @@ public class TaskDbManager {
     private Converter converter;
 
 
+
     public TaskDbManager() {
         db = emikaApplication.getDatabase();
         taskDao = db.taskDao();
         converter = new Converter();
+    }
+
+    public void addDbTask(TaskDbCallback taskCallbackCallback){
+//        Observable.fromCallable((new CallableAddTask(taskCallbackCallback)))
+//                .subscribeOn(Schedulers.io())
+//                .subscribe();
+    }
+
+    private Boolean addTask(String name, String description, String planDate, String deadlineDate, String priority, String epicLinks, String estimatedTime){
+        TaskEntity taskEntity = new TaskEntity();
+        taskEntity.setName(name);
+        taskEntity.setPlanDate(planDate);
+        taskEntity.setDeadlineDate(deadlineDate);
+        taskEntity.setPriority(priority);
+//        taskEntity.setEpicLinksEmika(epicLinks);
+        taskEntity.setDuration(Integer.parseInt(estimatedTime)*60);
+        taskEntity.setDescription(description);
+//        taskDao.insert();
+        return true;
     }
 
     public void getAllTask(TaskDbCallback taskCallbackCallback) {

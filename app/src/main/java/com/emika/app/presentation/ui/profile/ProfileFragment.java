@@ -7,30 +7,37 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
-import org.w3c.dom.Text;
+import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ProfileFragment extends Fragment {
-
+    @Inject
+     User user;
+    private static final String TAG = "ProfileFragment";
     private TextView userName, jobTitle, editProfile;
     private ProfileViewModel viewModel;
     private String token;
     private ImageView userImg;
+    private EmikaApplication app = EmikaApplication.getInstance();
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -54,12 +61,20 @@ public class ProfileFragment extends Fragment {
         editProfile.setOnClickListener(this::editProfile);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         viewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), getUserInfo);
+        app.getComponent().inject(this);
     }
     private Observer<Payload> getUserInfo = user -> {
+        this.user.setFirstName(user.getFirstName());
+        this.user.setLastName(user.getLastName());
+        this.user.setBio(user.getBio());
+        this.user.setId(user.getId());
+//        this.user.setFirstName(user.getFirstName());
+//        this.user.setFirstName(user.getFirstName());
+//        this.user.setFirstName(user.getFirstName());
+//        this.user.setFirstName(user.getFirstName());
         userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
         jobTitle.setText(user.getJobTitle());
         Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
-
     };
 
     @Override

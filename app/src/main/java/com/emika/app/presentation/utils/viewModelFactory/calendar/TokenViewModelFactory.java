@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emika.app.presentation.viewmodel.calendar.AddTaskViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
@@ -28,6 +29,9 @@ public class TokenViewModelFactory extends ViewModelProvider.NewInstanceFactory 
 
         else if (modelClass == ProfileViewModel.class){
             return (T) new ProfileViewModel(token);
+        }
+        else if (modelClass == AddTaskViewModel.class){
+            return (T) new AddTaskViewModel(token);
         }
         return null;
     }

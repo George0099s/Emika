@@ -11,6 +11,8 @@ import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.presentation.utils.Constants;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,35 @@ public class CalendarNetworkManager {
             }
         });
     }
+    public void addTask(TaskCallback callback, JSONObject task) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.BASIC_URL) // Адрес сервера
+                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+                .build();
 
+        CalendarApi service = retrofit.create(CalendarApi.class);
+        Call<Model> call = service.addTask(token, task);
+        Log.d(TAG, "addTask: " + call.request().url());
+        call.enqueue(new Callback<Model>() {
+            @Override
+            public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+                Log.d(TAG, "onResponse: " + response.body());
+                if (response.body() != null) {
+//                    Model model = response.body();
+//
+//                    List<PayloadTask> taskList = model.getPayloadTask();
+//                    if (taskList != null)
+//                        callback.setTask(taskList);
+//                    else callback.setTask(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Model> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
 //    public void updateTask(PayloadTask task) {
 //        Retrofit retrofit = new Retrofit.Builder()
 //                .baseUrl(Constants.BASIC_URL) // Адрес сервера

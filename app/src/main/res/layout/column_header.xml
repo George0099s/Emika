@@ -25,61 +25,67 @@
     card_view:cardPreventCornerOverlap="true"
     card_view:cardUseCompatPadding="true"
     card_view:cardElevation="1dp"
+    android:elevation="400dp"
     card_view:cardCornerRadius="10dp"
     card_view:cardBackgroundColor="#ffffff">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:weightSum="1"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp"
-        android:layout_marginEnd="10dp"
-        android:gravity="center_vertical">
+        android:orientation="horizontal"
+        android:weightSum="1">
 
-        <TextView
-            android:id="@+id/header_date"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
             android:layout_weight="1"
-            style="@style/TaskDateTitle"
-            tools:text="Test"/>
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingLeft="14dp"
+            android:paddingTop="10dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="10dp">
 
-        <TextView
-            android:id="@+id/header_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/TaskDay"
-            tools:text="Test"/>
+            <TextView
+                android:id="@+id/header_date"
+                style="@style/TaskDateTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="Test" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/header_day"
+                style="@style/TaskDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Test" />
+
+        </LinearLayout>
+
         <com.emika.app.features.hourcounter.HourCounterView
             android:id="@+id/hour_counter_estimated"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            hour:textSize="12sp"
-            hour:strokeWidth="2dp"
-            hour:progress="8"
+            android:layout_gravity="center"
+            android:layout_marginEnd="12dp"
             hour:color="@color/blue"
-            android:layout_marginEnd="10dp"
             hour:inactiveColor="#FFF"
-            android:layout_gravity="center" />
+            hour:progress="12"
+            hour:strokeWidth="2dp"
+            hour:textSize="12sp" />
+
         <com.emika.app.features.hourcounter.HourCounterView
             android:id="@+id/hour_counter_spent"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            hour:textSize="12sp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="12dp"
             hour:color="@color/green"
-            hour:strokeWidth="2dp"
-            hour:progress="8"
             hour:inactiveColor="#FFF"
-            android:layout_gravity="center" />
+            hour:progress="0"
+            hour:strokeWidth="2dp"
+            hour:textSize="12sp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

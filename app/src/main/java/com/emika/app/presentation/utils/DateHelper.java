@@ -38,4 +38,17 @@ public class DateHelper {
         date = formatted.format(c.getTime());
         return date;
     }
+    public static String getDatePicker(String date){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d");
+        SimpleDateFormat formatted = new SimpleDateFormat("MMM dd");
+        Calendar c = Calendar.getInstance();
+        try {
+            c.setTime(sdf.parse(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // number of days to add
+        date = formatted.format(c.getTime());
+        return date;
+    }
 }

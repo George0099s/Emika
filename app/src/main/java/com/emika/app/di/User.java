@@ -1,9 +1,17 @@
-package com.emika.app.data.model;
+package com.emika.app.di;
 
+import com.emika.app.data.network.callback.user.UserInfoCallback;
+import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
+import com.emika.app.data.network.pojo.user.Payload;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+
+import javax.inject.Inject;
+
+import dagger.Module;
+
 
 public class User {
     private String id;
@@ -26,6 +34,37 @@ public class User {
     private List<Object> extraLeaders = null;
     private String context;
     private String updatedAt;
+
+    public User(String id, String status, Boolean isAdmin, String inviteCode, String activationEmailRequestedAt, String activationCode,
+                Boolean emailConfirmed, String email, String firstName, String lastName, String lang, String gender, String bio, String jobTitle,
+                Boolean isLeader, Boolean isRemote,
+                List<Object> extraCoworkers, List<Object> extraLeaders, String context, String updatedAt, String createdAt) {
+        this.id = id;
+        this.status = status;
+        this.isAdmin = isAdmin;
+        this.inviteCode = inviteCode;
+        this.activationEmailRequestedAt = activationEmailRequestedAt;
+        this.activationCode = activationCode;
+        this.emailConfirmed = emailConfirmed;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.lang = lang;
+        this.gender = gender;
+        this.bio = bio;
+        this.jobTitle = jobTitle;
+        this.isLeader = isLeader;
+        this.isRemote = isRemote;
+        this.extraCoworkers = extraCoworkers;
+        this.extraLeaders = extraLeaders;
+        this.context = context;
+        this.updatedAt = updatedAt;
+        this.createdAt = createdAt;
+    }
+
+    public User() {
+
+    }
 
     public String getId() {
         return id;
@@ -196,4 +235,5 @@ public class User {
     }
 
     private String createdAt;
+
 }

@@ -3,10 +3,10 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="background">@color/white</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="statusBarBackground">#FFF</item>
+        <item name="android:navigationBarColor">@color/light_black</item>
     </style>
 
     <style name="inputPlaceholder">
@@ -52,7 +52,7 @@
     <style name="TaskParams" >
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/black</item>
-        <item name="android:padding">2dp</item>
+        <item name="android:padding">4dp</item>
     </style>
 
     <color name="black">#000</color>
@@ -70,5 +70,22 @@
     <style name="BottomSheetStyle" >
 <!--        <item name="android:windowIsFloating">false</item>-->
         <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="MyMaterialTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Add attributes here -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
+    <style name="PauseDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/PauseDialogAnimation</item>
+    </style>
+
+    <style name="PauseDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_anim</item>
+        <item name="android:windowExitAnimation">@android:anim/slide_out_right</item>
     </style>
 </resources>

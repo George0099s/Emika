@@ -49,7 +49,6 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
         sharedPreferences = emikaApplication.getSharedPreferences();
         if (NetworkState.getInstance(getApplication()).isOnline())
             if (!sharedPreferences.getBoolean("logged in", false))
-
                 Observable.fromCallable((new CallableGetToken()))
                         .subscribeOn(Schedulers.io())
                         .subscribe();

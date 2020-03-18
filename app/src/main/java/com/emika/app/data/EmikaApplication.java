@@ -7,17 +7,21 @@ import androidx.room.Room;
 
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.migration.Migration;
+import com.emika.app.di.DaggerUserComponent;
+import com.emika.app.di.UserComponent;
+import com.emika.app.di.UserModule;
 import com.emika.app.presentation.utils.Constants;
 
 public class EmikaApplication extends Application {
     public static EmikaApplication instance;
 
+
     public SharedPreferences getSharedPreferences() {
         return sharedPreferences;
     }
-
     private SharedPreferences sharedPreferences;
     private AppDatabase database;
+    private UserComponent component;
 
     @Override
     public void onCreate() {
@@ -27,6 +31,11 @@ public class EmikaApplication extends Application {
         database = Room.databaseBuilder(this, AppDatabase.class, "emika_db")
                 .addMigrations(Migration.MIGRATION_3_4)
                 .build();
+        component = DaggerUserComponent
+                .builder()
+                .userModule(new UserModule())
+                .build();
+
     }
 
     public static EmikaApplication getInstance() {
@@ -35,5 +44,9 @@ public class EmikaApplication extends Application {
 
     public AppDatabase getDatabase() {
         return database;
+    }
+
+    public UserComponent getComponent() {
+        return component;
     }
 }

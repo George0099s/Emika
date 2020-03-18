@@ -79,6 +79,11 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         
     }
 
+        @Override
+        public boolean isAttachedToWindow() {
+            return super.isAttachedToWindow();
+        }
+
     public static abstract class BoardListenerAdapter implements BoardListener {
         @Override
         public void onItemDragStarted(int column, int row) {
@@ -930,7 +935,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         recyclerView.setMotionEventSplittingEnabled(false);
         recyclerView.setDragItem(mDragItem);
         recyclerView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
+        recyclerView.addItemDecoration(new MemberItemDecoration());
         RecyclerView.LayoutManager layoutManager = columnProperties.getLayoutManager();
         recyclerView.setLayoutManager(layoutManager != null ? layoutManager : new LinearLayoutManager(getContext()));
         recyclerView.setBackgroundColor(columnProperties.getItemsSectionBackgroundColor());

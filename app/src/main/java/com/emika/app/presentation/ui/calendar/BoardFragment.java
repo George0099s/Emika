@@ -16,27 +16,23 @@
 
 package com.emika.app.presentation.ui.calendar;
 
-import android.animation.Animator;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
+import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -46,38 +42,47 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.di.User;
 import com.emika.app.features.calendar.BoardView;
 import com.emika.app.features.calendar.ColumnProperties;
 import com.emika.app.features.calendar.DragItem;
+import com.emika.app.features.hourcounter.HourCounterView;
 import com.emika.app.presentation.adapter.calendar.ItemAdapter;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.DateHelper;
-import com.emika.app.presentation.utils.KeyboardUtil;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class BoardFragment extends Fragment {
+import javax.inject.Inject;
+
+public class BoardFragment extends Fragment implements SetCurrentColumn{
     private static final String TAG = "BoardFragment";
     private static int sCreatedItems = 0;
+    @Inject
+    User user;
     private BoardView mBoardView;
     private String token;
     private int mColumns;
     private boolean isOpen = false;
-
+    private Button rightScroll, leftScroll;
+    private EmikaApplication app = EmikaApplication.getInstance();
+    private ExtendedFloatingActionButton selectUser;
     private FloatingActionButton addTask;
     private List<PayloadTask> payloadTaskList = new ArrayList<>();
     private CalendarViewModel viewModel;
     private ItemAdapter listAdapter;
     private BottomSheetBehavior mBottomSheetBehavior1;
+
+
     private Observer<List<PayloadTask>> getTask = taskList -> {
         AsyncTask asyncTask = new AsyncTask();
         asyncTask.execute(taskList);
@@ -105,7 +110,7 @@ public class BoardFragment extends Fragment {
         for (int i = 0; i < 40; i++) {
             ArrayList<PayloadTask> plannedTask = new ArrayList<>();
             for (int j = 0; j < taskList.size(); j++) {
-                if (taskList.get(j).getPlanDate() != null && taskList.get(j).getAssignee().equals("5e676d9ff33c1ae5737334e8")) {
+                if (taskList.get(j).getPlanDate() != null) {
                     if (taskList.get(j).getPlanDate().equals(DateHelper.compareDate(i))) {
                         plannedTask.add(taskList.get(j));
                     }
@@ -132,14 +137,24 @@ public class BoardFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        addTask = view.findViewById(R.id.add_task);
+        selectUser = view.findViewById(R.id.add_task_select_user);
+        app.getComponent().inject(this);
 
+        rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
+        leftScroll = view.findViewById(R.id.left_scroll_to_current_date);
+        rightScroll.setOnClickListener(this::scrollToCurrentDate);
+        leftScroll.setOnClickListener(this::scrollToCurrentDate);
+        selectUser.setOnClickListener(v -> {
+
+        });
+        addTask = view.findViewById(R.id.add_task);
+        selectUser.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
         addTask.setOnClickListener(v -> {
+
             Intent intent = new Intent(getContext(), AddTaskActivity.class);
             intent.putExtra("token", token);
-            Log.d(TAG, "initViews: " + mBoardView.getFocusedColumn());
             intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()).toString());
-            startActivity(intent);
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
         });
         token = getActivity().getIntent().getStringExtra("token");
         mBoardView = view.findViewById(R.id.board_view);
@@ -149,8 +164,25 @@ public class BoardFragment extends Fragment {
         mBoardView.setSnapDragItemToTouch(true);
         mBoardView.setSnapToColumnInLandscape(false);
         mBoardView.setColumnSnapPosition(BoardView.ColumnSnapPosition.CENTER);
+        mBoardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            public void onGlobalLayout() {
+                mBoardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                viewModel.setCurrentColumn();
 
+//                Log.d(TAG, "onGlobalLayout: ");
+            }
+        });
+        viewModel.setCurrentColumn();
         viewModel.setContext(getContext());
+        if (mBoardView.getFocusedColumn() < 15) {
+            leftScroll.setVisibility(View.GONE);
+            rightScroll.setVisibility(View.VISIBLE);
+            rightScroll.callOnClick();
+        } else {
+            rightScroll.setVisibility(View.GONE);
+            leftScroll.setVisibility(View.VISIBLE);
+        }
+        viewModel.setCurrentColumn();
         mBoardView.setVisibility(View.VISIBLE);
         mBoardView.setBoardListener(new BoardView.BoardListener() {
             @Override
@@ -171,23 +203,39 @@ public class BoardFragment extends Fragment {
                 Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(newColumn).getItemList().get(newRow);
                 taskNewPos.second.setPlanDate(Constants.dateColumnMap.get(newColumn));
                 viewModel.updateTask(taskNewPos.second);
+                int estimatedTimeNew = 0;
+                HourCounterView hourEstimatedOld = mBoardView.getHeaderView(oldColumn).findViewById(R.id.hour_counter_estimated);
+                HourCounterView hourEstimatedNew = mBoardView.getHeaderView(newColumn).findViewById(R.id.hour_counter_estimated);
+                ArrayList<Pair<Long, PayloadTask>> newTasks = mBoardView.getAdapter(newColumn).getItemList();
+                hourEstimatedOld.setProgress(hourEstimatedOld.getProgress() - taskNewPos.second.getDuration()/60);
+                for (int i = 0; i < newTasks.size(); i++) {
+                    Pair<Long, PayloadTask> pair = newTasks.get(i);
+                    PayloadTask task = pair.second;
+                    estimatedTimeNew += task.getDuration() / 60;
+                    hourEstimatedNew.setProgress(estimatedTimeNew);
+                }
 //                PayloadTask payloadTask = taskNewPos.second;
 //                viewModel.updateTask(payloadTask);
             }
 
             @Override
             public void onItemChangedColumn(int oldColumn, int newColumn) {
-//                Log.d(TAG, "onItemChangedColumn() called with: oldColumn = [" + oldColumn + "], newColumn = [" + newColumn + "]");
 
-//                mBoardView.getAdapter(oldColumn).getItemList().get()
-                TextView itemCount1 = mBoardView.getHeaderView(oldColumn).findViewById(R.id.header_day);
-                itemCount1.setText(String.valueOf(mBoardView.getAdapter(oldColumn).getItemCount()));
-                TextView itemCount2 = mBoardView.getHeaderView(newColumn).findViewById(R.id.header_day);
-                itemCount2.setText(String.valueOf(mBoardView.getAdapter(newColumn).getItemCount()));
             }
 
             @Override
             public void onFocusedColumnChanged(int oldColumn, int newColumn) {
+                if (mBoardView.getFocusedColumn() == 15) {
+                    leftScroll.setVisibility(View.GONE);
+                    rightScroll.setVisibility(View.GONE);
+                } else if (mBoardView.getFocusedColumn() < 15) {
+                    leftScroll.setVisibility(View.GONE);
+
+                    rightScroll.setVisibility(View.VISIBLE);
+                } else {
+                    rightScroll.setVisibility(View.GONE);
+                    leftScroll.setVisibility(View.VISIBLE);
+                }
 //                if (mBoardView.getColumnCount() - newColumn < 2)
 //                    viewModel.setCurrentColumn();
             }
@@ -226,6 +274,10 @@ public class BoardFragment extends Fragment {
 
         viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
         viewModel.getCurrentDate().observe(getViewLifecycleOwner(), setColumn);
+        viewModel.setCurrentColumn();
+    }
+
+    private void scrollToCurrentDate(View view) {
         viewModel.setCurrentColumn();
     }
 
@@ -287,6 +339,12 @@ public class BoardFragment extends Fragment {
 
     private void addColumn(String month, String day, List<PayloadTask> payloadTaskList) {
         final ArrayList<Pair<Long, PayloadTask>> mItemArray = new ArrayList<>();
+        int estimatedTime = 0;
+        int spentTime = 0;
+        for (int i = 0; i < payloadTaskList.size(); i++) {
+            estimatedTime += payloadTaskList.get(i).getDuration() / 60;
+            spentTime += payloadTaskList.get(i).getDurationActual() / 60;
+        }
         int addItems = payloadTaskList.size();
         for (int i = 0; i < addItems; i++) {
             long id = sCreatedItems++;
@@ -301,6 +359,8 @@ public class BoardFragment extends Fragment {
         final View header = View.inflate(getActivity(), R.layout.column_header, null);
         ((TextView) header.findViewById(R.id.header_date)).setText(month);
         ((TextView) header.findViewById(R.id.header_day)).setText(day);
+        ((HourCounterView) header.findViewById(R.id.hour_counter_spent)).setProgress(spentTime);
+        ((HourCounterView) header.findViewById(R.id.hour_counter_estimated)).setProgress(estimatedTime);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
 
 
@@ -325,6 +385,11 @@ public class BoardFragment extends Fragment {
                 .build();
 
         mBoardView.addColumn(columnProperties);
+    }
+
+    @Override
+    public void set() {
+        viewModel.setCurrentColumn();
     }
 
     private static class MyColumnDragItem extends DragItem {

@@ -86,6 +86,7 @@ public abstract class DragItemAdapter<T, VH extends com.emika.app.features.calen
         }
     }
 
+
     public void changeItemPosition(int fromPos, int toPos) {
         if (mItemList != null && mItemList.size() > fromPos && mItemList.size() > toPos) {
             Pair item = mItemList.remove(fromPos);

@@ -1,54 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:id="@+id/container"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="#E5E5E5">
-<!--    <androidx.core.widget.NestedScrollView-->
-<!--        android:id="@+id/bottom_sheet"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="350dp"-->
-<!--        android:background="@android:color/holo_orange_light"-->
-<!--        android:clipToPadding="true"-->
-<!--        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"-->
-<!--        app:layout_constraintBottom_toBottomOf="@+id/board_view"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent">-->
+    android:background="#E5E5E5"
+    android:fitsSystemWindows="true">
 
-<!--        <TextView-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:paddingTop="16dp"-->
-<!--            android:text="Bottom Sheets"-->
-<!--            android:textSize="16sp" />-->
-<!--    </androidx.core.widget.NestedScrollView>-->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <com.emika.app.features.calendar.BoardView
-        android:id="@+id/board_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:boardEdges="5dp"
-        app:columnSpacing="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+
+        <com.emika.app.features.calendar.BoardView
+            android:id="@+id/board_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:boardEdges="5dp"
+            app:columnSpacing="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_task"
+        android:translationZ="4dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:backgroundTint="#35A666"
+        android:overScrollMode="ifContentScrolls"
         android:src="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="@+id/add_task_select_user"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/add_task_select_user" />
+
+    <Button
+        android:id="@+id/left_scroll_to_current_date"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/right_scroll_to_current_date"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/add_task_select_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:drawableLeft="@drawable/ic_task_urgent"
+            android:text="George Avakyan"
+            android:textSize="12sp"
+            android:theme="@style/MyMaterialTheme"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

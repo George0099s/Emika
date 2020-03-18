@@ -30,12 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Properties of adding/inserting column to the {@link BoardView}
- *
- * Instance is created using an associated {@link Builder} object by
- * invoking its {@link Builder#build build} method.
- */
 public class ColumnProperties {
 
     private DragItemAdapter mDragItemAdapter;
