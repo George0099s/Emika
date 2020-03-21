@@ -1,5 +1,6 @@
 package com.emika.app.domain.repository.auth;
 
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.callback.user.UserInfoCallback;

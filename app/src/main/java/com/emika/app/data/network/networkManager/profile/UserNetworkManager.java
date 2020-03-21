@@ -70,6 +70,7 @@ public class UserNetworkManager {
 
         UserApi service = retrofit.create(UserApi.class);
         Call<Model> call = service.getUserInfo(token);
+        Log.d(TAG, "getUserInfo: " + call.request().url());
         call.enqueue(new Callback<Model>() {
             @Override
             public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {

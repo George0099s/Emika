@@ -28,8 +28,8 @@
             <LinearLayout
                 android:id="@+id/linearLayout5"
                 android:layout_width="0dp"
-                android:layout_marginTop="5dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:orientation="horizontal"
                 card_view:layout_constraintEnd_toEndOf="@+id/text"
                 card_view:layout_constraintStart_toStartOf="@+id/text"
@@ -40,20 +40,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:textSize="12sp"
+                    android:background="@drawable/shape_priority_low"
                     android:drawablePadding="4dp"
                     android:padding="4dp"
-                    android:background="@drawable/shape_priority_low"
+                    android:textSize="12sp"
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
                     tools:text="urgent" />
 
                 <TextView
                     android:id="@+id/calendar_task_deadline"
+                    style="@style/TaskParams"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    style="@style/TaskParams"
                     android:background="@drawable/shape_deadline"
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
@@ -61,10 +61,10 @@
 
                 <TextView
                     android:id="@+id/calendar_task_project"
+                    style="@style/TaskParams"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    style="@style/TaskParams"
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
                     tools:text="Emika" />
@@ -74,7 +74,9 @@
                 android:id="@+id/task_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColorHighlight="@color/blue"
                 android:button="@drawable/custom_checkboks"
+                android:paddingVertical="15dp"
                 card_view:layout_constraintBottom_toBottomOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />

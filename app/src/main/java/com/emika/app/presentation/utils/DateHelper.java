@@ -39,16 +39,16 @@ public class DateHelper {
         return date;
     }
     public static String getDatePicker(String date){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d");
-        SimpleDateFormat formatted = new SimpleDateFormat("MMM dd");
-        Calendar c = Calendar.getInstance();
-        try {
-            c.setTime(sdf.parse(date));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        // number of days to add
-        date = formatted.format(c.getTime());
-        return date;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d");
+            SimpleDateFormat formatted = new SimpleDateFormat("yyyy-MM-d");
+            Calendar c = Calendar.getInstance();
+            try {
+                c.setTime(sdf.parse(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            // number of days to add
+            date = formatted.format(c.getTime());
+            return date;
     }
 }

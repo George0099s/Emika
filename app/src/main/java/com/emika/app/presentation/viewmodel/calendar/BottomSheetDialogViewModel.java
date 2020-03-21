@@ -1,7 +1,7 @@
-package com.emika.app.presentation.ui.calendar;
+package com.emika.app.presentation.viewmodel.calendar;
 
 import androidx.lifecycle.ViewModel;
 
 public class BottomSheetDialogViewModel extends ViewModel {
-    // TODO: Implement the ViewModel
+
 }

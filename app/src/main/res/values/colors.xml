@@ -11,4 +11,5 @@
     <color name="yellow">#BF9040</color>
     <color name="blue">#1f75fe</color>
     <color name="green">#00a86b</color>
+    <color name="task_name_done">#6F85A2</color>
 </resources>

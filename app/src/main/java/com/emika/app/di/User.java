@@ -34,6 +34,7 @@ public class User {
     private List<Object> extraLeaders = null;
     private String context;
     private String updatedAt;
+    private String pictureUrl;
 
     public User(String id, String status, Boolean isAdmin, String inviteCode, String activationEmailRequestedAt, String activationCode,
                 Boolean emailConfirmed, String email, String firstName, String lastName, String lang, String gender, String bio, String jobTitle,
@@ -236,4 +237,11 @@ public class User {
 
     private String createdAt;
 
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
+    }
 }

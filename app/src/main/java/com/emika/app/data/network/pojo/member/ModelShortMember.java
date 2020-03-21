@@ -1,17 +1,18 @@
-package com.emika.app.data.network.pojo.task;
+package com.emika.app.data.network.pojo.member;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Model {
+public class ModelShortMember {
     @SerializedName("ok")
     @Expose
     private Boolean ok;
     @SerializedName("payload")
     @Expose
-    private List<PayloadTask> payloadTask = null;
+    private List<PayloadShortMember> payload = null;
+
     public Boolean getOk() {
         return ok;
     }
@@ -20,11 +21,11 @@ public class Model {
         this.ok = ok;
     }
 
-    public List<PayloadTask> getPayloadTask() {
-        return payloadTask;
+    public List<PayloadShortMember> getPayload() {
+        return payload;
     }
 
-    public void setPayloadTask(List<PayloadTask> payloadTask) {
-        this.payloadTask = payloadTask;
+    public void setPayload(List<PayloadShortMember> payload) {
+        this.payload = payload;
     }
 }

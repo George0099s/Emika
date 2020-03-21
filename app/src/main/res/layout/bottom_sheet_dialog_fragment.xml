@@ -1,103 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bottom_sheet_add_task"
+    android:id="@+id/bottom_sheet_members"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:windowSoftInputMode="stateAlwaysVisible"
-    android:background="@color/white"
     app:behavior_hideable="true"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
-    tools:context=".presentation.ui.calendar.BottomSheetFragment">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    tools:context=".presentation.ui.calendar.BottomSheetSelectUser">
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="Select assignee"
+        android:textColor="@color/light_black"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/bottom_sheet_recycler_select_user"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="600dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
-
-            <EditText
-
-                android:id="@+id/add_task_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:imeOptions="actionSend|flagNoEnterAction"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/add_task_plan_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/shape_task_params"
-                android:drawableLeft="@drawable/ic_daata"
-                android:drawablePadding="5dp"
-                android:text="Today"
-                app:layout_constraintStart_toStartOf="@+id/add_task_name"
-                app:layout_constraintTop_toBottomOf="@+id/add_task_name" />
-
-            <TextView
-                android:id="@+id/textView11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/shape_task_params"
-                android:drawablePadding="5dp"
-
-                android:text="Emika"
-                app:layout_constraintStart_toEndOf="@+id/add_task_plan_date"
-                app:layout_constraintTop_toTopOf="@+id/add_task_plan_date" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:background="@drawable/shape_task_params"
-                android:drawableLeft="@drawable/ic_estimated_time"
-                android:drawablePadding="5dp"
-                android:text="1h"
-                app:layout_constraintStart_toEndOf="@+id/textView11"
-                app:layout_constraintTop_toTopOf="@+id/add_task_plan_date" />
-
-            <ImageView
-                android:id="@+id/add_task_user_img"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:src="@mipmap/ic_launcher"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_task_plan_date" />
-
-            <TextView
-                android:id="@+id/add_task_user_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:text="George Avakyan"
-                app:layout_constraintBottom_toBottomOf="@+id/add_task_user_img"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/add_task_user_img"
-                app:layout_constraintTop_toTopOf="@+id/add_task_user_img"
-                app:layout_constraintVertical_bias="0.483" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_task_user_img" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
@@ -18,6 +19,8 @@ import com.emika.app.data.network.pojo.TokenPayload;
 import com.emika.app.presentation.ui.auth.AuthActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.NetworkState;
+import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
+import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 
 import java.util.concurrent.Callable;
 
@@ -36,6 +39,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
     private SharedPreferences sharedPreferences;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     private TokenDbManager tokenDbManager;
+    private CalendarViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +120,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
                 if (model.getOk()) {
                     TokenPayload payload = model.getTokenPayload();
                     token = payload.getToken();
+
                     Observable.fromCallable((new CallableValidateToken(token)))
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -163,4 +168,5 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
         }
 
     }
+
 }

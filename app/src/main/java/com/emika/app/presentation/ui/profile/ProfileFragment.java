@@ -64,10 +64,11 @@ public class ProfileFragment extends Fragment {
         app.getComponent().inject(this);
     }
     private Observer<Payload> getUserInfo = user -> {
+        this.user.setId(user.getId());
         this.user.setFirstName(user.getFirstName());
         this.user.setLastName(user.getLastName());
         this.user.setBio(user.getBio());
-        this.user.setId(user.getId());
+        this.user.setPictureUrl(user.getPictureUrl());
 //        this.user.setFirstName(user.getFirstName());
 //        this.user.setFirstName(user.getFirstName());
 //        this.user.setFirstName(user.getFirstName());

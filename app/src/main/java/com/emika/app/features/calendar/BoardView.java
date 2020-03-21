@@ -183,7 +183,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         Resources res = getResources();
         boolean isPortrait = res.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
         if (isPortrait) {
-            mColumnWidth = (int) (res.getDisplayMetrics().widthPixels * 0.87);
+            mColumnWidth = (int) (res.getDisplayMetrics().widthPixels * 0.95);
         } else {
             mColumnWidth = (int) (res.getDisplayMetrics().density * 320);
         }
@@ -207,6 +207,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         mRootLayout.addView(mColumnLayout);
         mRootLayout.addView(mDragItem.getDragItemView());
         addView(mRootLayout);
+
     }
 
     @Override

@@ -5,13 +5,14 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Model {
+public class ModelTask {
     @SerializedName("ok")
     @Expose
     private Boolean ok;
     @SerializedName("payload")
     @Expose
-    private List<PayloadTask> payloadTask = null;
+    private PayloadTask payloadTask;
+
     public Boolean getOk() {
         return ok;
     }
@@ -20,11 +21,11 @@ public class Model {
         this.ok = ok;
     }
 
-    public List<PayloadTask> getPayloadTask() {
+    public PayloadTask getPayloadTask() {
         return payloadTask;
     }
 
-    public void setPayloadTask(List<PayloadTask> payloadTask) {
+    public void setPayloadTask(PayloadTask payloadTask) {
         this.payloadTask = payloadTask;
     }
 }

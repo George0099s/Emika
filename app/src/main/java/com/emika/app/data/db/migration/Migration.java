@@ -29,6 +29,13 @@ public class Migration {
             database.execSQL("ALTER TABLE user  ADD COLUMN `pictureUrl` TEXT");
         }
     };
+
+    public static final androidx.room.migration.Migration MIGRATION_4_5 = new androidx.room.migration.Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `Member`  (`id` TEXT NOT NULL, `firstName` TEXT, `lastName` TEXT, `pictureUrl` TEXT, `jobTitle` TEXT, PRIMARY KEY (`id`))");
+        }
+    };
 }
 
 

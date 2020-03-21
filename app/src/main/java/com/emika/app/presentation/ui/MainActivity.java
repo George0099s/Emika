@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements UserInfoCallback 
     private void initView() {
         app.getComponent().inject(this);
         networkManager = new UserNetworkManager(getIntent().getStringExtra("token"));
-        networkManager.getUserInfo(this);
         fragmentManager = getSupportFragmentManager();
         navigationView = findViewById(R.id.bottom_navigation);
         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -79,7 +78,9 @@ public class MainActivity extends AppCompatActivity implements UserInfoCallback 
 
     @Override
     public void getUserInfo(Payload userModel) {
-        user.setFirstName(userModel.getFirstName());
-        user.setLastName(userModel.getLastName());
+//        user.setFirstName(userModel.getFirstName());
+//        user.setLastName(userModel.getLastName());
+//        user.setPictureUrl(userModel.getPictureUrl());
+//        Log.d(TAG, "getUserInfo: " + user.getPictureUrl());
     }
 }

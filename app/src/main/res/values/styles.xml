@@ -8,7 +8,14 @@
         <item name="statusBarBackground">#FFF</item>
         <item name="android:navigationBarColor">@color/light_black</item>
     </style>
-
+    <style name="MyTimePickerWidgetStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:headerBackground">#ffe082</item>
+        <item name="android:numbersTextColor">#b71c1c</item>
+        <item name="android:numbersSelectorColor">#33691e</item>
+        <item name="android:numbersBackgroundColor">#ef9a9a</item>
+        <item name="android:timePickerMode">spinner</item>
+        <item name="android:amPmTextColor">#9c27b0</item>
+    </style>
     <style name="inputPlaceholder">
         <item name="hintTextColor">@color/grey</item>
         <item name="android:textSize">14sp</item>
@@ -69,6 +76,7 @@
     </style>
     <style name="BottomSheetStyle" >
 <!--        <item name="android:windowIsFloating">false</item>-->
+        <item name="android:background">@drawable/shape_bottom_sheet</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 

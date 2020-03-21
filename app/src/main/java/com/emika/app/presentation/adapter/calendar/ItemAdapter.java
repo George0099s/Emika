@@ -16,12 +16,16 @@
 
 package com.emika.app.presentation.adapter.calendar;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +35,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.util.Pair;
 
 import com.emika.app.R;
+import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.features.calendar.DragItemAdapter;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
@@ -45,14 +50,16 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     private int mGrabHandleId;
     private boolean mDragOnLongPress;
     private Context context;
-    private DateHelper dateHelper;
+    private String token;
+    private CalendarNetworkManager calendarNetworkManager;
 
-    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context) {
+    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
         this.context = context;
-        dateHelper = new DateHelper();
+        this.token = token;
+        calendarNetworkManager = new CalendarNetworkManager(token);
         setItemList(list);
     }
 
@@ -87,13 +94,33 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
 
-//        holder.layout.setPadding(0,0,0,200);
         PayloadTask task = mItemList.get(position).second;
         holder.mText.setText(task.getName());
         holder.itemView.setTag(mItemList.get(position));
         holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
         holder.spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
         holder.project.setText("Emika");
+        holder.isDone.setOnClickListener(v-> {
+            if (holder.isDone.isChecked()) {
+                holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));
+                task.setStatus("done");
+                calendarNetworkManager.updateTask(task);
+            }
+            else{
+                holder.mText.setTextColor(context.getResources().getColor(R.color.black));
+                task.setStatus("active");
+                calendarNetworkManager.updateTask(task);
+            }
+        });
+        if (task.getStatus().equals("done")) {
+            holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));
+            holder.isDone.setChecked(true);
+        }
+        holder.mText.setOnClickListener(v -> {
+            Intent intent = new Intent(context, TaskInfoActivity.class);
+            intent.putExtra("task", mItemList.get(position).second);
+            context.startActivity(intent);
+        });
         if (task.getPriority() != null)
         switch (task.getPriority()) {
             case "low":
@@ -120,6 +147,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         if (task.getDeadlineDate() != null)
             holder.deadLine.setText(DateHelper.getDate(task.getDeadlineDate()));
         else holder.deadLine.setVisibility(View.GONE);
+
     }
 
     @Override
@@ -157,6 +185,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         TextView mText, spentTime, estimatedTime, deadLine, project, priority;
         CardView cardView;
         FrameLayout layout;
+        CheckBox isDone;
         ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
             mText = (TextView) itemView.findViewById(R.id.text);
@@ -167,13 +196,12 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
             priority = itemView.findViewById(R.id.calendar_task_priority);
             deadLine = itemView.findViewById(R.id.calendar_task_deadline);
             project = itemView.findViewById(R.id.calendar_task_project);
+            isDone = itemView.findViewById(R.id.task_done);
         }
 
         @Override
         public void onItemClicked(View view) {
-            Intent intent = new Intent(context, TaskInfoActivity.class);
-            intent.putExtra("task", mItemList.get(getAdapterPosition()).second);
-            context.startActivity(intent);
+
         }
 
         @Override

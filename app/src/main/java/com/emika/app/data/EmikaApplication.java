@@ -29,7 +29,7 @@ public class EmikaApplication extends Application {
         instance = this;
         sharedPreferences = getSharedPreferences(Constants.MY_PREFERENCES, MODE_PRIVATE);
         database = Room.databaseBuilder(this, AppDatabase.class, "emika_db")
-                .addMigrations(Migration.MIGRATION_3_4)
+                .addMigrations(Migration.MIGRATION_4_5)
                 .build();
         component = DaggerUserComponent
                 .builder()
