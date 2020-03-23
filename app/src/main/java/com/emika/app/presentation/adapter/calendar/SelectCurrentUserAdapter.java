@@ -8,23 +8,40 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.di.Assignee;
+import com.emika.app.presentation.ui.calendar.BottomSheetCalendarSelectUser;
+import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
+import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrentUserAdapter.MemberViewHolder> {
+    @Inject
+    Assignee assignee;
+
     private List<PayloadShortMember> memberList;
     private Context context;
-
-
-    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context) {
+    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private CalendarViewModel calendarViewModel;
+    private BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser;
+    private AddTaskListViewModel addTaskListViewModel;
+    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel, AddTaskListViewModel addTaskListViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
         this.memberList = memberList;
         this.context = context;
+        this.calendarViewModel = calendarViewModel;
+        this.bottomSheetCalendarSelectUser = bottomSheetCalendarSelectUser;
+        this.addTaskListViewModel = addTaskListViewModel;
+        emikaApplication.getComponent().inject(this);
     }
 
 
@@ -38,7 +55,6 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
     @Override
     public void onBindViewHolder(@NonNull MemberViewHolder holder, int position) {
         if (memberList.size() != 0) {
-
             PayloadShortMember member = memberList.get(position);
             if (!member.getId().equals("emika")) {
                 holder.memberName.setText(String.format("%s %s", member.getFirstName(), member.getLastName()));
@@ -48,6 +64,20 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
                 else
                     Glide.with(context).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(holder.memberImg);
             }
+            holder.item.setOnClickListener(v -> {
+                assignee.setFirstName(member.getFirstName());
+                assignee.setLastName(member.getLastName());
+                assignee.setId(member.getId());
+                assignee.setJobTitle(member.getJobTitle());
+                assignee.setPictureUrl(member.getPictureUrl());
+                bottomSheetCalendarSelectUser.dismiss();
+                if (addTaskListViewModel == null) {
+                    calendarViewModel.getListMutableLiveData();
+                    calendarViewModel.getAssigneeMutableLiveData();
+                } else {
+                    addTaskListViewModel.getAssignee();
+                }
+            });
         }
     }
 
@@ -59,10 +89,10 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
     public class MemberViewHolder extends RecyclerView.ViewHolder {
         private ImageView memberImg;
         private TextView memberName, memberJobTitle;
-
-
+        private ConstraintLayout item;
         public MemberViewHolder(@NonNull View itemView) {
             super(itemView);
+            item = itemView.findViewById(R.id.member);
             memberImg = itemView.findViewById(R.id.member_img);
             memberJobTitle = itemView.findViewById(R.id.member_job_title);
             memberName = itemView.findViewById(R.id.member_name);

@@ -22,7 +22,7 @@ public class CalendarRepository {
     private CalendarNetworkManager calendarNetworkManager;
     private Converter converter;
     private String token;
-
+    private Boolean firstRun = true;
     public CalendarRepository(String token) {
         this.token = token;
         this.calendarNetworkManager = new CalendarNetworkManager(token);
@@ -32,12 +32,14 @@ public class CalendarRepository {
     }
 
     public List<PayloadTask> getPayloadTaskList(TaskListCallback taskListCallback, TaskDbCallback taskDbCallback, Context context) {
-        if(NetworkState.getInstance(context).isOnline())
+        if(NetworkState.getInstance(context).isOnline() && firstRun) {
             calendarNetworkManager.getAllTask(taskListCallback);
-        else
+            firstRun = false;
+            return payloadTaskList;
+        } else {
             taskDbManager.getAllTask(taskDbCallback);
-
-        return payloadTaskList;
+            return payloadTaskList;
+        }
     }
 
     public void updateTask(PayloadTask task){

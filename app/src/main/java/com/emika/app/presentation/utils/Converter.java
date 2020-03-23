@@ -26,6 +26,7 @@ public class Converter {
             taskEntity.setCreatedAt(taskList.get(i).getCreatedAt());
             taskEntity.setCreatedBy(taskList.get(i).getCreatedBy());
             taskEntity.setPriority(taskList.get(i).getPriority());
+            taskEntity.setStatus(taskList.get(i).getStatus());
             taskEntity.setDeadlineDate(taskList.get(i).getDeadlineDate());
             taskEntity.setDeadlineEmika(taskList.get(i).getDeadlineEmika());
             taskEntity.setDeadlineTime(taskList.get(i).getDeadlineTime());
@@ -53,6 +54,7 @@ public class Converter {
             payloadTask.setDeadlineTime(taskList.get(i).getDeadlineTime());
             payloadTask.setDeadlinePeriod(taskList.get(i).getDeadlinePeriod());
             payloadTask.setDescription(taskList.get(i).getDescription());
+            payloadTask.setStatus(taskList.get(i).getStatus());
             payloadTask.setDuration(taskList.get(i).getDuration());
             payloadTask.setPlanDate(taskList.get(i).getPlanDate());
             payloadTask.setName(taskList.get(i).getName());

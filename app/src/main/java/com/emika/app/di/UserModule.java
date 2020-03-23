@@ -1,6 +1,8 @@
 package com.emika.app.di;
 
 import com.emika.app.presentation.ui.MainActivity;
+import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
+import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 
 import javax.inject.Singleton;
 
@@ -13,5 +15,10 @@ public class UserModule {
     @Singleton
     static User getUserInstance() {
         return new User();
+    }
+    @Provides
+    @Singleton
+    static Assignee getAssigneeInstance() {
+        return new Assignee();
     }
 }

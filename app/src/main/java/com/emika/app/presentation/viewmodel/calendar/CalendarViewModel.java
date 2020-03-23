@@ -1,11 +1,15 @@
 package com.emika.app.presentation.viewmodel.calendar;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
@@ -13,35 +17,61 @@ import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.di.Assignee;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.presentation.utils.Converter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, ShortMemberCallback {
+import javax.inject.Inject;
+
+public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, ShortMemberCallback, Parcelable {
     private static final String TAG = "CalendarViewModel";
+    @Inject
+    Assignee assignee;
     private MutableLiveData<List<PayloadTask>> taskListMutableLiveData;
     private MutableLiveData<Boolean> currentColumn;
     private MutableLiveData<List<PayloadShortMember>> membersMutableLiveData;
+    private MutableLiveData<Assignee> assigneeMutableLiveData;
     private CalendarRepository repository;
     private String token;
     private Context context;
     private Converter converter;
+    private Boolean firstRun = true;
+    EmikaApplication emikaApplication = EmikaApplication.getInstance();
 
     public CalendarViewModel(String token) {
+        emikaApplication.getComponent().inject(this);
         this.token = token;
         this.taskListMutableLiveData = new MutableLiveData<>();
         this.currentColumn = new MutableLiveData<>();
+        assigneeMutableLiveData = new MutableLiveData<>();
         membersMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
         converter = new Converter();
     }
 
 
+    protected CalendarViewModel(Parcel in) {
+        token = in.readString();
+    }
+
+    public static final Creator<CalendarViewModel> CREATOR = new Creator<CalendarViewModel>() {
+        @Override
+        public CalendarViewModel createFromParcel(Parcel in) {
+            return new CalendarViewModel(in);
+        }
+
+        @Override
+        public CalendarViewModel[] newArray(int size) {
+            return new CalendarViewModel[size];
+        }
+    };
+
     public MutableLiveData<List<PayloadTask>> getListMutableLiveData() {
-        repository.getPayloadTaskList(this, this, context);
-        return taskListMutableLiveData;
+            repository.getPayloadTaskList(this, this, context);
+            return taskListMutableLiveData;
     }
 
     public void updateTask(PayloadTask task) {
@@ -64,7 +94,7 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     public void setDbTask(List<TaskEntity> taskList) {
         List<PayloadTask> payloadTasks = converter.fromTaskEntityToPayloadTaskList(taskList);
         ArrayList<PayloadTask> plannedTask = new ArrayList<>();
-        for (int j = 0; j < payloadTasks.size(); j++) {
+        for (int j = 0; j < taskList.size(); j++) {
             if (taskList.get(j).getPlanDate() != null) {
                 plannedTask.add(payloadTasks.get(j));
             }
@@ -91,14 +121,27 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     }
 
     public MutableLiveData<List<PayloadShortMember>> getMembersMutableLiveData() {
-        if (membersMutableLiveData.getValue() == null) {
             repository.getAllMembers(this);
             return membersMutableLiveData;
-        } else return membersMutableLiveData;
     }
 
     @Override
     public void allMembers(List<PayloadShortMember> shortMembers) {
         membersMutableLiveData.postValue(shortMembers);
+    }
+
+    public MutableLiveData<Assignee> getAssigneeMutableLiveData() {
+        assigneeMutableLiveData.setValue(assignee);
+        return assigneeMutableLiveData;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(token);
     }
 }

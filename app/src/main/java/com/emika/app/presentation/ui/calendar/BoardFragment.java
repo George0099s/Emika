@@ -16,17 +16,21 @@
 
 package com.emika.app.presentation.ui.calendar;
 
+import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -34,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
@@ -52,6 +57,7 @@ import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.Assignee;
 import com.emika.app.di.User;
 import com.emika.app.features.calendar.BoardView;
 import com.emika.app.features.calendar.ColumnProperties;
@@ -64,13 +70,12 @@ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModel
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetDialogViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
@@ -79,42 +84,55 @@ public class BoardFragment extends Fragment {
     private static int sCreatedItems = 0;
     @Inject
     User user;
+    @Inject
+    Assignee assignee;
     private BoardView mBoardView;
     private ConstraintLayout selectCurrentUser;
     private String token;
     private int mColumns;
-    private boolean isOpen = false;
     private Button rightScroll, leftScroll;
     private EmikaApplication app = EmikaApplication.getInstance();
     private FloatingActionButton addTask;
     private List<PayloadTask> payloadTaskList = new ArrayList<>();
-    private CalendarViewModel viewModel;
     private ProfileViewModel profileViewModel;
     private BottomSheetDialogViewModel bottomSheetDialogViewModel;
-    private ItemAdapter listAdapter;
-    private BottomSheetBehavior mBottomSheetBehavior1;
     private UserNetworkManager userNetworkManager;
-    private Boolean first = true;
     private ImageView fabImg;
+    private CalendarViewModel viewModel;
     private TextView fabUserName, fabJobTitle;
     private List<PayloadShortMember> memberList;
+    private boolean isOpen = false;
+    private Observer<List<PayloadShortMember>> shortMembers = members -> {
+        memberList = members;
+    };
+    private Observer<Assignee> getAssignee = currentAssignee -> {
+        fabJobTitle.setText(currentAssignee.getJobTitle());
+        fabUserName.setText(String.format("%s %s", currentAssignee.getFirstName(), currentAssignee.getLastName()));
+        if (currentAssignee.getPictureUrl() != null)
+            Glide.with(getContext()).load(currentAssignee.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(fabImg);
+        else
+            Glide.with(getContext()).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(fabImg);
 
-    private List<PayloadTask> setTasks(List<PayloadTask> taskList) {
-        for (int i = 0; i < 20; i++) {
-            ArrayList<PayloadTask> plannedTask = new ArrayList<>();
-            for (int j = 0; j < taskList.size(); j++) {
-                if (taskList.get(j).getPlanDate() != null) {
-                    if (taskList.get(j).getPlanDate().equals(DateHelper.compareDate(i))) {
-                        plannedTask.add(taskList.get(j));
-                    }
-                }
-            }
-            Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
-            addColumn(DateHelper.getDate(DateHelper.compareDate(i)), "monday", plannedTask);
+    };
+
+
+    private Observer<Boolean> setColumn = current -> {
+        if (current) {
+            mBoardView.scrollToColumn(15, true);
         }
-        mBoardView.scrollToColumn(15, true);
-        return taskList;
-    }
+    };
+
+    private Observer<Payload> userInfo = userInfo -> {
+        assignee.setFirstName(userInfo.getFirstName());
+        assignee.setLastName(userInfo.getLastName());
+        assignee.setId(userInfo.getId());
+        assignee.setPictureUrl(userInfo.getPictureUrl());
+        assignee.setJobTitle(userInfo.getJobTitle());
+        fabUserName.setText(String.format("%s %s", assignee.getFirstName(), assignee.getLastName()));
+        fabJobTitle.setText(assignee.getJobTitle());
+        Glide.with(this).load(assignee.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(fabImg);
+        viewModel.getAssigneeMutableLiveData().observe(getViewLifecycleOwner(), getAssignee);
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -126,7 +144,6 @@ public class BoardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        profileViewModel.getUserMutableLiveData();
     }
 
     private void initViews(View view) {
@@ -137,31 +154,17 @@ public class BoardFragment extends Fragment {
         fabImg = view.findViewById(R.id.fab_img);
         fabJobTitle = view.findViewById(R.id.fab_job_title);
         selectCurrentUser = view.findViewById(R.id.select_current_user);
-        selectCurrentUser.setOnClickListener(v -> {
-            Bundle bundle=new Bundle();
-            bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
-            BottomSheetSelectUser mySheetDialog = new BottomSheetSelectUser();
-            mySheetDialog.setArguments(bundle);
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            mySheetDialog.show(fm, "modalSheetDialog");
-        });
+        selectCurrentUser.setOnClickListener(this::selectCurrentAssignee);
         userNetworkManager = new UserNetworkManager(token);
-
         profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         profileViewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), userInfo);
-
+        rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
         rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
         leftScroll = view.findViewById(R.id.left_scroll_to_current_date);
         rightScroll.setOnClickListener(this::scrollToCurrentDate);
         leftScroll.setOnClickListener(this::scrollToCurrentDate);
-
         addTask = view.findViewById(R.id.add_task);
-        addTask.setOnClickListener(v -> {
-            Intent intent = new Intent(getContext(), AddTaskActivity.class);
-            intent.putExtra("token", token);
-            intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()).toString());
-            startActivityForResult(intent, 42, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
-        });
+        addTask.setOnClickListener(this::goToAddTask);
         mBoardView = view.findViewById(R.id.board_view);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
         mBoardView.setSnapToColumnsWhenScrolling(true);
@@ -169,17 +172,6 @@ public class BoardFragment extends Fragment {
         mBoardView.setSnapDragItemToTouch(true);
         mBoardView.setSnapToColumnInLandscape(false);
         mBoardView.setColumnSnapPosition(BoardView.ColumnSnapPosition.CENTER);
-        viewModel.setCurrentColumn();
-        viewModel.setContext(getContext());
-        if (mBoardView.getFocusedColumn() < 15) {
-            leftScroll.setVisibility(View.GONE);
-            rightScroll.setVisibility(View.VISIBLE);
-            rightScroll.callOnClick();
-        } else {
-            rightScroll.setVisibility(View.GONE);
-            leftScroll.setVisibility(View.VISIBLE);
-        }
-        viewModel.setCurrentColumn();
         mBoardView.setVisibility(View.VISIBLE);
         mBoardView.setBoardListener(new BoardView.BoardListener() {
             @Override
@@ -265,27 +257,45 @@ public class BoardFragment extends Fragment {
                 return true;
             }
         });
-
+        viewModel.setContext(getContext());
+        if (mBoardView.getFocusedColumn() < 15) {
+            leftScroll.setVisibility(View.GONE);
+            rightScroll.setVisibility(View.VISIBLE);
+            rightScroll.callOnClick();
+        } else {
+            rightScroll.setVisibility(View.GONE);
+            leftScroll.setVisibility(View.VISIBLE);
+        }
+        viewModel.setCurrentColumn();
         viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
         viewModel.getCurrentDate().observe(getViewLifecycleOwner(), setColumn);
         viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
-
     }
 
-    private Observer<List<PayloadShortMember>> shortMembers = members ->{
-        memberList = members;
-        Toast.makeText(app,String.valueOf(memberList.size()), Toast.LENGTH_SHORT).show();
+    private Observer<List<PayloadTask>> getTask = taskList -> {
+        resetBoard();
+        AsyncTask asyncTask = new AsyncTask();
+        asyncTask.execute(taskList);
     };
+
+    private void selectCurrentAssignee(View view) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
+        bundle.putParcelable("viewModel", viewModel);
+        BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
+        mySheetDialog.setArguments(bundle);
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        mySheetDialog.show(fm, "modalSheetDialog");
+    }
+
     private void scrollToCurrentDate(View view) {
         viewModel.setCurrentColumn();
     }
 
+    private void resetBoard() {
+        mBoardView.clearBoard();
+    }
 
-//    private void resetBoard() {
-//        mBoardView.clearBoard();
-//        mBoardView.setCustomDragItem(new MyDragItem(getActivity(), R.layout.column_item));
-//        mBoardView.setCustomColumnDragItem(new MyColumnDragItem(getActivity(), R.layout.column_drag_layout));
-//    }
     private void addColumn(String month, String day, List<PayloadTask> payloadTaskList) {
         final ArrayList<Pair<Long, PayloadTask>> mItemArray = new ArrayList<>();
         int estimatedTime = 0;
@@ -294,6 +304,7 @@ public class BoardFragment extends Fragment {
             estimatedTime += payloadTaskList.get(i).getDuration() / 60;
             spentTime += payloadTaskList.get(i).getDurationActual() / 60;
         }
+
         int addItems = payloadTaskList.size();
         for (int i = 0; i < addItems; i++) {
             long id = sCreatedItems++;
@@ -323,94 +334,18 @@ public class BoardFragment extends Fragment {
         mBoardView.addColumn(columnProperties);
     }
 
-    private static class MyColumnDragItem extends DragItem {
-
-        MyColumnDragItem(Context context, int layoutId) {
-            super(context, layoutId);
-            setSnapToTouch(false);
-        }
-
-        @Override
-        public void onBindDragView(View clickedView, View dragView) {
-            LinearLayout clickedLayout = (LinearLayout) clickedView;
-            View clickedHeader = clickedLayout.getChildAt(0);
-            RecyclerView clickedRecyclerView = (RecyclerView) clickedLayout.getChildAt(1);
-
-            View dragHeader = dragView.findViewById(R.id.drag_header);
-            ScrollView dragScrollView = dragView.findViewById(R.id.drag_scroll_view);
-            LinearLayout dragLayout = dragView.findViewById(R.id.drag_list);
-
-            Drawable clickedColumnBackground = clickedLayout.getBackground();
-            if (clickedColumnBackground != null) {
-                ViewCompat.setBackground(dragView, clickedColumnBackground);
-            }
-
-            Drawable clickedRecyclerBackground = clickedRecyclerView.getBackground();
-            if (clickedRecyclerBackground != null) {
-                ViewCompat.setBackground(dragLayout, clickedRecyclerBackground);
-            }
-
-            dragLayout.removeAllViews();
-
-            ((TextView) dragHeader.findViewById(R.id.header_date)).setText(((TextView) clickedHeader.findViewById(R.id.header_date)).getText());
-            ((TextView) dragHeader.findViewById(R.id.header_day)).setText(((TextView) clickedHeader.findViewById(R.id.header_day)).getText());
-            for (int i = 0; i < clickedRecyclerView.getChildCount(); i++) {
-                View view = View.inflate(dragView.getContext(), R.layout.column_item, null);
-                ((TextView) view.findViewById(R.id.header_date)).setText(((TextView) clickedRecyclerView.getChildAt(i).findViewById(R.id.header_date)).getText());
-                dragLayout.addView(view);
-
-                if (i == 0) {
-                    dragScrollView.setScrollY(-clickedRecyclerView.getChildAt(i).getTop());
-                }
-            }
-
-            dragView.setPivotY(0);
-            dragView.setPivotX(clickedView.getMeasuredWidth() / 2);
-        }
-
-        @Override
-        public void onStartDragAnimation(View dragView) {
-            super.onStartDragAnimation(dragView);
-            dragView.animate().scaleX(0.9f).scaleY(0.9f).start();
-        }
-
-        @Override
-        public void onEndDragAnimation(View dragView) {
-            super.onEndDragAnimation(dragView);
-            dragView.animate().scaleX(1).scaleY(1).start();
-        }
-
+    private void goToAddTask(View v) {
+        Intent intent = new Intent(getContext(), AddTaskActivity.class);
+        intent.putExtra("token", token);
+        intent.putExtra("members", (Serializable) memberList);
+        intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()));
+        startActivityForResult(intent, 42, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
     }
-
-    private Observer<List<PayloadTask>> getTask = taskList -> {
-        AsyncTask asyncTask = new AsyncTask();
-        asyncTask.execute(taskList);
-        Toast.makeText(app, String.valueOf(mBoardView.getColumnCount()), Toast.LENGTH_SHORT).show();
-    };
-
-    private Observer<Boolean> setColumn = current -> {
-        if (current) {
-            mBoardView.scrollToColumn(15, true);
-        }
-    };
-
-
-    private Observer<Payload> userInfo = userInfo -> {
-        user.setFirstName(userInfo.getFirstName());
-        user.setLastName(userInfo.getLastName());
-        user.setId(userInfo.getId());
-        user.setBio(userInfo.getBio());
-        user.setPictureUrl(userInfo.getPictureUrl());
-        user.setJobTitle(userInfo.getJobTitle());
-        fabUserName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
-        fabJobTitle.setText(user.getJobTitle());
-        Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(fabImg);
-    };
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data != null) {
+        if (data != null && requestCode == 42) {
             PayloadTask task = data.getParcelableExtra("task");
             addTask(task);
         }
@@ -425,28 +360,69 @@ public class BoardFragment extends Fragment {
                 column = entry.getKey();
             }
         }
-        mBoardView.addItem(column, 0, item, true);
+        if (assignee.getId().equals(user.getId())) {
+            mBoardView.addItem(column, 0, item, true);
+        }else {
 
-//            Log.d(TAG, "addTask: " + mBoardView.getItemCount(mBoardView.getFocusedColumn()));
-//            mBoardView.moveItem(4, 0, 0, true);
-//            mBoardView.removeItem(column, 0);
-//            mBoardView.moveItem(0, 0, 1, 3, false);
-//            mBoardView.replaceItem(0, 0, item1, true);
-//            ((TextView) header.findViewById(R.id.header_day)).setText(String.valueOf(mItemArray.size()));
+        }
     }
 
-    private class SetTaskCallable implements Callable<List<PayloadTask>> {
-        List<PayloadTask> taskList;
+    private static class MyDragItem extends DragItem {
 
-        public SetTaskCallable(List<PayloadTask> taskList) {
-            this.taskList = taskList;
+        MyDragItem(Context context, int layoutId) {
+            super(context, layoutId);
         }
 
         @Override
-        public List<PayloadTask> call() throws Exception {
-            return setTasks(taskList);
+        public void onBindDragView(View clickedView, View dragView) {
+            CharSequence text = ((TextView) clickedView.findViewById(R.id.text)).getText();
+            ((TextView) dragView.findViewById(R.id.text)).setText(text);
+            CardView dragCard = dragView.findViewById(R.id.card);
+            CardView clickedCard = clickedView.findViewById(R.id.card);
+
+            dragCard.setMaxCardElevation(40);
+            dragCard.setCardElevation(clickedCard.getCardElevation());
+            // I know the dragView is a FrameLayout and that is why I can use setForeground below api level 23
+            dragCard.setForeground(clickedView.getResources().getDrawable(R.drawable.card_view_drag_foreground));
         }
+
+        @Override
+        public void onMeasureDragView(View clickedView, View dragView) {
+            CardView dragCard = dragView.findViewById(R.id.card);
+            CardView clickedCard = clickedView.findViewById(R.id.card);
+            int widthDiff = dragCard.getPaddingLeft() - clickedCard.getPaddingLeft() + dragCard.getPaddingRight() -
+                    clickedCard.getPaddingRight();
+            int heightDiff = dragCard.getPaddingTop() - clickedCard.getPaddingTop() + dragCard.getPaddingBottom() -
+                    clickedCard.getPaddingBottom();
+            int width = clickedView.getMeasuredWidth() + widthDiff;
+            int height = clickedView.getMeasuredHeight() + heightDiff;
+            dragView.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+
+            int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+            int heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+            dragView.measure(widthSpec, heightSpec);
+        }
+
+        @Override
+        public void onStartDragAnimation(View dragView) {
+            CardView dragCard = dragView.findViewById(R.id.card);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(dragCard, "CardElevation", dragCard.getCardElevation(), 40);
+            anim.setInterpolator(new DecelerateInterpolator());
+            anim.setDuration(ANIMATION_DURATION);
+            anim.start();
+        }
+
+        @Override
+        public void onEndDragAnimation(View dragView) {
+            CardView dragCard = dragView.findViewById(R.id.card);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(dragCard, "CardElevation", dragCard.getCardElevation(), 6);
+            anim.setInterpolator(new DecelerateInterpolator());
+            anim.setDuration(ANIMATION_DURATION);
+            anim.start();
+        }
+
     }
+
 
     private class AsyncTask extends android.os.AsyncTask<List<PayloadTask>, Void, List<ArrayList<PayloadTask>>> {
         List<ArrayList<PayloadTask>> tasks = new ArrayList<>();
@@ -456,12 +432,12 @@ public class BoardFragment extends Fragment {
             for (int i = 0; i < 40; i++) {
                 ArrayList<PayloadTask> plannedTask = new ArrayList<>();
                 for (int j = 0; j < taskList[0].size(); j++) {
-                    if (taskList[0].get(j).getPlanDate() != null && taskList[0].get(j).getAssignee().equals(user.getId())){
+                    if (taskList[0].get(j).getPlanDate() != null && taskList[0].get(j).getAssignee().equals(assignee.getId())) {
                         if (taskList[0].get(j).getStatus().equals("wip") || taskList[0].get(j).getStatus().equals("done") || taskList[0].get(j).getStatus().equals("canceled") ||
                                 taskList[0].get(j).getStatus().equals("new"))
-                        if (taskList[0].get(j).getPlanDate().equals(DateHelper.compareDate(i))) {
-                            plannedTask.add(taskList[0].get(j));
-                        }
+                            if (taskList[0].get(j).getPlanDate().equals(DateHelper.compareDate(i))) {
+                                plannedTask.add(taskList[0].get(j));
+                            }
                     }
                 }
                 tasks.add(plannedTask);
@@ -473,8 +449,8 @@ public class BoardFragment extends Fragment {
         @Override
         protected void onPostExecute(List<ArrayList<PayloadTask>> taskList) {
             super.onPostExecute(taskList);
-            for (int i = 0; i < tasks.size(); i++) {
 
+            for (int i = 0; i < tasks.size(); i++) {
                 Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
                 addColumn(DateHelper.getDate(DateHelper.compareDate(i)), "monday", tasks.get(i));
             }

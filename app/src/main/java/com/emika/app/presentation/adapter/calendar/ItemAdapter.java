@@ -108,7 +108,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
             }
             else{
                 holder.mText.setTextColor(context.getResources().getColor(R.color.black));
-                task.setStatus("active");
+                task.setStatus("wip");
                 calendarNetworkManager.updateTask(task);
             }
         });
@@ -206,7 +206,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
 
         @Override
         public boolean onItemLongClicked(View view) {
-            Toast.makeText(view.getContext(), "Item long clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(view.getContext(), "Item long clicked", Toast.LENGTH_SHORT).show();
             return true;
         }
     }

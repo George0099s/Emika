@@ -1,16 +1,6 @@
 package com.emika.app.di;
 
-import com.emika.app.data.network.callback.user.UserInfoCallback;
-import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
-import com.emika.app.data.network.pojo.user.Payload;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
-
-import javax.inject.Inject;
-
-import dagger.Module;
 
 
 public class User {

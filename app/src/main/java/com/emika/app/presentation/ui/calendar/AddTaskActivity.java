@@ -2,9 +2,10 @@ package com.emika.app.presentation.ui.calendar;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.companion.AssociationRequest;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -22,20 +24,22 @@ import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.model.Member;
-import com.emika.app.data.network.pojo.PayloadEmail;
+import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.Assignee;
 import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
-import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -49,11 +53,12 @@ public class AddTaskActivity extends AppCompatActivity {
     private ProfileViewModel profileViewModel;
     private CalendarViewModel calendarViewModel;
     private Member member;
+    private List<PayloadShortMember> memberList;
     private EmikaApplication app = EmikaApplication.getInstance();
     private String token, planDateString, deadlineDateString;
     private TextView planDate, priority, deadlineDate, estimatedTime, userName;
     @Inject
-    User user;
+    Assignee assignee;
     Calendar dateAndTime = Calendar.getInstance();
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
@@ -99,10 +104,13 @@ public class AddTaskActivity extends AppCompatActivity {
     private void initView() {
         taskDescription = findViewById(R.id.add_task_description);
         app.getComponent().inject(this);
-        userImg = findViewById(R.id.add_task_user_img);
         token = getIntent().getStringExtra("token");
+        userImg = findViewById(R.id.add_task_user_img);
+        userImg.setOnClickListener(this::selectCurrentAssignee);
         userName = findViewById(R.id.add_task_user_name);
+        userName.setOnClickListener(this::selectCurrentAssignee);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(AddTaskListViewModel.class);
+        viewModel.getAssignee().observe(this, setAssignee);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
         profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         profileViewModel.getUserMutableLiveData().observe(this, userInfo);
@@ -116,10 +124,22 @@ public class AddTaskActivity extends AppCompatActivity {
         deadlineDate.setOnClickListener(this::setDeadlineDate);
         currentDate = getIntent().getStringExtra("date");
         priority = findViewById(R.id.add_task_priority);
-        userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
+
         priority.setOnClickListener(this::showPopupMenu);
         planDate.setOnClickListener(this::setPlanDate);
-        Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+        memberList = getIntent().getParcelableArrayListExtra("members");
+    }
+
+    private void selectCurrentAssignee(View view) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
+        bundle.putParcelable("viewModel", calendarViewModel);
+        bundle.putParcelable("addTaskViewModel", viewModel);
+        bundle.putString("from", "add task");
+        BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
+        mySheetDialog.setArguments(bundle);
+        FragmentManager fm = getSupportFragmentManager();
+        mySheetDialog.show(fm, "modalSheetDialog");
     }
 
     private void addTask(View view) {
@@ -127,13 +147,21 @@ public class AddTaskActivity extends AppCompatActivity {
             taskName.requestFocus();
             taskName.setError("Task name is missing");
         } else {
-            Log.d(TAG, "addTask: " + Constants.priority.get(priority.getText().toString()));
             viewModel.getMutableLiveData(taskName.getText().toString(), "5e51008be5fa7f153486fe38",
                     currentDate, deadlineDateString,
-                    user.getId(), String.valueOf(Integer.parseInt(estimatedTime.getText().toString().substring(0, estimatedTime.length() - 1)) * 60), taskDescription.getText().toString(),
+                    assignee.getId(), String.valueOf(Integer.parseInt(estimatedTime.getText().toString().substring(0, estimatedTime.length() - 1)) * 60), taskDescription.getText().toString(),
                     priority.getText().toString().toLowerCase()).observe(this, taskObserver);
         }
     }
+
+    private Observer<Assignee> setAssignee = assignee1 -> {
+        userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
+        if (assignee1.getPictureUrl() != null)
+            Glide.with(this).load(assignee1.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+        else
+            Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
+
+    };
 
     private void showPopupMenu(View v) {
         PopupMenu popupMenu = new PopupMenu(this, v);
