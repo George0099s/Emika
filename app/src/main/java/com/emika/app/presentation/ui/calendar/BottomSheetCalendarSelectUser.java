@@ -3,6 +3,7 @@ package com.emika.app.presentation.ui.calendar;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,17 +55,23 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
         return view;
     }
 
+    private Observer<List<PayloadShortMember>> members = members1 -> {
+        Log.d(TAG, ": " + members1.size());
+        adapter = new SelectCurrentUserAdapter(members1, getContext(), calendarViewModel, addTaskListViewModel, this);
+        memberRecycler.setAdapter(adapter);
+    };
+
     private void initView(View view) {
         app.getComponent().inject(this);
         memberList = getArguments().getParcelableArrayList("members");
         from = getArguments().getString("from");
         calendarViewModel = getArguments().getParcelable("viewModel");
         addTaskListViewModel = getArguments().getParcelable("addTaskViewModel");
+        calendarViewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), members);
         memberRecycler = view.findViewById(R.id.bottom_sheet_recycler_select_user);
         memberRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         memberRecycler.setHasFixedSize(true);
-        adapter = new SelectCurrentUserAdapter(memberList, getContext(), calendarViewModel, addTaskListViewModel, this);
-        memberRecycler.setAdapter(adapter);
+
     }
 
 

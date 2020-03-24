@@ -7,10 +7,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.dbmanager.ProjectDbManager;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.api.AuthApi;
 import com.emika.app.data.network.callback.TokenCallback;
@@ -20,7 +23,9 @@ import com.emika.app.presentation.ui.auth.AuthActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
+import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
 import java.util.concurrent.Callable;
 
@@ -39,8 +44,9 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
     private SharedPreferences sharedPreferences;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     private TokenDbManager tokenDbManager;
-    private CalendarViewModel viewModel;
-
+    private StartActivityViewModel startActivityViewModel;
+    private ProjectDbManager projectDbManager;
+    private LifecycleOwner lifecycleOwner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +56,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
 
     private void initViews() {
         tokenDbManager = new TokenDbManager();
+        lifecycleOwner = this;
         sharedPreferences = emikaApplication.getSharedPreferences();
         if (NetworkState.getInstance(getApplication()).isOnline())
             if (!sharedPreferences.getBoolean("logged in", false))
@@ -78,10 +85,13 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
             public void onResponse(Call<ModelToken> call, Response<ModelToken> response) {
                 ModelToken model = response.body();
                 if (model.getOk()) {
+                    startActivityViewModel = new ViewModelProvider((ViewModelStoreOwner) lifecycleOwner, new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
                     tokenDbManager.insertToken(token);
+                    startActivityViewModel.setToken(token);
                     if (sharedPreferences.getBoolean("logged in", false)) {
                         Intent intent = new Intent(StartActivity.this, MainActivity.class);
                         intent.putExtra("token", token);
+                        startActivityViewModel.fetchAllData();
                         startActivity(intent);
                     } else {
                         Intent intent = new Intent(StartActivity.this, AuthActivity.class);

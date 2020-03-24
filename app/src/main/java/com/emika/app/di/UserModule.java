@@ -21,4 +21,9 @@ public class UserModule {
     static Assignee getAssigneeInstance() {
         return new Assignee();
     }
+    @Provides
+    @Singleton
+    static Project getProjectInstance() {
+        return new Project();
+    }
 }

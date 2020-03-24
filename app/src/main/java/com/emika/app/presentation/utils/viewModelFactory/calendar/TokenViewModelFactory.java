@@ -4,7 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.emika.app.presentation.ui.calendar.BottomSheetAddTaskSelectProject;
+import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
+import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
@@ -32,6 +35,12 @@ public class TokenViewModelFactory extends ViewModelProvider.NewInstanceFactory 
         }
         else if (modelClass == AddTaskListViewModel.class){
             return (T) new AddTaskListViewModel(token);
+        }
+        else if (modelClass == BottomSheetAddTaskSelectProjectViewModel.class){
+            return (T) new BottomSheetAddTaskSelectProjectViewModel(token);
+        }
+        else if (modelClass == StartActivityViewModel.class){
+            return (T) new StartActivityViewModel(token);
         }
         return null;
     }

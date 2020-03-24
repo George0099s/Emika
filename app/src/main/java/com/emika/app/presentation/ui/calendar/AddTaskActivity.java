@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
+import com.emika.app.di.Project;
 import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
 import com.emika.app.presentation.utils.DateHelper;
@@ -47,19 +50,22 @@ public class AddTaskActivity extends AppCompatActivity {
     private static final String TAG = "AddTaskActivity";
     private String currentDate;
     private EditText taskName, taskDescription;
-    private ListPopupWindow mListPopupWindow;
     private ImageView addTask, userImg;
     private AddTaskListViewModel viewModel;
     private ProfileViewModel profileViewModel;
+    private Button back;
     private CalendarViewModel calendarViewModel;
-    private Member member;
     private List<PayloadShortMember> memberList;
     private EmikaApplication app = EmikaApplication.getInstance();
-    private String token, planDateString, deadlineDateString;
-    private TextView planDate, priority, deadlineDate, estimatedTime, userName;
+    private String token, deadlineDateString;
+    private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section;
+    private LinearLayout selectProject;
     @Inject
     Assignee assignee;
     Calendar dateAndTime = Calendar.getInstance();
+    @Inject
+    Project projectDi;
+
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -88,12 +94,21 @@ public class AddTaskActivity extends AppCompatActivity {
     private Observer<Payload> userInfo = userInfo -> {
 
     };
+
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
     private Observer<PayloadTask> taskObserver = task -> {
         Intent intent = new Intent();
         intent.putExtra("task", task);
         setResult(42, intent);
         finish();
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,12 +126,15 @@ public class AddTaskActivity extends AppCompatActivity {
         userName.setOnClickListener(this::selectCurrentAssignee);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(AddTaskListViewModel.class);
         viewModel.getAssignee().observe(this, setAssignee);
+        viewModel.getProjectMutableLiveData().observe(this, setProjectData);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
         profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         profileViewModel.getUserMutableLiveData().observe(this, userInfo);
         taskName = findViewById(R.id.add_task_name);
         addTask = findViewById(R.id.add_task_img);
         addTask.setOnClickListener(this::addTask);
+        back = findViewById(R.id.add_task_back);
+        back.setOnClickListener(this::onBackPressed);
         planDate = findViewById(R.id.add_task_plan_date);
         estimatedTime = findViewById(R.id.add_task_estimated_time);
         estimatedTime.setOnClickListener(this::setTime);
@@ -124,10 +142,26 @@ public class AddTaskActivity extends AppCompatActivity {
         deadlineDate.setOnClickListener(this::setDeadlineDate);
         currentDate = getIntent().getStringExtra("date");
         priority = findViewById(R.id.add_task_priority);
-
         priority.setOnClickListener(this::showPopupMenu);
         planDate.setOnClickListener(this::setPlanDate);
         memberList = getIntent().getParcelableArrayListExtra("members");
+        project = findViewById(R.id.add_task_project);
+        section = findViewById(R.id.add_task_project_section);
+        selectProject = findViewById(R.id.add_task_select_project);
+        selectProject.setOnClickListener(this::selectProject);
+    }
+
+    private void onBackPressed(View view) {
+        onBackPressed();
+    }
+
+    private void selectProject(View view) {
+        Bundle bundle = new Bundle();
+        BottomSheetAddTaskSelectProject mySheetDialog = new BottomSheetAddTaskSelectProject();
+        bundle.putParcelable("addTaskViewModel", viewModel);
+        mySheetDialog.setArguments(bundle);
+        FragmentManager fm = getSupportFragmentManager();
+        mySheetDialog.show(fm, "modalSheetDialog");
     }
 
     private void selectCurrentAssignee(View view) {
@@ -147,10 +181,17 @@ public class AddTaskActivity extends AppCompatActivity {
             taskName.requestFocus();
             taskName.setError("Task name is missing");
         } else {
-            viewModel.getMutableLiveData(taskName.getText().toString(), "5e51008be5fa7f153486fe38",
-                    currentDate, deadlineDateString,
-                    assignee.getId(), String.valueOf(Integer.parseInt(estimatedTime.getText().toString().substring(0, estimatedTime.length() - 1)) * 60), taskDescription.getText().toString(),
-                    priority.getText().toString().toLowerCase()).observe(this, taskObserver);
+            PayloadTask newTask = new PayloadTask();
+            newTask.setName(taskName.getText().toString());
+            newTask.setProjectId(projectDi.getProjectId());
+            newTask.setPlanDate(currentDate);
+            newTask.setDeadlineDate(deadlineDateString);
+            newTask.setAssignee(assignee.getId());
+            newTask.setDuration(Integer.parseInt(estimatedTime.getText().toString().substring(0, estimatedTime.length() - 1)) * 60);
+            newTask.setDescription(taskDescription.getText().toString());
+            newTask.setPriority(priority.getText().toString().toLowerCase());
+            newTask.setSectionId(projectDi.getProjectId());
+            viewModel.getMutableLiveData(newTask).observe(this, taskObserver);
         }
     }
 
@@ -160,7 +201,6 @@ public class AddTaskActivity extends AppCompatActivity {
             Glide.with(this).load(assignee1.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
         else
             Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
-
     };
 
     private void showPopupMenu(View v) {
@@ -221,5 +261,8 @@ public class AddTaskActivity extends AppCompatActivity {
         timePickerDialog.show();
     }
 
-
+    private Observer<Project> setProjectData = project1 -> {
+          project.setText(project1.getProjectName());
+          section.setText(project1.getProjectSectionName());
+    };
 }

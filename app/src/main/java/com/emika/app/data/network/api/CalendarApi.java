@@ -39,7 +39,8 @@ public interface CalendarApi {
                             @Field("assignee") String assignee,
                             @Field("duration") String estimatedTime,
                             @Field("description") String description,
-                            @Field("priority") String priority);
+                            @Field("priority") String priority,
+                            @Field("section_id") String sectionId);
 
 
 }

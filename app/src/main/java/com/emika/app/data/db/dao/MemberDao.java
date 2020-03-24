@@ -11,22 +11,24 @@ import com.emika.app.data.db.entity.TaskEntity;
 
 import java.util.List;
 
+import io.reactivex.Maybe;
+
 @Dao
 public interface MemberDao {
     @Query("SELECT * FROM Member")
-    List<MemberEntity> getAllTask();
+    Maybe<List<MemberEntity>> getAllMembers();
 
     @Insert
-    void insert(List<MemberEntity> taskEntityList);
+    void insert(List<MemberEntity> memberEntityList);
 
     @Insert
-    void insert(MemberEntity taskEntity);
+    void insert(MemberEntity memberEntity);
 
     @Update
-    void update(MemberEntity task);
+    void update(MemberEntity memberEntity);
 
     @Delete
-    void delete(MemberEntity task);
+    void delete(MemberEntity memberEntity);
 
     @Query("DELETE FROM Member")
     void deleteAll();

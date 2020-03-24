@@ -12,6 +12,7 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
+import com.emika.app.di.Project;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 
 import javax.inject.Inject;
@@ -23,14 +24,18 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     private CalendarRepository repository;
     private MutableLiveData<PayloadTask> mutableLiveData;
     private MutableLiveData<Assignee> assignee;
+    private MutableLiveData<Project> projectMutableLiveData;
     private EmikaApplication app = EmikaApplication.getInstance();
     @Inject
     Assignee assigneeModel;
+    @Inject
+    Project projectDi;
     public AddTaskListViewModel(String token) {
         this.token = token;
         repository = new CalendarRepository(token);
         mutableLiveData = new MutableLiveData<>();
         assignee = new MutableLiveData<>();
+        projectMutableLiveData = new MutableLiveData<>();
         app.getComponent().inject(this);
     }
 
@@ -51,8 +56,8 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
         }
     };
 
-    public void addTask(String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority) {
-        repository.addTask(this, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
+    public void addTask(PayloadTask task) {
+        repository.addTask(this, task);
     }
 
     @Override
@@ -65,8 +70,8 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
         return task;
     }
 
-    public MutableLiveData<PayloadTask> getMutableLiveData(String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority) {
-        repository.addTask(this, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
+    public MutableLiveData<PayloadTask> getMutableLiveData(PayloadTask task) {
+        repository.addTask(this, task);
         return mutableLiveData;
     }
 
@@ -89,5 +94,10 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     public MutableLiveData<Assignee> getAssignee() {
         assignee.setValue(assigneeModel);
         return assignee;
+    }
+
+    public MutableLiveData<Project> getProjectMutableLiveData() {
+        projectMutableLiveData.setValue(projectDi);
+        return projectMutableLiveData;
     }
 }

@@ -119,6 +119,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         holder.mText.setOnClickListener(v -> {
             Intent intent = new Intent(context, TaskInfoActivity.class);
             intent.putExtra("task", mItemList.get(position).second);
+            intent.putExtra("token", token);
             context.startActivity(intent);
         });
         if (task.getPriority() != null)

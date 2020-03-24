@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,8 @@ import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.pojo.singIn.ModelAuth;
 import com.emika.app.data.network.networkManager.auth.CompanyNetworkManager;
 import com.emika.app.presentation.ui.MainActivity;
+import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
+import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.auth.CreateAccountViewModel;
 
 public class CreateCompany extends Fragment implements CreateCompanyCallback, TokenCallback {
@@ -44,6 +47,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     private TokenDbManager tokenDbManager;
     private SharedPreferences sharedPreferences;
     private EmikaApplication emikaApplication;
+    private StartActivityViewModel startActivityViewModel;
 
     public static CreateCompany newInstance() {
         return new CreateCompany();
@@ -135,6 +139,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
             Intent intent = new Intent(getContext(), MainActivity.class);
             intent.putExtra("token", token);
             sharedPreferences.edit().putBoolean("logged in", true).apply();
+            startActivityViewModel.fetchAllData();
             startActivity(intent);
         } else
             Toast.makeText(getContext(), modelAuth.getError(), Toast.LENGTH_SHORT).show();
@@ -143,6 +148,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     @Override
     public void getToken(String token) {
         networkManager.setToken(token);
+        startActivityViewModel = new ViewModelProvider(getActivity().getViewModelStore(), new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
         this.token = token;
     }
 }

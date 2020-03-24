@@ -1,0 +1,3679 @@
+Index: app/src/main/java/com/emika/app/data/EmikaApplication.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/EmikaApplication.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/EmikaApplication.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -29,7 +29,7 @@
+         instance = this;
+         sharedPreferences = getSharedPreferences(Constants.MY_PREFERENCES, MODE_PRIVATE);
+         database = Room.databaseBuilder(this, AppDatabase.class, "emika_db")
+-                .addMigrations(Migration.MIGRATION_3_4)
++                .addMigrations(Migration.MIGRATION_4_5)
+                 .build();
+         component = DaggerUserComponent
+                 .builder()
+Index: app/src/main/java/com/emika/app/data/db/AppDatabase.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/db/AppDatabase.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/db/AppDatabase.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -3,16 +3,19 @@
+ import androidx.room.Database;
+ import androidx.room.RoomDatabase;
+ 
++import com.emika.app.data.db.dao.MemberDao;
+ import com.emika.app.data.db.dao.TaskDao;
+ import com.emika.app.data.db.dao.TokenDao;
+ import com.emika.app.data.db.dao.UserDao;
++import com.emika.app.data.db.entity.MemberEntity;
+ import com.emika.app.data.db.entity.TaskEntity;
+ import com.emika.app.data.db.entity.TokenEntity;
+ import com.emika.app.data.db.entity.UserEntity;
+ 
+-@Database(entities = {UserEntity.class, TokenEntity.class, TaskEntity.class}, version = 4, exportSchema = false)
++@Database(entities = {UserEntity.class, TokenEntity.class, TaskEntity.class, MemberEntity.class}, version = 5, exportSchema = false)
+ public abstract class AppDatabase extends RoomDatabase {
+     public abstract UserDao userDao();
+     public abstract TokenDao tokenDao();
+     public abstract TaskDao taskDao();
++    public abstract MemberDao memberDao();
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/emika/app/data/db/dao/MemberDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/db/dao/MemberDao.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/db/dao/MemberDao.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,33 @@
++package com.emika.app.data.db.dao;
++
++import androidx.room.Dao;
++import androidx.room.Delete;
++import androidx.room.Insert;
++import androidx.room.Query;
++import androidx.room.Update;
++
++import com.emika.app.data.db.entity.MemberEntity;
++import com.emika.app.data.db.entity.TaskEntity;
++
++import java.util.List;
++
++@Dao
++public interface MemberDao {
++    @Query("SELECT * FROM Member")
++    List<MemberEntity> getAllTask();
++
++    @Insert
++    void insert(List<MemberEntity> taskEntityList);
++
++    @Insert
++    void insert(MemberEntity taskEntity);
++
++    @Update
++    void update(MemberEntity task);
++
++    @Delete
++    void delete(MemberEntity task);
++
++    @Query("DELETE FROM Member")
++    void deleteAll();
++}
+Index: app/src/main/java/com/emika/app/data/db/dbmanager/MemberDbManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/db/dbmanager/MemberDbManager.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/db/dbmanager/MemberDbManager.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,4 @@
++package com.emika.app.data.db.dbmanager;
++
++public class MemberDbManager {
++}
+Index: app/src/main/java/com/emika/app/data/db/entity/MemberEntity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/db/entity/MemberEntity.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/db/entity/MemberEntity.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,57 @@
++package com.emika.app.data.db.entity;
++
++import androidx.annotation.NonNull;
++import androidx.room.Entity;
++import androidx.room.PrimaryKey;
++
++@Entity(tableName = "Member")
++public class MemberEntity {
++    @NonNull
++    public String getId() {
++        return id;
++    }
++
++    public void setId(@NonNull String id) {
++        this.id = id;
++    }
++
++    public String getFirstName() {
++        return firstName;
++    }
++
++    public void setFirstName(String firstName) {
++        this.firstName = firstName;
++    }
++
++    public String getLastName() {
++        return lastName;
++    }
++
++    public void setLastName(String lastName) {
++        this.lastName = lastName;
++    }
++
++    public String getPictureUrl() {
++        return pictureUrl;
++    }
++
++    public void setPictureUrl(String pictureUrl) {
++        this.pictureUrl = pictureUrl;
++    }
++
++    public String getJobTitle() {
++        return jobTitle;
++    }
++
++    public void setJobTitle(String jobTitle) {
++        this.jobTitle = jobTitle;
++    }
++
++    @NonNull
++    @PrimaryKey
++    private String id;
++    private String firstName;
++    private String lastName;
++    private String pictureUrl;
++    private String jobTitle;
++}
+Index: app/src/main/java/com/emika/app/data/db/migration/Migration.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/db/migration/Migration.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/db/migration/Migration.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -29,6 +29,13 @@
+             database.execSQL("ALTER TABLE user  ADD COLUMN `pictureUrl` TEXT");
+         }
+     };
++
++    public static final androidx.room.migration.Migration MIGRATION_4_5 = new androidx.room.migration.Migration(4, 5) {
++        @Override
++        public void migrate(@NonNull SupportSQLiteDatabase database) {
++            database.execSQL("CREATE TABLE `Member`  (`id` TEXT NOT NULL, `firstName` TEXT, `lastName` TEXT, `pictureUrl` TEXT, `jobTitle` TEXT, PRIMARY KEY (`id`))");
++        }
++    };
+ }
+ 
+ 
+Index: app/src/main/java/com/emika/app/data/model/Member.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/model/Member.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/model/Member.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,5 @@
++package com.emika.app.data.model;
++
++public class Member {
++    
++}
+Index: app/src/main/java/com/emika/app/data/network/api/CalendarApi.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/api/CalendarApi.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/network/api/CalendarApi.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,15 +1,9 @@
+ package com.emika.app.data.network.api;
+ 
+-import com.emika.app.data.network.pojo.ModelToken;
+ import com.emika.app.data.network.pojo.task.Model;
+-import com.emika.app.data.network.pojo.task.PayloadTask;
+-
+-import org.json.JSONObject;
+-
+-import java.sql.SQLTransactionRollbackException;
++import com.emika.app.data.network.pojo.task.ModelTask;
+ 
+ import retrofit2.Call;
+-import retrofit2.http.Body;
+ import retrofit2.http.Field;
+ import retrofit2.http.FormUrlEncoded;
+ import retrofit2.http.GET;
+@@ -21,16 +15,31 @@
+     @GET("public_api/tasks/fetch")
+     Call<Model> fetchAllTasks(@Query("token") String token);
+ 
+-
++    @FormUrlEncoded
+     @POST("public_api/tasks/{task_id}/update")
+-    Call<Model> updateTask(@Query("token") String token,
+-                           @Path("task_id") String taskId);
++    Call<ModelTask> updateTask(@Path("task_id") String taskId,
++                               @Query("token") String token,
++                               @Field("plan_date") String planDate,
++                               @Field("name") String taskName,
++                               @Field("project_id") String projectId,
++                               @Field("deadline_date") String deadlineDate,
++                               @Field("duration") int estimatedTime,
++                               @Field("actual_duration") int spentTime,
++                               @Field("status") String status,
++                               @Field("description") String description,
++                               @Field("priority") String priority);
+ 
+     @FormUrlEncoded
+     @POST("public_api/tasks/create")
+-    Call<Model> addTask(@Query("token") String token,
+-                           @Field("task") JSONObject task);
+-
++    Call<ModelTask> addTask(@Query("token") String token,
++                            @Field("name") String name,
++                            @Field("project_id") String projectId,
++                            @Field("plan_date") String planDate,
++                            @Field("deadline_date") String deadlineDate,
++                            @Field("assignee") String assignee,
++                            @Field("duration") String estimatedTime,
++                            @Field("description") String description,
++                            @Field("priority") String priority);
+ 
+ 
+ }
+Index: app/src/main/java/com/emika/app/data/network/api/MemberApi.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/api/MemberApi.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/api/MemberApi.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,15 @@
++package com.emika.app.data.network.api;
++
++import com.emika.app.data.network.pojo.company.Model;
++import com.emika.app.data.network.pojo.member.ModelShortMember;
++
++import retrofit2.Call;
++import retrofit2.http.GET;
++import retrofit2.http.Query;
++
++public interface MemberApi {
++
++    @GET("public_api/members/fetch")
++    Call<ModelShortMember> getAllMembers(@Query("token") String token);
++
++}
+Index: app/src/main/java/com/emika/app/data/network/callback/calendar/ShortMemberCallback.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/callback/calendar/ShortMemberCallback.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/callback/calendar/ShortMemberCallback.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,9 @@
++package com.emika.app.data.network.callback.calendar;
++
++import com.emika.app.data.network.pojo.member.PayloadShortMember;
++
++import java.util.List;
++
++public interface ShortMemberCallback {
++    void allMembers(List<PayloadShortMember> shortMembers);
++}
+Index: app/src/main/java/com/emika/app/data/network/callback/calendar/TaskCallback.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/callback/calendar/TaskCallback.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/network/callback/calendar/TaskCallback.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -2,8 +2,6 @@
+ 
+ import com.emika.app.data.network.pojo.task.PayloadTask;
+ 
+-import java.util.List;
+-
+ public interface TaskCallback {
+-    void setTask(List<PayloadTask> taskList);
++    void getAddedTask (PayloadTask task);
+ }
+Index: app/src/main/java/com/emika/app/data/network/callback/calendar/TaskListCallback.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/callback/calendar/TaskListCallback.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/callback/calendar/TaskListCallback.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,9 @@
++package com.emika.app.data.network.callback.calendar;
++
++import com.emika.app.data.network.pojo.task.PayloadTask;
++
++import java.util.List;
++
++public interface TaskListCallback {
++    void setTaskList(List<PayloadTask> taskList);
++}
+Index: app/src/main/java/com/emika/app/data/network/networkManager/calendar/CalendarNetworkManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/networkManager/calendar/CalendarNetworkManager.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/network/networkManager/calendar/CalendarNetworkManager.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,18 +1,23 @@
+ package com.emika.app.data.network.networkManager.calendar;
+ 
+ import android.util.Log;
++import android.view.Display;
++import android.widget.Toast;
+ 
++import com.emika.app.data.db.entity.MemberEntity;
+ import com.emika.app.data.network.api.CalendarApi;
+-import com.emika.app.data.network.callback.AuthCallback;
++import com.emika.app.data.network.api.MemberApi;
++import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
+ import com.emika.app.data.network.callback.calendar.TaskCallback;
+-import com.emika.app.data.network.pojo.singIn.ModelAuth;
++import com.emika.app.data.network.callback.calendar.TaskListCallback;
++import com.emika.app.data.network.pojo.member.ModelShortMember;
++import com.emika.app.data.network.pojo.member.PayloadMember;
++import com.emika.app.data.network.pojo.member.PayloadShortMember;
+ import com.emika.app.data.network.pojo.task.Model;
++import com.emika.app.data.network.pojo.task.ModelTask;
+ import com.emika.app.data.network.pojo.task.PayloadTask;
+-import com.emika.app.data.network.pojo.user.Payload;
+ import com.emika.app.presentation.utils.Constants;
+ 
+-import org.json.JSONObject;
+-
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+@@ -30,7 +35,7 @@
+         this.token = token;
+     }
+ 
+-    public void getAllTask(TaskCallback callback) {
++    public void getAllTask(TaskListCallback callback) {
+         Retrofit retrofit = new Retrofit.Builder()
+                 .baseUrl(Constants.BASIC_URL) // Адрес сервера
+                 .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+@@ -46,8 +51,8 @@
+ 
+                     List<PayloadTask> taskList = model.getPayloadTask();
+                     if (taskList != null)
+-                    callback.setTask(taskList);
+-                    else callback.setTask(new ArrayList<>());
++                        callback.setTaskList(taskList);
++                    else callback.setTaskList(new ArrayList<>());
+                 }
+             }
+ 
+@@ -57,57 +62,82 @@
+             }
+         });
+     }
+-    public void addTask(TaskCallback callback, JSONObject task) {
++
++    public void addTask(TaskCallback callback, String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority) {
+         Retrofit retrofit = new Retrofit.Builder()
+                 .baseUrl(Constants.BASIC_URL) // Адрес сервера
+                 .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+                 .build();
+ 
+         CalendarApi service = retrofit.create(CalendarApi.class);
+-        Call<Model> call = service.addTask(token, task);
++        Call<ModelTask> call = service.addTask(token, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
+         Log.d(TAG, "addTask: " + call.request().url());
+-        call.enqueue(new Callback<Model>() {
++        call.enqueue(new Callback<ModelTask>() {
+             @Override
+-            public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+-                Log.d(TAG, "onResponse: " + response.body());
++            public void onResponse(retrofit2.Call<ModelTask> call, Response<ModelTask> response) {
+                 if (response.body() != null) {
+-//                    Model model = response.body();
+-//
+-//                    List<PayloadTask> taskList = model.getPayloadTask();
+-//                    if (taskList != null)
+-//                        callback.setTask(taskList);
+-//                    else callback.setTask(new ArrayList<>());
++                    ModelTask model = response.body();
++                    PayloadTask task = model.getPayloadTask();
++                    if (task != null)
++                        callback.getAddedTask(task);
++                    else
++                        callback.getAddedTask(new PayloadTask());
+                 }
+             }
+ 
+             @Override
+-            public void onFailure(retrofit2.Call<Model> call, Throwable t) {
++            public void onFailure(retrofit2.Call<ModelTask> call, Throwable t) {
++                Log.d(TAG, t.getMessage().toString());
++            }
++        });
++    }
++    public void updateTask(PayloadTask task)  {
++        Retrofit retrofit = new Retrofit.Builder()
++                .baseUrl(Constants.BASIC_URL) // Адрес сервера
++                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
++                .build();
++        CalendarApi service = retrofit.create(CalendarApi.class);
++        Call<ModelTask> call = service.updateTask(task.getId(), token, task.getPlanDate(), task.getName(),  task.getProjectId(), task.getDeadlineDate(), task.getDuration(),
++                task.getDurationActual(), task.getStatus(), task.getDescription(), task.getPriority());
++        call.enqueue(new Callback<ModelTask>() {
++            @Override
++            public void onResponse(retrofit2.Call<ModelTask> call, Response<ModelTask> response) {
++                if (response.body() != null) {
++                    ModelTask model = response.body();
++                } else {
++
++                }
++            }
++
++            @Override
++            public void onFailure(retrofit2.Call<ModelTask> call, Throwable t) {
++                Log.d(TAG, t.getMessage().toString());
++            }
++        });
++    }
++    public void getAllMembers(ShortMemberCallback callback)  {
++        Retrofit retrofit = new Retrofit.Builder()
++                .baseUrl(Constants.BASIC_URL) // Адрес сервера
++                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
++                .build();
++        MemberApi service = retrofit.create(MemberApi.class);
++        Call<ModelShortMember> call = service.getAllMembers(token);
++        call.enqueue(new Callback<ModelShortMember>() {
++            @Override
++            public void onResponse(retrofit2.Call<ModelShortMember> call, Response<ModelShortMember> response) {
++                if (response.body() != null) {
++                    ModelShortMember model = response.body();
++                    List<PayloadShortMember> members = model.getPayload();
++                    if (members != null)
++                    callback.allMembers(members);
++                    else callback.allMembers(new ArrayList<>());
++                }
++            }
++
++            @Override
++            public void onFailure(retrofit2.Call<ModelShortMember> call, Throwable t) {
+                 Log.d(TAG, t.getMessage().toString());
+             }
+         });
+     }
+-//    public void updateTask(PayloadTask task) {
+-//        Retrofit retrofit = new Retrofit.Builder()
+-//                .baseUrl(Constants.BASIC_URL) // Адрес сервера
+-//                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+-//                .build();
+-//
+-//        CalendarApi service = retrofit.create(CalendarApi.class);
+-//        Call<Model> call = service.updateTask(token, task);
+-//        Log.d(TAG, "getAllTask: " + call.request());
+-//        call.enqueue(new Callback<Model>() {
+-//            @Override
+-//            public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+-//                Log.d(TAG, "onResponse: " + response.body());
+-//                if (response.body() != null) {
+-//
+-//                }
+-//            }
+-//
+-//            @Override
+-//            public void onFailure(retrofit2.Call<Model> call, Throwable t) {
+-//                Log.d(TAG, t.getMessage().toString());
+-//            }
+-//        });
+-//    }
+ }
+Index: app/src/main/java/com/emika/app/data/network/networkManager/profile/UserNetworkManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/networkManager/profile/UserNetworkManager.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/network/networkManager/profile/UserNetworkManager.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -70,6 +70,7 @@
+ 
+         UserApi service = retrofit.create(UserApi.class);
+         Call<Model> call = service.getUserInfo(token);
++        Log.d(TAG, "getUserInfo: " + call.request().url());
+         call.enqueue(new Callback<Model>() {
+             @Override
+             public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+Index: app/src/main/java/com/emika/app/data/network/pojo/member/ModelMember.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/pojo/member/ModelMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/pojo/member/ModelMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,31 @@
++package com.emika.app.data.network.pojo.member;
++
++import com.google.gson.annotations.Expose;
++import com.google.gson.annotations.SerializedName;
++
++import java.util.List;
++
++public class ModelMember {
++    @SerializedName("ok")
++    @Expose
++    private Boolean ok;
++    @SerializedName("payload")
++    @Expose
++    private PayloadMember payload = null;
++
++    public Boolean getOk() {
++        return ok;
++    }
++
++    public void setOk(Boolean ok) {
++        this.ok = ok;
++    }
++
++    public PayloadMember getPayload() {
++        return payload;
++    }
++
++    public void setPayload(PayloadMember payload) {
++        this.payload = payload;
++    }
++}
+Index: app/src/main/java/com/emika/app/data/network/pojo/member/ModelShortMember.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/pojo/member/ModelShortMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/pojo/member/ModelShortMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,31 @@
++package com.emika.app.data.network.pojo.member;
++
++import com.google.gson.annotations.Expose;
++import com.google.gson.annotations.SerializedName;
++
++import java.util.List;
++
++public class ModelShortMember {
++    @SerializedName("ok")
++    @Expose
++    private Boolean ok;
++    @SerializedName("payload")
++    @Expose
++    private List<PayloadShortMember> payload = null;
++
++    public Boolean getOk() {
++        return ok;
++    }
++
++    public void setOk(Boolean ok) {
++        this.ok = ok;
++    }
++
++    public List<PayloadShortMember> getPayload() {
++        return payload;
++    }
++
++    public void setPayload(List<PayloadShortMember> payload) {
++        this.payload = payload;
++    }
++}
+Index: app/src/main/java/com/emika/app/data/network/pojo/member/PayloadMember.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/pojo/member/PayloadMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/pojo/member/PayloadMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,4 @@
++package com.emika.app.data.network.pojo.member;
++
++public class PayloadMember {
++}
+Index: app/src/main/java/com/emika/app/data/network/pojo/member/PayloadShortMember.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/pojo/member/PayloadShortMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/pojo/member/PayloadShortMember.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,99 @@
++package com.emika.app.data.network.pojo.member;
++
++import android.os.Parcel;
++import android.os.Parcelable;
++
++import com.google.gson.annotations.Expose;
++import com.google.gson.annotations.SerializedName;
++
++public class PayloadShortMember implements Parcelable {
++    @SerializedName("first_name")
++    @Expose
++    private String firstName;
++    @SerializedName("last_name")
++    @Expose
++    private String lastName;
++    @SerializedName("job_title")
++    @Expose
++    private String jobTitle;
++    @SerializedName("picture_url")
++    @Expose
++    private String pictureUrl;
++    @SerializedName("_id")
++    @Expose
++    private String id;
++
++    protected PayloadShortMember(Parcel in) {
++        firstName = in.readString();
++        lastName = in.readString();
++        jobTitle = in.readString();
++        pictureUrl = in.readString();
++        id = in.readString();
++    }
++
++    public static final Creator<PayloadShortMember> CREATOR = new Creator<PayloadShortMember>() {
++        @Override
++        public PayloadShortMember createFromParcel(Parcel in) {
++            return new PayloadShortMember(in);
++        }
++
++        @Override
++        public PayloadShortMember[] newArray(int size) {
++            return new PayloadShortMember[size];
++        }
++    };
++
++    public String getFirstName() {
++        return firstName;
++    }
++
++    public void setFirstName(String firstName) {
++        this.firstName = firstName;
++    }
++
++    public String getLastName() {
++        return lastName;
++    }
++
++    public void setLastName(String lastName) {
++        this.lastName = lastName;
++    }
++
++    public String getJobTitle() {
++        return jobTitle;
++    }
++
++    public void setJobTitle(String jobTitle) {
++        this.jobTitle = jobTitle;
++    }
++
++    public String getPictureUrl() {
++        return pictureUrl;
++    }
++
++    public void setPictureUrl(String pictureUrl) {
++        this.pictureUrl = pictureUrl;
++    }
++
++    public String getId() {
++        return id;
++    }
++
++    public void setId(String id) {
++        this.id = id;
++    }
++
++    @Override
++    public int describeContents() {
++        return 0;
++    }
++
++    @Override
++    public void writeToParcel(Parcel dest, int flags) {
++        dest.writeString(firstName);
++        dest.writeString(lastName);
++        dest.writeString(jobTitle);
++        dest.writeString(pictureUrl);
++        dest.writeString(id);
++    }
++}
+Index: app/src/main/java/com/emika/app/data/network/pojo/task/Model.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/pojo/task/Model.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/data/network/pojo/task/Model.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -12,7 +12,6 @@
+     @SerializedName("payload")
+     @Expose
+     private List<PayloadTask> payloadTask = null;
+-
+     public Boolean getOk() {
+         return ok;
+     }
+Index: app/src/main/java/com/emika/app/data/network/pojo/task/ModelTask.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/data/network/pojo/task/ModelTask.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/data/network/pojo/task/ModelTask.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,31 @@
++package com.emika.app.data.network.pojo.task;
++
++import com.google.gson.annotations.Expose;
++import com.google.gson.annotations.SerializedName;
++
++import java.util.List;
++
++public class ModelTask {
++    @SerializedName("ok")
++    @Expose
++    private Boolean ok;
++    @SerializedName("payload")
++    @Expose
++    private PayloadTask payloadTask;
++
++    public Boolean getOk() {
++        return ok;
++    }
++
++    public void setOk(Boolean ok) {
++        this.ok = ok;
++    }
++
++    public PayloadTask getPayloadTask() {
++        return payloadTask;
++    }
++
++    public void setPayloadTask(PayloadTask payloadTask) {
++        this.payloadTask = payloadTask;
++    }
++}
+Index: app/src/main/java/com/emika/app/di/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/di/User.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/di/User.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -34,6 +34,7 @@
+     private List<Object> extraLeaders = null;
+     private String context;
+     private String updatedAt;
++    private String pictureUrl;
+ 
+     public User(String id, String status, Boolean isAdmin, String inviteCode, String activationEmailRequestedAt, String activationCode,
+                 Boolean emailConfirmed, String email, String firstName, String lastName, String lang, String gender, String bio, String jobTitle,
+@@ -236,4 +237,11 @@
+ 
+     private String createdAt;
+ 
++    public String getPictureUrl() {
++        return pictureUrl;
++    }
++
++    public void setPictureUrl(String pictureUrl) {
++        this.pictureUrl = pictureUrl;
++    }
+ }
+Index: app/src/main/java/com/emika/app/di/UserComponent.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/di/UserComponent.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/di/UserComponent.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,8 +1,11 @@
+ package com.emika.app.di;
+ 
++import android.app.TaskInfo;
++
+ import com.emika.app.presentation.ui.MainActivity;
+ import com.emika.app.presentation.ui.calendar.AddTaskActivity;
+ import com.emika.app.presentation.ui.calendar.BoardFragment;
++import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
+ import com.emika.app.presentation.ui.profile.ProfileFragment;
+ 
+ import javax.inject.Singleton;
+@@ -17,4 +20,5 @@
+     void inject(ProfileFragment profileFragment);
+     void inject(BoardFragment boardFragment);
+     void inject(AddTaskActivity addTaskActivity);
++    void inject(TaskInfoActivity taskInfoActivity);
+ }
+Index: app/src/main/java/com/emika/app/domain/repository/auth/CreateUserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/domain/repository/auth/CreateUserRepository.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/domain/repository/auth/CreateUserRepository.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,5 +1,6 @@
+ package com.emika.app.domain.repository.auth;
+ 
++import com.emika.app.data.EmikaApplication;
+ import com.emika.app.data.db.dbmanager.TokenDbManager;
+ import com.emika.app.data.network.callback.TokenCallback;
+ import com.emika.app.data.network.callback.user.UserInfoCallback;
+Index: app/src/main/java/com/emika/app/domain/repository/calendar/CalendarRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/domain/repository/calendar/CalendarRepository.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/domain/repository/calendar/CalendarRepository.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -3,15 +3,15 @@
+ import android.content.Context;
+ 
+ import com.emika.app.data.db.dbmanager.TaskDbManager;
++import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
+ import com.emika.app.data.network.callback.calendar.TaskCallback;
++import com.emika.app.data.network.callback.calendar.TaskListCallback;
+ import com.emika.app.data.db.callback.calendar.TaskDbCallback;
+ import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
+ import com.emika.app.data.network.pojo.task.PayloadTask;
+ import com.emika.app.presentation.utils.Converter;
+ import com.emika.app.presentation.utils.NetworkState;
+ 
+-import org.json.JSONObject;
+-
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+@@ -31,9 +31,9 @@
+         payloadTaskList = new ArrayList<>();
+     }
+ 
+-    public List<PayloadTask> getPayloadTaskList(TaskCallback taskCallback, TaskDbCallback taskDbCallback, Context context) {
++    public List<PayloadTask> getPayloadTaskList(TaskListCallback taskListCallback, TaskDbCallback taskDbCallback, Context context) {
+         if(NetworkState.getInstance(context).isOnline())
+-            calendarNetworkManager.getAllTask(taskCallback);
++            calendarNetworkManager.getAllTask(taskListCallback);
+         else
+             taskDbManager.getAllTask(taskDbCallback);
+ 
+@@ -42,7 +42,7 @@
+ 
+     public void updateTask(PayloadTask task){
+         taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
+-//        calendarNetworkManager.updateTask(task);
++        calendarNetworkManager.updateTask(task);
+     }
+ 
+     public void sedDbData(List<PayloadTask> taskList) {
+@@ -50,7 +50,11 @@
+         taskDbManager.insertDbAllTask(converter.fromPayloadTaskToTaskEntityList(taskList));
+     }
+ 
+-    public void addTask(TaskCallback callback, JSONObject task){
+-        calendarNetworkManager.addTask(callback, task);
++    public void addTask(TaskCallback callback, String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority){
++        calendarNetworkManager.addTask(callback, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
++    }
++
++    public void getAllMembers(ShortMemberCallback callback){
++        calendarNetworkManager.getAllMembers(callback);
+     }
+ }
+Index: app/src/main/java/com/emika/app/features/calendar/BoardView.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/features/calendar/BoardView.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/features/calendar/BoardView.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -183,7 +183,7 @@
+         Resources res = getResources();
+         boolean isPortrait = res.getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+         if (isPortrait) {
+-            mColumnWidth = (int) (res.getDisplayMetrics().widthPixels * 0.87);
++            mColumnWidth = (int) (res.getDisplayMetrics().widthPixels * 0.95);
+         } else {
+             mColumnWidth = (int) (res.getDisplayMetrics().density * 320);
+         }
+@@ -207,6 +207,7 @@
+         mRootLayout.addView(mColumnLayout);
+         mRootLayout.addView(mDragItem.getDragItemView());
+         addView(mRootLayout);
++
+     }
+ 
+     @Override
+Index: app/src/main/java/com/emika/app/features/customtimepickerdialog/CustomTimePickerDialog.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/features/customtimepickerdialog/CustomTimePickerDialog.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/features/customtimepickerdialog/CustomTimePickerDialog.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,70 @@
++package com.emika.app.features.customtimepickerdialog;
++
++import android.app.TimePickerDialog;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.widget.NumberPicker;
++import android.widget.TimePicker;
++
++import java.lang.reflect.Field;
++import java.util.ArrayList;
++import java.util.List;
++
++public class CustomTimePickerDialog extends TimePickerDialog {
++
++    private final static int TIME_PICKER_INTERVAL = 5;
++    private TimePicker mTimePicker;
++    private final OnTimeSetListener mTimeSetListener;
++
++    public CustomTimePickerDialog(Context context, OnTimeSetListener listener,
++                                  int hourOfDay, int minute, boolean is24HourView) {
++        super(context, android.R.style.Theme_Holo_Dialog, null, hourOfDay,
++                minute / TIME_PICKER_INTERVAL, is24HourView);
++        mTimeSetListener = listener;
++    }
++
++    @Override
++    public void updateTime(int hourOfDay, int minuteOfHour) {
++        mTimePicker.setCurrentHour(hourOfDay);
++        mTimePicker.setCurrentMinute(minuteOfHour / TIME_PICKER_INTERVAL);
++    }
++
++    @Override
++    public void onClick(DialogInterface dialog, int which) {
++        switch (which) {
++            case BUTTON_POSITIVE:
++                if (mTimeSetListener != null) {
++                    mTimeSetListener.onTimeSet(mTimePicker, mTimePicker.getCurrentHour(),
++                            mTimePicker.getCurrentMinute() * TIME_PICKER_INTERVAL);
++                }
++                break;
++            case BUTTON_NEGATIVE:
++                cancel();
++                break;
++        }
++    }
++
++    @Override
++    public void onAttachedToWindow() {
++        super.onAttachedToWindow();
++        try {
++            Class<?> classForid = Class.forName("com.android.internal.R$id");
++            Field timePickerField = classForid.getField("timePicker");
++            mTimePicker = (TimePicker) findViewById(timePickerField.getInt(null));
++            Field field = classForid.getField("minute");
++
++            NumberPicker minuteSpinner = (NumberPicker) mTimePicker
++                    .findViewById(field.getInt(null));
++            minuteSpinner.setMinValue(0);
++            minuteSpinner.setMaxValue((60 / TIME_PICKER_INTERVAL) - 1);
++            List<String> displayedValues = new ArrayList<>();
++            for (int i = 0; i < 60; i += TIME_PICKER_INTERVAL) {
++                displayedValues.add(String.format("%02d", i));
++            }
++            minuteSpinner.setDisplayedValues(displayedValues
++                    .toArray(new String[displayedValues.size()]));
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++    }
++}
+Index: app/src/main/java/com/emika/app/features/extendedfab/CustomExtendedFAB.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/features/extendedfab/CustomExtendedFAB.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/features/extendedfab/CustomExtendedFAB.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,29 @@
++package com.emika.app.features.extendedfab;
++
++import android.content.Context;
++import android.util.AttributeSet;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++
++import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
++
++public class CustomExtendedFAB extends ExtendedFloatingActionButton {
++    public CustomExtendedFAB(@NonNull Context context) {
++        super(context);
++    }
++
++    public CustomExtendedFAB(@NonNull Context context, @Nullable AttributeSet attrs) {
++        super(context, attrs);
++    }
++
++    public CustomExtendedFAB(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
++        super(context, attrs, defStyleAttr);
++    }
++
++    @Override
++    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
++        super.onLayout(changed, left, top, right, bottom);
++    }
++
++}
+Index: app/src/main/java/com/emika/app/presentation/adapter/calendar/ItemAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/adapter/calendar/ItemAdapter.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/adapter/calendar/ItemAdapter.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -16,12 +16,16 @@
+ 
+ package com.emika.app.presentation.adapter.calendar;
+ 
++import android.app.ActivityOptions;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.util.Log;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
++import android.view.animation.AnimationUtils;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
+ import android.widget.FrameLayout;
+ import android.widget.TextView;
+ import android.widget.Toast;
+@@ -31,6 +35,7 @@
+ import androidx.core.util.Pair;
+ 
+ import com.emika.app.R;
++import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
+ import com.emika.app.data.network.pojo.task.PayloadTask;
+ import com.emika.app.features.calendar.DragItemAdapter;
+ import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
+@@ -45,14 +50,16 @@
+     private int mGrabHandleId;
+     private boolean mDragOnLongPress;
+     private Context context;
+-    private DateHelper dateHelper;
++    private String token;
++    private CalendarNetworkManager calendarNetworkManager;
+ 
+-    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context) {
++    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token) {
+         mLayoutId = layoutId;
+         mGrabHandleId = grabHandleId;
+         mDragOnLongPress = dragOnLongPress;
+         this.context = context;
+-        dateHelper = new DateHelper();
++        this.token = token;
++        calendarNetworkManager = new CalendarNetworkManager(token);
+         setItemList(list);
+     }
+ 
+@@ -87,13 +94,33 @@
+     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+         super.onBindViewHolder(holder, position);
+ 
+-//        holder.layout.setPadding(0,0,0,200);
+         PayloadTask task = mItemList.get(position).second;
+         holder.mText.setText(task.getName());
+         holder.itemView.setTag(mItemList.get(position));
+         holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
+         holder.spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+         holder.project.setText("Emika");
++        holder.isDone.setOnClickListener(v-> {
++            if (holder.isDone.isChecked()) {
++                holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));
++                task.setStatus("done");
++                calendarNetworkManager.updateTask(task);
++            }
++            else{
++                holder.mText.setTextColor(context.getResources().getColor(R.color.black));
++                task.setStatus("active");
++                calendarNetworkManager.updateTask(task);
++            }
++        });
++        if (task.getStatus().equals("done")) {
++            holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));
++            holder.isDone.setChecked(true);
++        }
++        holder.mText.setOnClickListener(v -> {
++            Intent intent = new Intent(context, TaskInfoActivity.class);
++            intent.putExtra("task", mItemList.get(position).second);
++            context.startActivity(intent);
++        });
+         if (task.getPriority() != null)
+         switch (task.getPriority()) {
+             case "low":
+@@ -120,6 +147,7 @@
+         if (task.getDeadlineDate() != null)
+             holder.deadLine.setText(DateHelper.getDate(task.getDeadlineDate()));
+         else holder.deadLine.setVisibility(View.GONE);
++
+     }
+ 
+     @Override
+@@ -157,6 +185,7 @@
+         TextView mText, spentTime, estimatedTime, deadLine, project, priority;
+         CardView cardView;
+         FrameLayout layout;
++        CheckBox isDone;
+         ViewHolder(final View itemView) {
+             super(itemView, mGrabHandleId, mDragOnLongPress);
+             mText = (TextView) itemView.findViewById(R.id.text);
+@@ -167,13 +196,12 @@
+             priority = itemView.findViewById(R.id.calendar_task_priority);
+             deadLine = itemView.findViewById(R.id.calendar_task_deadline);
+             project = itemView.findViewById(R.id.calendar_task_project);
++            isDone = itemView.findViewById(R.id.task_done);
+         }
+ 
+         @Override
+         public void onItemClicked(View view) {
+-            Intent intent = new Intent(context, TaskInfoActivity.class);
+-            intent.putExtra("task", mItemList.get(getAdapterPosition()).second);
+-            context.startActivity(intent);
++
+         }
+ 
+         @Override
+Index: app/src/main/java/com/emika/app/presentation/adapter/calendar/SelectCurrentUserAdapter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/adapter/calendar/SelectCurrentUserAdapter.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/presentation/adapter/calendar/SelectCurrentUserAdapter.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,71 @@
++package com.emika.app.presentation.adapter.calendar;
++
++import android.content.Context;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.ImageView;
++import android.widget.TextView;
++
++import androidx.annotation.NonNull;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.bumptech.glide.Glide;
++import com.bumptech.glide.request.RequestOptions;
++import com.emika.app.R;
++import com.emika.app.data.network.pojo.member.PayloadShortMember;
++
++import java.util.List;
++
++public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrentUserAdapter.MemberViewHolder> {
++    private List<PayloadShortMember> memberList;
++    private Context context;
++
++
++    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context) {
++        this.memberList = memberList;
++        this.context = context;
++    }
++
++
++    @NonNull
++    @Override
++    public MemberViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
++        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_member, parent, false);
++        return new SelectCurrentUserAdapter.MemberViewHolder(view);
++    }
++
++    @Override
++    public void onBindViewHolder(@NonNull MemberViewHolder holder, int position) {
++        if (memberList.size() != 0) {
++
++            PayloadShortMember member = memberList.get(position);
++            if (!member.getId().equals("emika")) {
++                holder.memberName.setText(String.format("%s %s", member.getFirstName(), member.getLastName()));
++                holder.memberJobTitle.setText(member.getJobTitle());
++                if (member.getPictureUrl() != null)
++                    Glide.with(context).load(member.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(holder.memberImg);
++                else
++                    Glide.with(context).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(holder.memberImg);
++            }
++        }
++    }
++
++    @Override
++    public int getItemCount() {
++        return memberList.size();
++    }
++
++    public class MemberViewHolder extends RecyclerView.ViewHolder {
++        private ImageView memberImg;
++        private TextView memberName, memberJobTitle;
++
++
++        public MemberViewHolder(@NonNull View itemView) {
++            super(itemView);
++            memberImg = itemView.findViewById(R.id.member_img);
++            memberJobTitle = itemView.findViewById(R.id.member_job_title);
++            memberName = itemView.findViewById(R.id.member_name);
++        }
++    }
++}
+Index: app/src/main/java/com/emika/app/presentation/ui/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/MainActivity.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/MainActivity.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -43,7 +43,6 @@
+     private void initView() {
+         app.getComponent().inject(this);
+         networkManager = new UserNetworkManager(getIntent().getStringExtra("token"));
+-        networkManager.getUserInfo(this);
+         fragmentManager = getSupportFragmentManager();
+         navigationView = findViewById(R.id.bottom_navigation);
+         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+@@ -79,7 +78,9 @@
+ 
+     @Override
+     public void getUserInfo(Payload userModel) {
+-        user.setFirstName(userModel.getFirstName());
+-        user.setLastName(userModel.getLastName());
++//        user.setFirstName(userModel.getFirstName());
++//        user.setLastName(userModel.getLastName());
++//        user.setPictureUrl(userModel.getPictureUrl());
++//        Log.d(TAG, "getUserInfo: " + user.getPictureUrl());
+     }
+ }
+Index: app/src/main/java/com/emika/app/presentation/ui/StartActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/StartActivity.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/StartActivity.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -7,6 +7,7 @@
+ import android.widget.Toast;
+ 
+ import androidx.appcompat.app.AppCompatActivity;
++import androidx.lifecycle.ViewModelProvider;
+ 
+ import com.emika.app.R;
+ import com.emika.app.data.EmikaApplication;
+@@ -18,6 +19,8 @@
+ import com.emika.app.presentation.ui.auth.AuthActivity;
+ import com.emika.app.presentation.utils.Constants;
+ import com.emika.app.presentation.utils.NetworkState;
++import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
++import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+ 
+ import java.util.concurrent.Callable;
+ 
+@@ -36,6 +39,7 @@
+     private SharedPreferences sharedPreferences;
+     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+     private TokenDbManager tokenDbManager;
++    private CalendarViewModel viewModel;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -116,6 +120,7 @@
+                 if (model.getOk()) {
+                     TokenPayload payload = model.getTokenPayload();
+                     token = payload.getToken();
++
+                     Observable.fromCallable((new CallableValidateToken(token)))
+                             .subscribeOn(Schedulers.io())
+                             .observeOn(AndroidSchedulers.mainThread())
+@@ -163,4 +168,5 @@
+         }
+ 
+     }
++
+ }
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/AddTaskActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/AddTaskActivity.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/calendar/AddTaskActivity.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,12 +1,8 @@
+ package com.emika.app.presentation.ui.calendar;
+ 
+-import androidx.appcompat.app.AppCompatActivity;
+-import androidx.lifecycle.Observer;
+-import androidx.lifecycle.ViewModelProvider;
+-
+-import android.app.AlertDialog;
+ import android.app.DatePickerDialog;
+ import android.app.TimePickerDialog;
++import android.content.Intent;
+ import android.os.Bundle;
+ import android.util.Log;
+ import android.view.View;
+@@ -15,19 +11,28 @@
+ import android.widget.ListPopupWindow;
+ import android.widget.PopupMenu;
+ import android.widget.TextView;
+-import android.widget.TimePicker;
+ import android.widget.Toast;
+ 
++import androidx.appcompat.app.AppCompatActivity;
++import androidx.lifecycle.Observer;
++import androidx.lifecycle.ViewModelProvider;
++
++import com.bumptech.glide.Glide;
++import com.bumptech.glide.request.RequestOptions;
+ import com.emika.app.R;
+ import com.emika.app.data.EmikaApplication;
++import com.emika.app.data.model.Member;
++import com.emika.app.data.network.pojo.PayloadEmail;
++import com.emika.app.data.network.pojo.task.PayloadTask;
++import com.emika.app.data.network.pojo.user.Payload;
+ import com.emika.app.di.User;
+-import com.emika.app.presentation.ui.MainActivity;
++import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
++import com.emika.app.presentation.utils.Constants;
+ import com.emika.app.presentation.utils.DateHelper;
+ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
+-import com.emika.app.presentation.viewmodel.calendar.AddTaskViewModel;
+-
+-import org.json.JSONException;
+-import org.json.JSONObject;
++import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
++import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
++import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
+ 
+ import java.util.Calendar;
+ import java.util.Date;
+@@ -35,17 +40,55 @@
+ import javax.inject.Inject;
+ 
+ public class AddTaskActivity extends AppCompatActivity {
+-    private TextView planDate, priority, deadlineDate, estimatedTime;
++    private static final String TAG = "AddTaskActivity";
+     private String currentDate;
+     private EditText taskName, taskDescription;
+     private ListPopupWindow mListPopupWindow;
+-    private ImageView addTask;
+-    private AddTaskViewModel viewModel;
+-    @Inject User user;
++    private ImageView addTask, userImg;
++    private AddTaskListViewModel viewModel;
++    private ProfileViewModel profileViewModel;
++    private CalendarViewModel calendarViewModel;
++    private Member member;
+     private EmikaApplication app = EmikaApplication.getInstance();
+-    Calendar dateAndTime= Calendar.getInstance();
+-    private String token;
+-    private static final String TAG = "AddTaskActivity";
++    private String token, planDateString, deadlineDateString;
++    private TextView planDate, priority, deadlineDate, estimatedTime, userName;
++    @Inject
++    User user;
++    Calendar dateAndTime = Calendar.getInstance();
++    DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
++        @Override
++        public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
++            dateAndTime.set(Calendar.YEAR, year);
++            dateAndTime.set(Calendar.MONTH, month);
++            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
++            deadlineDateString = DateHelper.getDatePicker(year + "-" + (month + 1) + "-" + dayOfMonth);
++            deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
++        }
++    };
++    TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
++        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
++        dateAndTime.set(Calendar.MINUTE, minute);
++        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
++    };
++    DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
++        @Override
++        public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
++            dateAndTime.set(Calendar.YEAR, year);
++            dateAndTime.set(Calendar.MONTH, month);
++            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
++            currentDate = DateHelper.getDatePicker(year + "-" + (month + 1)  + "-" + dayOfMonth);
++            planDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
++        }
++    };
++    private Observer<Payload> userInfo = userInfo -> {
++
++    };
++    private Observer<PayloadTask> taskObserver = task -> {
++        Intent intent = new Intent();
++        intent.putExtra("task", task);
++        setResult(42, intent);
++        finish();
++    };
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -54,9 +97,15 @@
+     }
+ 
+     private void initView() {
++        taskDescription = findViewById(R.id.add_task_description);
+         app.getComponent().inject(this);
++        userImg = findViewById(R.id.add_task_user_img);
+         token = getIntent().getStringExtra("token");
+-        viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(AddTaskViewModel.class);
++        userName = findViewById(R.id.add_task_user_name);
++        viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(AddTaskListViewModel.class);
++        calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
++        profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
++        profileViewModel.getUserMutableLiveData().observe(this, userInfo);
+         taskName = findViewById(R.id.add_task_name);
+         addTask = findViewById(R.id.add_task_img);
+         addTask.setOnClickListener(this::addTask);
+@@ -67,23 +116,24 @@
+         deadlineDate.setOnClickListener(this::setDeadlineDate);
+         currentDate = getIntent().getStringExtra("date");
+         priority = findViewById(R.id.add_task_priority);
+-        priority.setOnClickListener(v -> showPopupMenu(v));
++        userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
++        priority.setOnClickListener(this::showPopupMenu);
+         planDate.setOnClickListener(this::setPlanDate);
++        Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+     }
+ 
+     private void addTask(View view) {
+-        JSONObject task = new JSONObject();
+-        try {
+-            task.put("name", taskName.getText().toString());
+-            task.put("priority", priority.getText().toString());
+-            task.put("plan_date", planDate.getText());
+-            task.put("assignee", user.getId());
+-        } catch (JSONException e) {
+-            e.printStackTrace();
++        if (taskName.getText().toString().isEmpty()) {
++            taskName.requestFocus();
++            taskName.setError("Task name is missing");
++        } else {
++            Log.d(TAG, "addTask: " + Constants.priority.get(priority.getText().toString()));
++            viewModel.getMutableLiveData(taskName.getText().toString(), "5e51008be5fa7f153486fe38",
++                    currentDate, deadlineDateString,
++                    user.getId(), String.valueOf(Integer.parseInt(estimatedTime.getText().toString().substring(0, estimatedTime.length() - 1)) * 60), taskDescription.getText().toString(),
++                    priority.getText().toString().toLowerCase()).observe(this, taskObserver);
+         }
+-        viewModel.addTask(task);
+     }
+-
+ 
+     private void showPopupMenu(View v) {
+         PopupMenu popupMenu = new PopupMenu(this, v);
+@@ -103,7 +153,7 @@
+                             priority.setText("High");
+                             priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
+                             return true;
+-                            case R.id.urgent:
++                        case R.id.urgent:
+                             priority.setText("Urgent");
+                             priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
+                             return true;
+@@ -118,27 +168,17 @@
+     }
+ 
+     public void setPlanDate(View v) {
+-       DatePickerDialog datePickerDialog =  new DatePickerDialog(AddTaskActivity.this, planDateListener,
++        DatePickerDialog datePickerDialog = new DatePickerDialog(AddTaskActivity.this, planDateListener,
+                 dateAndTime.get(Calendar.YEAR),
+                 dateAndTime.get(Calendar.MONTH),
+                 dateAndTime.get(Calendar.DAY_OF_MONTH));
+-       datePickerDialog.setTitle("Set plan date");
+-       datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+-       datePickerDialog.show();
++        datePickerDialog.setTitle("Set plan date");
++        datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
++        datePickerDialog.show();
+     }
+-    DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
+-        @Override
+-        public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
+-            dateAndTime.set(Calendar.YEAR, year);
+-            dateAndTime.set(Calendar.MONTH, month);
+-            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+-            Log.d(TAG, "onDateSet: " + year+month+dayOfMonth);
+-            planDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month+1), String.valueOf(dayOfMonth))));
+-        }
+-    };
+ 
+     public void setDeadlineDate(View v) {
+-        DatePickerDialog datePickerDialog =  new DatePickerDialog(AddTaskActivity.this, deadlineDateListener,
++        DatePickerDialog datePickerDialog = new DatePickerDialog(AddTaskActivity.this, deadlineDateListener,
+                 dateAndTime.get(Calendar.YEAR),
+                 dateAndTime.get(Calendar.MONTH),
+                 dateAndTime.get(Calendar.DAY_OF_MONTH));
+@@ -146,26 +186,12 @@
+         datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+         datePickerDialog.show();
+     }
+-    DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
+-        @Override
+-        public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
+-            dateAndTime.set(Calendar.YEAR, year);
+-            dateAndTime.set(Calendar.MONTH, month);
+-            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+-            deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month+1), String.valueOf(dayOfMonth))));
+-        }
+-    };
+ 
+     public void setTime(View v) {
+-        TimePickerDialog timePicker = new TimePickerDialog(AddTaskActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, estimatedTimeListener,
+-                dateAndTime.get(Calendar.HOUR_OF_DAY),
+-                dateAndTime.get(Calendar.MINUTE), true);
+-                    timePicker.setIcon(R.drawable.ic_estimated_time);
+-                    timePicker.show();
++        CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, dateAndTime.get(Calendar.HOUR_OF_DAY), dateAndTime.get(Calendar.MINUTE), true);
++        timePickerDialog.setIcon(R.drawable.ic_estimated_time);
++        timePickerDialog.show();
+     }
+-    TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
+-        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+-        dateAndTime.set(Calendar.MINUTE, minute);
+-        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
+-    };
++
++
+ }
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/BoardFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/BoardFragment.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/calendar/BoardFragment.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -22,28 +22,36 @@
+ import android.graphics.Color;
+ import android.graphics.drawable.Drawable;
+ import android.os.Bundle;
+-import android.util.Log;
++import android.os.Parcelable;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+-import android.view.ViewTreeObserver;
+ import android.widget.Button;
++import android.widget.ImageView;
+ import android.widget.LinearLayout;
+ import android.widget.ScrollView;
+ import android.widget.TextView;
++import android.widget.Toast;
+ 
+ import androidx.annotation.Nullable;
++import androidx.constraintlayout.widget.ConstraintLayout;
+ import androidx.core.util.Pair;
+ import androidx.core.view.ViewCompat;
+ import androidx.fragment.app.Fragment;
++import androidx.fragment.app.FragmentManager;
+ import androidx.lifecycle.Observer;
+ import androidx.lifecycle.ViewModelProvider;
+ import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.recyclerview.widget.RecyclerView;
+ 
++import com.bumptech.glide.Glide;
++import com.bumptech.glide.request.RequestOptions;
+ import com.emika.app.R;
+ import com.emika.app.data.EmikaApplication;
++import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
++import com.emika.app.data.network.pojo.member.PayloadShortMember;
+ import com.emika.app.data.network.pojo.task.PayloadTask;
++import com.emika.app.data.network.pojo.user.Payload;
+ import com.emika.app.di.User;
+ import com.emika.app.features.calendar.BoardView;
+ import com.emika.app.features.calendar.ColumnProperties;
+@@ -53,61 +61,46 @@
+ import com.emika.app.presentation.utils.Constants;
+ import com.emika.app.presentation.utils.DateHelper;
+ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
++import com.emika.app.presentation.viewmodel.calendar.BottomSheetDialogViewModel;
+ import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
++import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
+ import com.google.android.material.bottomsheet.BottomSheetBehavior;
+-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+ import com.google.android.material.floatingactionbutton.FloatingActionButton;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
++import java.util.Map;
+ import java.util.concurrent.Callable;
+ 
+ import javax.inject.Inject;
+ 
+-public class BoardFragment extends Fragment implements SetCurrentColumn{
++public class BoardFragment extends Fragment {
+     private static final String TAG = "BoardFragment";
+     private static int sCreatedItems = 0;
+     @Inject
+     User user;
+     private BoardView mBoardView;
++    private ConstraintLayout selectCurrentUser;
+     private String token;
+     private int mColumns;
+     private boolean isOpen = false;
+     private Button rightScroll, leftScroll;
+     private EmikaApplication app = EmikaApplication.getInstance();
+-    private ExtendedFloatingActionButton selectUser;
+     private FloatingActionButton addTask;
+     private List<PayloadTask> payloadTaskList = new ArrayList<>();
+     private CalendarViewModel viewModel;
++    private ProfileViewModel profileViewModel;
++    private BottomSheetDialogViewModel bottomSheetDialogViewModel;
+     private ItemAdapter listAdapter;
+     private BottomSheetBehavior mBottomSheetBehavior1;
+-
+-
+-    private Observer<List<PayloadTask>> getTask = taskList -> {
+-        AsyncTask asyncTask = new AsyncTask();
+-        asyncTask.execute(taskList);
+-//
+-//        for (int i = 0; i < 40; i++) {
+-//            ArrayList<PayloadTask> plannedTask = new ArrayList<>();
+-//            for (int j = 0; j < taskList.size(); j++) {
+-//                if (taskList.get(j).getPlanDate() != null) {
+-//                    if (taskList.get(j).getPlanDate().equals(DateHelper.compareDate(i)) && taskList.get(j).getAssignee().equals("5e4fefc0e5fa7f153486fe19")) {
+-//                        plannedTask.add(taskList.get(j));
+-//                    }
+-//                }
+-//            }
+-//            Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
+-//            addColumn(DateHelper.getDate(DateHelper.compareDate(i)), "monday", plannedTask);
+-//        }
+-    };
+-    private Observer<Boolean> setColumn = current -> {
+-        if (current) {
+-            mBoardView.scrollToColumn(15, true);
+-        }
+-    };
++    private UserNetworkManager userNetworkManager;
++    private Boolean first = true;
++    private ImageView fabImg;
++    private TextView fabUserName, fabJobTitle;
++    private List<PayloadShortMember> memberList;
+ 
+     private List<PayloadTask> setTasks(List<PayloadTask> taskList) {
+-        for (int i = 0; i < 40; i++) {
++        for (int i = 0; i < 20; i++) {
+             ArrayList<PayloadTask> plannedTask = new ArrayList<>();
+             for (int j = 0; j < taskList.size(); j++) {
+                 if (taskList.get(j).getPlanDate() != null) {
+@@ -119,16 +112,10 @@
+             Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
+             addColumn(DateHelper.getDate(DateHelper.compareDate(i)), "monday", plannedTask);
+         }
+-//        mBoardView.scrollToColumn(15, true);
++        mBoardView.scrollToColumn(15, true);
+         return taskList;
+     }
+ 
+-    @Override
+-    public void onCreate(Bundle savedInstanceState) {
+-        super.onCreate(savedInstanceState);
+-        setHasOptionsMenu(true);
+-    }
+-
+     @Override
+     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+         View view = inflater.inflate(R.layout.board_layout, container, false);
+@@ -136,27 +123,45 @@
+         return view;
+     }
+ 
++    @Override
++    public void onResume() {
++        super.onResume();
++        profileViewModel.getUserMutableLiveData();
++    }
++
+     private void initViews(View view) {
+-        selectUser = view.findViewById(R.id.add_task_select_user);
+         app.getComponent().inject(this);
++        bottomSheetDialogViewModel = new ViewModelProvider(this).get(BottomSheetDialogViewModel.class);
++        token = getActivity().getIntent().getStringExtra("token");
++        fabUserName = view.findViewById(R.id.fab_user_name);
++        fabImg = view.findViewById(R.id.fab_img);
++        fabJobTitle = view.findViewById(R.id.fab_job_title);
++        selectCurrentUser = view.findViewById(R.id.select_current_user);
++        selectCurrentUser.setOnClickListener(v -> {
++            Bundle bundle=new Bundle();
++            bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
++            BottomSheetSelectUser mySheetDialog = new BottomSheetSelectUser();
++            mySheetDialog.setArguments(bundle);
++            FragmentManager fm = getActivity().getSupportFragmentManager();
++            mySheetDialog.show(fm, "modalSheetDialog");
++        });
++        userNetworkManager = new UserNetworkManager(token);
++
++        profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
++        profileViewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), userInfo);
+ 
+         rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
+         leftScroll = view.findViewById(R.id.left_scroll_to_current_date);
+         rightScroll.setOnClickListener(this::scrollToCurrentDate);
+         leftScroll.setOnClickListener(this::scrollToCurrentDate);
+-        selectUser.setOnClickListener(v -> {
+ 
+-        });
+         addTask = view.findViewById(R.id.add_task);
+-        selectUser.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
+         addTask.setOnClickListener(v -> {
+-
+             Intent intent = new Intent(getContext(), AddTaskActivity.class);
+             intent.putExtra("token", token);
+             intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()).toString());
+-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
++            startActivityForResult(intent, 42, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
+         });
+-        token = getActivity().getIntent().getStringExtra("token");
+         mBoardView = view.findViewById(R.id.board_view);
+         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
+         mBoardView.setSnapToColumnsWhenScrolling(true);
+@@ -164,14 +169,6 @@
+         mBoardView.setSnapDragItemToTouch(true);
+         mBoardView.setSnapToColumnInLandscape(false);
+         mBoardView.setColumnSnapPosition(BoardView.ColumnSnapPosition.CENTER);
+-        mBoardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+-            public void onGlobalLayout() {
+-                mBoardView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+-                viewModel.setCurrentColumn();
+-
+-//                Log.d(TAG, "onGlobalLayout: ");
+-            }
+-        });
+         viewModel.setCurrentColumn();
+         viewModel.setContext(getContext());
+         if (mBoardView.getFocusedColumn() < 15) {
+@@ -207,7 +204,7 @@
+                 HourCounterView hourEstimatedOld = mBoardView.getHeaderView(oldColumn).findViewById(R.id.hour_counter_estimated);
+                 HourCounterView hourEstimatedNew = mBoardView.getHeaderView(newColumn).findViewById(R.id.hour_counter_estimated);
+                 ArrayList<Pair<Long, PayloadTask>> newTasks = mBoardView.getAdapter(newColumn).getItemList();
+-                hourEstimatedOld.setProgress(hourEstimatedOld.getProgress() - taskNewPos.second.getDuration()/60);
++                hourEstimatedOld.setProgress(hourEstimatedOld.getProgress() - taskNewPos.second.getDuration() / 60);
+                 for (int i = 0; i < newTasks.size(); i++) {
+                     Pair<Long, PayloadTask> pair = newTasks.get(i);
+                     PayloadTask task = pair.second;
+@@ -230,14 +227,11 @@
+                     rightScroll.setVisibility(View.GONE);
+                 } else if (mBoardView.getFocusedColumn() < 15) {
+                     leftScroll.setVisibility(View.GONE);
+-
+                     rightScroll.setVisibility(View.VISIBLE);
+                 } else {
+                     rightScroll.setVisibility(View.GONE);
+                     leftScroll.setVisibility(View.VISIBLE);
+                 }
+-//                if (mBoardView.getColumnCount() - newColumn < 2)
+-//                    viewModel.setCurrentColumn();
+             }
+ 
+             @Override
+@@ -274,69 +268,24 @@
+ 
+         viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
+         viewModel.getCurrentDate().observe(getViewLifecycleOwner(), setColumn);
+-        viewModel.setCurrentColumn();
++        viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
++
+     }
+ 
++    private Observer<List<PayloadShortMember>> shortMembers = members ->{
++        memberList = members;
++        Toast.makeText(app,String.valueOf(memberList.size()), Toast.LENGTH_SHORT).show();
++    };
+     private void scrollToCurrentDate(View view) {
+         viewModel.setCurrentColumn();
+     }
+ 
+ 
+-//    @Override
+-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+-//        super.onCreateOptionsMenu(menu, inflater);
+-//        inflater.inflate(R.menu.menu_board, menu);
+-//    }
+-//
+-//    @Override
+-//    public void onPrepareOptionsMenu(Menu menu) {
+-//        super.onPrepareOptionsMenu(menu);
+-//        menu.findItem(R.id.action_disable_drag).setVisible(mBoardView.isDragEnabled());
+-//        menu.findItem(R.id.action_enable_drag).setVisible(!mBoardView.isDragEnabled());
+-//        menu.findItem(R.id.action_grid).setVisible(!mGridLayout);
+-//        menu.findItem(R.id.action_list).setVisible(mGridLayout);
+-//    }
+-//
+-//    @Override
+-//    public boolean onOptionsItemSelected(MenuItem item) {
+-//        switch (item.getItemId()) {
+-//            case R.id.action_disable_drag:
+-//                mBoardView.setDragEnabled(false);
+-//                getActivity().invalidateOptionsMenu();
+-//                return true;
+-//            case R.id.action_enable_drag:
+-//                mBoardView.setDragEnabled(true);
+-//                getActivity().invalidateOptionsMenu();
+-//                return true;
+-//            case R.id.action_grid:
+-//                mGridLayout = true;
+-//                resetBoard();
+-//                getActivity().invalidateOptionsMenu();
+-//                return true;
+-//            case R.id.action_list:
+-//                mGridLayout = false;
+-//                resetBoard();
+-//                getActivity().invalidateOptionsMenu();
+-//                return true;
+-//            case R.id.action_add_column:
+-//                addColumn();
+-//                return true;
+-//            case R.id.action_remove_column:
+-//                mBoardView.removeColumn(0);
+-//                return true;
+-//            case R.id.action_clear_board:
+-//                mBoardView.clearBoard();
+-//                return true;
+-//        }
+-//        return super.onOptionsItemSelected(item);
+-//    }
+-
+ //    private void resetBoard() {
+ //        mBoardView.clearBoard();
+ //        mBoardView.setCustomDragItem(new MyDragItem(getActivity(), R.layout.column_item));
+ //        mBoardView.setCustomColumnDragItem(new MyColumnDragItem(getActivity(), R.layout.column_drag_layout));
+ //    }
+-
+     private void addColumn(String month, String day, List<PayloadTask> payloadTaskList) {
+         final ArrayList<Pair<Long, PayloadTask>> mItemArray = new ArrayList<>();
+         int estimatedTime = 0;
+@@ -351,7 +300,7 @@
+             mItemArray.add(new Pair<Long, PayloadTask>(id, payloadTaskList.get(i)));
+         }
+ 
+-        ItemAdapter listAdapter = new ItemAdapter(mItemArray, R.layout.column_item, R.id.item_layout, true, getContext());
++        ItemAdapter listAdapter = new ItemAdapter(mItemArray, R.layout.column_item, R.id.item_layout, true, getContext(), token);
+         listAdapter.setContext(getContext());
+         listAdapter.setmDragOnLongPress(true);
+         listAdapter.setmLayoutId(R.layout.column_item);
+@@ -363,19 +312,6 @@
+         ((HourCounterView) header.findViewById(R.id.hour_counter_estimated)).setProgress(estimatedTime);
+         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+ 
+-
+-//        header.setOnClickListener(v -> {  //ДОБАВЛЕНИЕ ТАСКА
+-//            long id = sCreatedItems++;
+-//            Pair item = new Pair<>(id, payloadTaskList.get(0));
+-//            mBoardView.addItem(mBoardView.getColumnOfHeader(v), payloadTaskList.get(0).getOrder(), item, true);
+-        //mBoardView.moveItem(4, 0, 0, true);
+-//            mBoardView.removeItem(column, 0);
+-        //mBoardView.moveItem(0, 0, 1, 3, false);
+-        //mBoardView.replaceItem(0, 0, item1, true);
+-//            ((TextView) header.findViewById(R.id.header_day)).setText(String.valueOf(mItemArray.size()));
+-//        });
+-
+-
+         ColumnProperties columnProperties = ColumnProperties.Builder.newBuilder(listAdapter)
+                 .setLayoutManager(layoutManager)
+                 .setHasFixedItemSize(false)
+@@ -387,11 +323,6 @@
+         mBoardView.addColumn(columnProperties);
+     }
+ 
+-    @Override
+-    public void set() {
+-        viewModel.setCurrentColumn();
+-    }
+-
+     private static class MyColumnDragItem extends DragItem {
+ 
+         MyColumnDragItem(Context context, int layoutId) {
+@@ -448,62 +379,61 @@
+             super.onEndDragAnimation(dragView);
+             dragView.animate().scaleX(1).scaleY(1).start();
+         }
++
+     }
++
++    private Observer<List<PayloadTask>> getTask = taskList -> {
++        AsyncTask asyncTask = new AsyncTask();
++        asyncTask.execute(taskList);
++        Toast.makeText(app, String.valueOf(mBoardView.getColumnCount()), Toast.LENGTH_SHORT).show();
++    };
++
++    private Observer<Boolean> setColumn = current -> {
++        if (current) {
++            mBoardView.scrollToColumn(15, true);
++        }
++    };
+ 
+-//    private static class MyDragItem extends DragItem {
+-//
+-//        MyDragItem(Context context, int layoutId) {
+-//            super(context, layoutId);
+-//        }
+-//
+-//        @Override
+-//        public void onBindDragView(View clickedView, View dragView) {
+-//            CharSequence text = ((TextView) clickedView.findViewById(R.id.text)).getText();
+-//            ((TextView) dragView.findViewById(R.id.text)).setText(text);
+-//            CardView dragCard = dragView.findViewById(R.id.card);
+-//            CardView clickedCard = clickedView.findViewById(R.id.card);
+-//
+-//            dragCard.setMaxCardElevation(40);
+-//            dragCard.setCardElevation(clickedCard.getCardElevation());
+-//            // I know the dragView is a FrameLayout and that is why I can use setForeground below api level 23
+-//            dragCard.setForeground(clickedView.getResources().getDrawable(R.drawable.card_view_drag_foreground));
+-//        }
+-//
+-//        @Override
+-//        public void onMeasureDragView(View clickedView, View dragView) {
+-//            CardView dragCard = dragView.findViewById(R.id.card);
+-//            CardView clickedCard = clickedView.findViewById(R.id.card);
+-//            int widthDiff = dragCard.getPaddingLeft() - clickedCard.getPaddingLeft() + dragCard.getPaddingRight() -
+-//                    clickedCard.getPaddingRight();
+-//            int heightDiff = dragCard.getPaddingTop() - clickedCard.getPaddingTop() + dragCard.getPaddingBottom() -
+-//                    clickedCard.getPaddingBottom();
+-//            int width = clickedView.getMeasuredWidth() + widthDiff;
+-//            int height = clickedView.getMeasuredHeight() + heightDiff;
+-//            dragView.setLayoutParams(new FrameLayout.LayoutParams(width, height));
+-//
+-//            int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+-//            int heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+-//            dragView.measure(widthSpec, heightSpec);
+-//        }
+-//
+-//        @Override
+-//        public void onStartDragAnimation(View dragView) {
+-//            CardView dragCard = dragView.findViewById(R.id.card);
+-//            ObjectAnimator anim = ObjectAnimator.ofFloat(dragCard, "CardElevation", dragCard.getCardElevation(), 40);
+-//            anim.setInterpolator(new DecelerateInterpolator());
+-//            anim.setDuration(ANIMATION_DURATION);
+-//            anim.start();
+-//        }
+-//
+-//        @Override
+-//        public void onEndDragAnimation(View dragView) {
+-//            CardView dragCard = dragView.findViewById(R.id.card);
+-//            ObjectAnimator anim = ObjectAnimator.ofFloat(dragCard, "CardElevation", dragCard.getCardElevation(), 6);
+-//            anim.setInterpolator(new DecelerateInterpolator());
+-//            anim.setDuration(ANIMATION_DURATION);
+-//            anim.start();
+-//        }
+-//    }
++
++    private Observer<Payload> userInfo = userInfo -> {
++        user.setFirstName(userInfo.getFirstName());
++        user.setLastName(userInfo.getLastName());
++        user.setId(userInfo.getId());
++        user.setBio(userInfo.getBio());
++        user.setPictureUrl(userInfo.getPictureUrl());
++        user.setJobTitle(userInfo.getJobTitle());
++        fabUserName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
++        fabJobTitle.setText(user.getJobTitle());
++        Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(fabImg);
++    };
++
++    @Override
++    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
++        super.onActivityResult(requestCode, resultCode, data);
++        if (data != null) {
++            PayloadTask task = data.getParcelableExtra("task");
++            addTask(task);
++        }
++    }
++
++    private void addTask(PayloadTask task) {
++        long id = sCreatedItems++;
++        int column = 0;
++        Pair item = new Pair<>(id, task);
++        for (Map.Entry<Integer, String> entry : Constants.dateColumnMap.entrySet()) {
++            if (entry.getValue().equals(task.getPlanDate())) {
++                column = entry.getKey();
++            }
++        }
++        mBoardView.addItem(column, 0, item, true);
++
++//            Log.d(TAG, "addTask: " + mBoardView.getItemCount(mBoardView.getFocusedColumn()));
++//            mBoardView.moveItem(4, 0, 0, true);
++//            mBoardView.removeItem(column, 0);
++//            mBoardView.moveItem(0, 0, 1, 3, false);
++//            mBoardView.replaceItem(0, 0, item1, true);
++//            ((TextView) header.findViewById(R.id.header_day)).setText(String.valueOf(mItemArray.size()));
++    }
+ 
+     private class SetTaskCallable implements Callable<List<PayloadTask>> {
+         List<PayloadTask> taskList;
+@@ -526,15 +456,15 @@
+             for (int i = 0; i < 40; i++) {
+                 ArrayList<PayloadTask> plannedTask = new ArrayList<>();
+                 for (int j = 0; j < taskList[0].size(); j++) {
+-                    if (taskList[0].get(j).getPlanDate() != null && taskList[0].get(j).getAssignee().equals("5e4fefc0e5fa7f153486fe19")) {
++                    if (taskList[0].get(j).getPlanDate() != null && taskList[0].get(j).getAssignee().equals(user.getId())){
++                        if (taskList[0].get(j).getStatus().equals("wip") || taskList[0].get(j).getStatus().equals("done") || taskList[0].get(j).getStatus().equals("canceled") ||
++                                taskList[0].get(j).getStatus().equals("new"))
+                         if (taskList[0].get(j).getPlanDate().equals(DateHelper.compareDate(i))) {
+                             plannedTask.add(taskList[0].get(j));
+                         }
+                     }
+                 }
+                 tasks.add(plannedTask);
+-//            Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
+-//            addColumn(DateHelper.getDate(DateHelper.compareDate(i)), "monday", plannedTask);
+             }
+ 
+             return null;
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetFragment.java
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetFragment.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetFragment.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
+@@ -1,49 +0,0 @@
+-package com.emika.app.presentation.ui.calendar;
+-
+-import android.annotation.SuppressLint;
+-import android.app.Dialog;
+-import android.os.Bundle;
+-import android.view.LayoutInflater;
+-import android.view.View;
+-import android.view.ViewGroup;
+-import android.view.WindowManager;
+-
+-import androidx.annotation.NonNull;
+-import androidx.annotation.Nullable;
+-import androidx.lifecycle.ViewModelProviders;
+-
+-import com.emika.app.R;
+-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+-
+-public class BottomSheetFragment extends BottomSheetDialogFragment {
+-
+-    private BottomSheetDialogViewModel mViewModel;
+-    public static BottomSheetFragment newInstance() {
+-        return new BottomSheetFragment();
+-    }
+-//
+-    @Override
+-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+-                             @Nullable Bundle savedInstanceState) {
+-        View view = inflater.inflate(R.layout.bottom_sheet_dialog_fragment, container, false);
+-//        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+-        setStyle(BottomSheetFragment.STYLE_NORMAL, R.style.BottomSheetStyleDialogTheme);
+-//        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+-
+-        return view;
+-    }
+-
+-    @Override
+-    public void setupDialog(@NonNull Dialog dialog, int style) {
+-        super.setupDialog(dialog, style);
+-        View contentView = View.inflate(getContext(), R.layout.bottom_sheet_dialog_fragment, null);
+-        setStyle(BottomSheetFragment.STYLE_NO_INPUT, R.style.BottomSheetStyleDialogTheme);
+-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+-
+-        dialog.setContentView(contentView);
+-    }
+-
+-
+-}
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetSelectUser.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetSelectUser.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetSelectUser.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,74 @@
++package com.emika.app.presentation.ui.calendar;
++
++import android.app.Dialog;
++import android.app.ListActivity;
++import android.os.Bundle;
++import android.util.Log;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.view.WindowManager;
++
++import androidx.annotation.NonNull;
++import androidx.annotation.Nullable;
++import androidx.lifecycle.Observer;
++import androidx.lifecycle.ViewModelProvider;
++import androidx.recyclerview.widget.LinearLayoutManager;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.emika.app.R;
++import com.emika.app.data.network.pojo.member.PayloadMember;
++import com.emika.app.data.network.pojo.member.PayloadShortMember;
++import com.emika.app.presentation.adapter.calendar.SelectCurrentUserAdapter;
++import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
++import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
++import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
++
++import java.util.ArrayList;
++import java.util.List;
++
++public class BottomSheetSelectUser extends BottomSheetDialogFragment {
++
++    private CalendarViewModel viewModel;
++    private RecyclerView memberRecycler;
++    private SelectCurrentUserAdapter adapter;
++    private List<PayloadShortMember> memberList = new ArrayList<>();
++    private String token;
++    private static final String TAG = "BottomSheetSelectUser";
++    public static BottomSheetSelectUser newInstance() {
++        return new BottomSheetSelectUser();
++    }
++
++    @Override
++    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
++                             @Nullable Bundle savedInstanceState) {
++        View view = inflater.inflate(R.layout.bottom_sheet_dialog_fragment, container, false);
++        setStyle(BottomSheetSelectUser.STYLE_NORMAL, R.style.BottomSheetStyleDialogTheme);
++        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
++        initView(view);
++        return view;
++    }
++
++    private void initView(View view) {
++        memberList = getArguments().getParcelableArrayList("members");
++        memberRecycler = view.findViewById(R.id.bottom_sheet_recycler_select_user);
++        memberRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
++        memberRecycler.setHasFixedSize(true);
++        adapter = new SelectCurrentUserAdapter(memberList, getContext());
++        memberRecycler.setAdapter(adapter);
++    }
++
++
++
++    @Override
++    public void setupDialog(@NonNull Dialog dialog, int style) {
++        super.setupDialog(dialog, style);
++        View contentView = View.inflate(getContext(), R.layout.bottom_sheet_dialog_fragment, null);
++        setStyle(BottomSheetSelectUser.STYLE_NO_INPUT, R.style.BottomSheetStyleDialogTheme);
++        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
++        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
++        dialog.setContentView(contentView);
++    }
++
++
++}
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/SetCurrentColumn.java
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/SetCurrentColumn.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/calendar/SetCurrentColumn.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
+@@ -1,5 +0,0 @@
+-package com.emika.app.presentation.ui.calendar;
+-
+-public interface SetCurrentColumn {
+-    void set();
+-}
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/TaskInfoActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/TaskInfoActivity.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/calendar/TaskInfoActivity.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,41 +1,101 @@
+ package com.emika.app.presentation.ui.calendar;
+ 
+ import androidx.appcompat.app.AppCompatActivity;
++import androidx.lifecycle.ViewModelProvider;
+ 
+ import android.os.Bundle;
++import android.text.Editable;
++import android.text.TextWatcher;
++import android.util.Log;
+ import android.widget.Button;
+ import android.widget.EditText;
++import android.widget.ImageView;
+ import android.widget.TextView;
+ 
+ import com.emika.app.R;
++import com.emika.app.data.EmikaApplication;
+ import com.emika.app.data.network.pojo.task.PayloadTask;
++import com.emika.app.di.User;
++import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
++import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
++
++import javax.inject.Inject;
+ 
+ public class TaskInfoActivity extends AppCompatActivity {
+     private static final String TAG = "TaskInfoActivity";
++    @Inject
++    User user;
++    private EmikaApplication app = EmikaApplication.getInstance();
+     private PayloadTask task;
+-    private EditText taskName;
+-    private TextView spentTimeHour, estimatedTimeHour,spentTimeMinute, estimatedTimeMinute, planDate, deadlineDate;
++    private EditText taskName, taskDescription;
++    private ImageView userImg;
++    private TextView spentTimeHour, estimatedTimeHour, planDate, deadlineDate, userName;
+     private Button plusSpentTime, minusSpentTime, plusEstimatedTime, minusEstimatedTime;
+-
++    private TaskInfoViewModel taskInfoViewModel;
++    private String token;
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.activity_task_info);
+         initViews();
+     }
+-
+     private void initViews() {
++        app.getComponent().inject(this);
++        token = getIntent().getStringExtra("token");
++        taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
+         task = getIntent().getParcelableExtra("task");
+-        taskName = findViewById(R.id.task_name);
+-        spentTimeHour = findViewById(R.id.task_spent_time_hour);
+-        spentTimeMinute = findViewById(R.id.task_spent_time_minute);
+-        estimatedTimeHour = findViewById(R.id.task_estimated_time_hour);
+-        estimatedTimeMinute = findViewById(R.id.task_estimated_time_minute);
+-        planDate = findViewById(R.id.task_plan_date);
+-        deadlineDate = findViewById(R.id.task_dead_line_date);
++        taskDescription = findViewById(R.id.task_info_description);
++        taskDescription.addTextChangedListener(taskDescriptionTextWatcher);
++        taskName = findViewById(R.id.task_info_name);
++        taskName.addTextChangedListener(taskNameTextWatcher);
++        spentTimeHour = findViewById(R.id.task_info_spent_time);
++        estimatedTimeHour = findViewById(R.id.task_info_estimated_time);
++        planDate = findViewById(R.id.task_info_plan_date);
++        deadlineDate = findViewById(R.id.task_info_deadline_date);
++        userName = findViewById(R.id.task_info_user_name);
++        userImg = findViewById(R.id.task_info_user_img);
+         setTaskInfo(task);
++        setUserInfo();
++    }
++    private void setUserInfo() {
++//        userName.setText(user.get);
++    }
++
++    private TextWatcher taskNameTextWatcher = new TextWatcher() {
++        @Override
++        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
++
++        }
++
++        @Override
++        public void onTextChanged(CharSequence s, int start, int before, int count) {
++
++        }
+ 
+-    }
++        @Override
++        public void afterTextChanged(Editable s) {
++            task.setName(taskName.getText().toString());
++            taskInfoViewModel.updateTask(task);
++            Log.d(TAG, "afterTextChanged: " + task.getName());
++        }
++    };
++    private TextWatcher taskDescriptionTextWatcher = new TextWatcher() {
++        @Override
++        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
++
++        }
++
++        @Override
++        public void onTextChanged(CharSequence s, int start, int before, int count) {
++
++        }
++
++        @Override
++        public void afterTextChanged(Editable s) {
++            task.setDescription(taskDescription.getText().toString());
++            taskInfoViewModel.updateTask(task);
++        }
++    };
+ 
+     private void setTaskInfo(PayloadTask task) {
+         if (task != null){
+@@ -44,8 +104,6 @@
+             deadlineDate.setText(task.getDeadlineDate());
+             spentTimeHour.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+             estimatedTimeHour.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
+-            estimatedTimeMinute.setText(String.format("%sm", String.valueOf(task.getDuration() % 60)));
+-            spentTimeMinute.setText(String.format("%sm", String.valueOf(task.getDuration() % 60)));
+         }
+     }
+ }
+Index: app/src/main/java/com/emika/app/presentation/ui/profile/ProfileFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/profile/ProfileFragment.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/ui/profile/ProfileFragment.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -64,10 +64,11 @@
+         app.getComponent().inject(this);
+     }
+     private Observer<Payload> getUserInfo = user -> {
++        this.user.setId(user.getId());
+         this.user.setFirstName(user.getFirstName());
+         this.user.setLastName(user.getLastName());
+         this.user.setBio(user.getBio());
+-        this.user.setId(user.getId());
++        this.user.setPictureUrl(user.getPictureUrl());
+ //        this.user.setFirstName(user.getFirstName());
+ //        this.user.setFirstName(user.getFirstName());
+ //        this.user.setFirstName(user.getFirstName());
+Index: app/src/main/java/com/emika/app/presentation/utils/DateHelper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/utils/DateHelper.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/utils/DateHelper.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -39,16 +39,16 @@
+         return date;
+     }
+     public static String getDatePicker(String date){
+-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-d");
+-        SimpleDateFormat formatted = new SimpleDateFormat("MMM dd");
+-        Calendar c = Calendar.getInstance();
+-        try {
+-            c.setTime(sdf.parse(date));
+-        } catch (ParseException e) {
+-            e.printStackTrace();
+-        }
+-        // number of days to add
+-        date = formatted.format(c.getTime());
+-        return date;
++            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d");
++            SimpleDateFormat formatted = new SimpleDateFormat("yyyy-MM-d");
++            Calendar c = Calendar.getInstance();
++            try {
++                c.setTime(sdf.parse(date));
++            } catch (ParseException e) {
++                e.printStackTrace();
++            }
++            // number of days to add
++            date = formatted.format(c.getTime());
++            return date;
+     }
+ }
+Index: app/src/main/java/com/emika/app/presentation/utils/viewModelFactory/calendar/TokenViewModelFactory.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/utils/viewModelFactory/calendar/TokenViewModelFactory.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/utils/viewModelFactory/calendar/TokenViewModelFactory.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -4,7 +4,7 @@
+ import androidx.lifecycle.ViewModel;
+ import androidx.lifecycle.ViewModelProvider;
+ 
+-import com.emika.app.presentation.viewmodel.calendar.AddTaskViewModel;
++import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
+ import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+ import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
+ import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
+@@ -30,8 +30,8 @@
+         else if (modelClass == ProfileViewModel.class){
+             return (T) new ProfileViewModel(token);
+         }
+-        else if (modelClass == AddTaskViewModel.class){
+-            return (T) new AddTaskViewModel(token);
++        else if (modelClass == AddTaskListViewModel.class){
++            return (T) new AddTaskListViewModel(token);
+         }
+         return null;
+     }
+Index: app/src/main/java/com/emika/app/presentation/viewmodel/calendar/AddTaskListViewModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/viewmodel/calendar/AddTaskListViewModel.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/java/com/emika/app/presentation/viewmodel/calendar/AddTaskListViewModel.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,46 @@
++package com.emika.app.presentation.viewmodel.calendar;
++
++import android.util.Log;
++
++import androidx.lifecycle.MutableLiveData;
++import androidx.lifecycle.ViewModel;
++
++import com.emika.app.data.network.callback.calendar.TaskCallback;
++import com.emika.app.data.network.pojo.task.PayloadTask;
++import com.emika.app.domain.repository.calendar.CalendarRepository;
++
++public class AddTaskListViewModel extends ViewModel implements TaskCallback {
++    private static final String TAG = "AddTaskListViewModel";
++    private PayloadTask task;
++    private String token;
++    private CalendarRepository repository;
++    private MutableLiveData<PayloadTask> mutableLiveData;
++    public AddTaskListViewModel(String token) {
++        this.token = token;
++        repository = new CalendarRepository(token);
++        mutableLiveData = new MutableLiveData<>();
++    }
++
++    public void addTask(String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority) {
++        repository.addTask(this, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
++    }
++
++    @Override
++    public void getAddedTask(PayloadTask task) {
++        this.task = task;
++        mutableLiveData.postValue(task);
++    }
++
++    public PayloadTask getTask() {
++        return task;
++    }
++
++    public MutableLiveData<PayloadTask> getMutableLiveData(String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority) {
++        repository.addTask(this, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
++        return mutableLiveData;
++    }
++
++    public void setMutableLiveData(MutableLiveData<PayloadTask> mutableLiveData) {
++        this.mutableLiveData = mutableLiveData;
++    }
++}
+Index: app/src/main/java/com/emika/app/presentation/viewmodel/calendar/AddTaskViewModel.java
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/viewmodel/calendar/AddTaskViewModel.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/viewmodel/calendar/AddTaskViewModel.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
+@@ -1,30 +0,0 @@
+-package com.emika.app.presentation.viewmodel.calendar;
+-
+-import androidx.lifecycle.ViewModel;
+-
+-import com.emika.app.data.network.callback.calendar.TaskCallback;
+-import com.emika.app.data.network.pojo.task.PayloadTask;
+-import com.emika.app.domain.repository.calendar.CalendarRepository;
+-
+-import org.json.JSONObject;
+-
+-import java.util.List;
+-
+-public class AddTaskViewModel extends ViewModel implements TaskCallback {
+-    private JSONObject task;
+-    private String token;
+-    private CalendarRepository repository;
+-    public AddTaskViewModel(String token) {
+-        this.token = token;
+-        repository = new CalendarRepository(token);
+-    }
+-
+-    public void addTask(JSONObject task){
+-        repository.addTask(this, task);
+-    }
+-
+-    @Override
+-    public void setTask(List<PayloadTask> taskList) {
+-
+-    }
+-}
+Index: app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetDialogViewModel.java
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/ui/calendar/BottomSheetDialogViewModel.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/viewmodel/calendar/BottomSheetDialogViewModel.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,7 +1,7 @@
+-package com.emika.app.presentation.ui.calendar;
++package com.emika.app.presentation.viewmodel.calendar;
+ 
+ import androidx.lifecycle.ViewModel;
+ 
+ public class BottomSheetDialogViewModel extends ViewModel {
+-    // TODO: Implement the ViewModel
++
+ }
+Index: app/src/main/java/com/emika/app/presentation/viewmodel/calendar/CalendarViewModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/viewmodel/calendar/CalendarViewModel.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/viewmodel/calendar/CalendarViewModel.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,7 +1,6 @@
+ package com.emika.app.presentation.viewmodel.calendar;
+ 
+ import android.content.Context;
+-import android.util.Log;
+ 
+ import androidx.lifecycle.LiveData;
+ import androidx.lifecycle.MutableLiveData;
+@@ -9,7 +8,10 @@
+ 
+ import com.emika.app.data.db.callback.calendar.TaskDbCallback;
+ import com.emika.app.data.db.entity.TaskEntity;
++import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
+ import com.emika.app.data.network.callback.calendar.TaskCallback;
++import com.emika.app.data.network.callback.calendar.TaskListCallback;
++import com.emika.app.data.network.pojo.member.PayloadShortMember;
+ import com.emika.app.data.network.pojo.task.PayloadTask;
+ import com.emika.app.domain.repository.calendar.CalendarRepository;
+ import com.emika.app.presentation.utils.Converter;
+@@ -17,22 +19,26 @@
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+-public class CalendarViewModel extends ViewModel implements TaskCallback, TaskDbCallback {
++public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, ShortMemberCallback {
++    private static final String TAG = "CalendarViewModel";
+     private MutableLiveData<List<PayloadTask>> taskListMutableLiveData;
+     private MutableLiveData<Boolean> currentColumn;
+-    private static final String TAG = "CalendarViewModel";
++    private MutableLiveData<List<PayloadShortMember>> membersMutableLiveData;
+     private CalendarRepository repository;
+     private String token;
+     private Context context;
+     private Converter converter;
++
+     public CalendarViewModel(String token) {
+         this.token = token;
+         this.taskListMutableLiveData = new MutableLiveData<>();
+         this.currentColumn = new MutableLiveData<>();
++        membersMutableLiveData = new MutableLiveData<>();
+         repository = new CalendarRepository(token);
+         converter = new Converter();
+     }
+ 
++
+     public MutableLiveData<List<PayloadTask>> getListMutableLiveData() {
+         repository.getPayloadTaskList(this, this, context);
+         return taskListMutableLiveData;
+@@ -43,7 +49,7 @@
+     }
+ 
+     @Override
+-    public void setTask(List<PayloadTask> taskList) {
++    public void setTaskList(List<PayloadTask> taskList) {
+         repository.sedDbData(taskList);
+         ArrayList<PayloadTask> plannedTask = new ArrayList<>();
+         for (int j = 0; j < taskList.size(); j++) {
+@@ -58,24 +64,6 @@
+     public void setDbTask(List<TaskEntity> taskList) {
+         List<PayloadTask> payloadTasks = converter.fromTaskEntityToPayloadTaskList(taskList);
+         ArrayList<PayloadTask> plannedTask = new ArrayList<>();
+-//        for (int i = 0; i < taskList.size(); i++) {
+-//            PayloadTask payloadTask = new PayloadTask();
+-//            payloadTask.setId(taskList.get(i).getId());
+-//            payloadTask.setPriority(taskList.get(i).getPriority());
+-//            payloadTask.setAssignee(taskList.get(i).getAssignee());
+-//            payloadTask.setCompanyId(taskList.get(i).getCompanyId());
+-//            payloadTask.setCreatedAt(taskList.get(i).getCreatedAt());
+-//            payloadTask.setCreatedBy(taskList.get(i).getCreatedBy());
+-//            payloadTask.setDeadlineDate(taskList.get(i).getDeadlineDate());
+-//            payloadTask.setDeadlineEmika(taskList.get(i).getDeadlineEmika());
+-//            payloadTask.setDeadlineTime(taskList.get(i).getDeadlineTime());
+-//            payloadTask.setDeadlinePeriod(taskList.get(i).getDeadlinePeriod());
+-//            payloadTask.setDescription(taskList.get(i).getDescription());
+-//            payloadTask.setDuration(taskList.get(i).getDuration());
+-//            payloadTask.setPlanDate(taskList.get(i).getPlanDate());
+-//            payloadTask.setName(taskList.get(i).getName());
+-//            payloadTasks.add(payloadTask);
+-//        }
+         for (int j = 0; j < payloadTasks.size(); j++) {
+             if (taskList.get(j).getPlanDate() != null) {
+                 plannedTask.add(payloadTasks.get(j));
+@@ -96,4 +84,21 @@
+     public void setContext(Context context) {
+         this.context = context;
+     }
++
++    @Override
++    public void getAddedTask(PayloadTask task) {
++
++    }
++
++    public MutableLiveData<List<PayloadShortMember>> getMembersMutableLiveData() {
++        if (membersMutableLiveData.getValue() == null) {
++            repository.getAllMembers(this);
++            return membersMutableLiveData;
++        } else return membersMutableLiveData;
++    }
++
++    @Override
++    public void allMembers(List<PayloadShortMember> shortMembers) {
++        membersMutableLiveData.postValue(shortMembers);
++    }
+ }
+Index: app/src/main/java/com/emika/app/presentation/viewmodel/calendar/TaskInfoViewModel.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/emika/app/presentation/viewmodel/calendar/TaskInfoViewModel.java	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/java/com/emika/app/presentation/viewmodel/calendar/TaskInfoViewModel.java	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -4,6 +4,8 @@
+ import androidx.lifecycle.ViewModel;
+ 
+ import com.emika.app.data.network.pojo.task.PayloadTask;
++import com.emika.app.data.network.pojo.user.Payload;
++import com.emika.app.domain.repository.calendar.CalendarRepository;
+ import com.emika.app.domain.repository.calendar.TaskInfoRepository;
+ 
+ public class TaskInfoViewModel extends ViewModel {
+@@ -11,16 +13,19 @@
+ 
+     private PayloadTask task;
+     private TaskInfoRepository taskInfoRepository;
++    private CalendarRepository repository;
+     private String token;
+     public TaskInfoViewModel(String token) {
+         this.token = token;
++        repository = new CalendarRepository(token);
+         taskMutableLiveData = new MutableLiveData<>();
+     }
+     public MutableLiveData<PayloadTask> getTaskMutableLiveData() {
+-
+         return taskMutableLiveData;
+     }
+-
++    public void updateTask(PayloadTask task){
++        repository.updateTask(task);
++    }
+     public void setTask(PayloadTask task) {
+         this.task = task;
+     }
+Index: app/src/main/res/anim/zoom_anim.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/anim/zoom_anim.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/anim/zoom_anim.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<set xmlns:android="http://schemas.android.com/apk/res/android" android:fillAfter="true" >
++    <scale
++        xmlns:android="http://schemas.android.com/apk/res/android"
++
++        android:toYScale="1" >
++    </scale>
++</set>
+\ No newline at end of file
+Index: app/src/main/res/drawable/ic_scroll_left.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_scroll_left.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/drawable/ic_scroll_left.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,17 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="40dp"
++    android:height="40dp"
++    android:viewportWidth="40"
++    android:viewportHeight="40">
++  <path
++      android:pathData="M0,0H20C31.0457,0 40,8.9543 40,20C40,31.0457 31.0457,40 20,40H0V0Z"
++      android:fillColor="#35A666"/>
++  <path
++      android:pathData="M20.8,27.1998L12,19.9998L20.8,12.7998"
++      android:strokeAlpha="0.8"
++      android:strokeLineJoin="round"
++      android:strokeWidth="1.6"
++      android:fillColor="#00000000"
++      android:strokeColor="#ffffff"
++      android:strokeLineCap="round"/>
++</vector>
+Index: app/src/main/res/drawable/ic_scroll_right.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_scroll_right.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/drawable/ic_scroll_right.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,17 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="40dp"
++    android:height="40dp"
++    android:viewportWidth="40"
++    android:viewportHeight="40">
++  <path
++      android:pathData="M40,0H20C8.9543,0 -0,8.9543 -0,20C-0,31.0457 8.9543,40 20,40H40V0Z"
++      android:fillColor="#35A666"/>
++  <path
++      android:pathData="M19.2,27.1998L28,19.9998L19.2,12.7998"
++      android:strokeAlpha="0.8"
++      android:strokeLineJoin="round"
++      android:strokeWidth="1.6"
++      android:fillColor="#00000000"
++      android:strokeColor="#ffffff"
++      android:strokeLineCap="round"/>
++</vector>
+Index: app/src/main/res/drawable/ic_spent_time.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/ic_spent_time.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/drawable/ic_spent_time.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,13 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="15dp"
++    android:height="15dp"
++    android:viewportWidth="15"
++    android:viewportHeight="15">
++  <path
++      android:pathData="M13.75,7.5H11.25L9.375,13.125L5.625,1.875L3.75,7.5H1.25"
++      android:strokeLineJoin="round"
++      android:strokeWidth="1.33"
++      android:fillColor="#00000000"
++      android:strokeColor="#35A666"
++      android:strokeLineCap="round"/>
++</vector>
+Index: app/src/main/res/drawable/shape_bottom_sheet.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/shape_bottom_sheet.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/drawable/shape_bottom_sheet.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    android:shape="rectangle">
++    <corners android:topLeftRadius="5dp" android:topRightRadius="5dp"/>
++    <stroke android:color="@color/light_black" android:width="1dp"/>
++</shape>
+\ No newline at end of file
+Index: app/src/main/res/drawable/shape_fab.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/shape_fab.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/drawable/shape_fab.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    android:shape="rectangle">
++    <corners android:radius="100dp"/>
++    <padding android:bottom="5dp" android:left="5dp" android:right="5dp" android:top="5dp"/>
++    <solid android:color="@color/white"/>
++</shape>
+\ No newline at end of file
+Index: app/src/main/res/drawable/shape_task_params.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/shape_task_params.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/drawable/shape_task_params.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -3,5 +3,5 @@
+     android:shape="rectangle">
+     <stroke android:color="@color/grey" android:width="1dp"/>
+     <corners android:radius="5dp"/>
+-    <padding android:top="2dp" android:right="5dp" android:left="5dp" android:bottom="2dp"/>
++    <padding android:top="8dp" android:right="8dp" android:left="8dp" android:bottom="8dp"/>
+ </shape>
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_add_task_activity.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_add_task_activity.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/layout/activity_add_task_activity.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -5,29 +5,41 @@
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:background="#E5E5E5"
+-
+     tools:context=".presentation.ui.calendar.AddTaskActivity">
+ 
+     <EditText
+-
+         android:id="@+id/add_task_name"
++        android:inputType="textPersonName"
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+-        android:paddingLeft="5dp"
+         android:layout_marginTop="16dp"
++        android:background="@android:color/transparent"
++        android:hint="Set task purpose..."
+         android:imeOptions="actionSend|flagNoEnterAction"
++        android:paddingLeft="20dp"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintHorizontal_bias="0.0"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="parent" />
+ 
++    <View
++        android:layout_width="match_parent"
++        android:layout_height="1dp"
++        android:layout_marginTop="20dp"
++        android:background="#D1DDEE"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/add_task_description" />
+ 
+     <EditText
+         android:id="@+id/add_task_description"
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_marginTop="16dp"
++        android:inputType="textPersonName"
++        android:background="@android:color/transparent"
+         android:hint="@string/description"
++        android:paddingLeft="20dp"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintHorizontal_bias="0.0"
+         app:layout_constraintStart_toStartOf="parent"
+@@ -40,9 +52,9 @@
+         android:layout_marginStart="16dp"
+         android:layout_marginTop="16dp"
+         android:background="@drawable/shape_task_params"
+-        android:text="Today"
+-        android:drawablePadding="5dp"
+         android:drawableLeft="@drawable/ic_daata"
++        android:drawablePadding="5dp"
++        android:text="Today"
+         app:layout_constraintStart_toStartOf="@+id/add_task_name"
+         app:layout_constraintTop_toBottomOf="@+id/add_task_name" />
+ 
+@@ -55,6 +67,7 @@
+         android:drawableLeft="@drawable/ic_deadline"
+         android:drawablePadding="8dp"
+         android:text="Deadlining date"
++        android:textColor="#979797"
+         app:layout_constraintStart_toStartOf="@+id/add_task_plan_date"
+         app:layout_constraintTop_toBottomOf="@+id/add_task_plan_date" />
+ 
+@@ -77,9 +90,10 @@
+         <View
+             android:layout_width="1dp"
+             android:layout_height="match_parent"
+-            android:layout_marginEnd="5dp"
+             android:layout_marginStart="5dp"
++            android:layout_marginEnd="5dp"
+             android:background="@color/grey" />
++
+         <TextView
+             android:id="@+id/add_task_project_section"
+             android:layout_width="wrap_content"
+@@ -95,8 +109,8 @@
+         android:background="@drawable/shape_task_params"
+         android:drawableLeft="@drawable/ic_estimated_time"
+         android:drawablePadding="5dp"
++        android:text="1h"
+         android:textColor="@color/blue"
+-        android:text="1h"
+         app:layout_constraintStart_toStartOf="@+id/add_task_deadline_date"
+         app:layout_constraintTop_toBottomOf="@+id/add_task_deadline_date" />
+ 
+@@ -114,10 +128,10 @@
+         android:id="@+id/add_task_user_name"
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+-
+         android:layout_marginStart="20dp"
+         android:text="George Avakyan"
+         app:layout_constraintBottom_toBottomOf="@+id/add_task_user_img"
++        app:layout_constraintEnd_toStartOf="@+id/add_task_img"
+         app:layout_constraintStart_toEndOf="@+id/add_task_user_img"
+         app:layout_constraintTop_toTopOf="@+id/add_task_user_img"
+         app:layout_constraintVertical_bias="0.483" />
+@@ -144,6 +158,7 @@
+         android:drawableLeft="@drawable/ic_epic_links"
+         android:drawablePadding="5dp"
+         android:text="Epic links"
++        android:textColor="#979797"
+         app:layout_constraintBottom_toBottomOf="@+id/add_task_priority"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintHorizontal_bias="0.165"
+Index: app/src/main/res/layout/activity_task_info.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_task_info.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/layout/activity_task_info.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -4,169 +4,198 @@
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
++    android:background="#E5E5E5"
+     tools:context=".presentation.ui.calendar.TaskInfoActivity">
+ 
+ 
+-    <TextView
+-        android:id="@+id/textView4"
++    <CheckBox
++        android:id="@+id/task_info_done"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:text="Task name"
+-        app:layout_constraintBottom_toTopOf="@+id/task_name"
+-        app:layout_constraintStart_toStartOf="@+id/task_name" />
++        android:layout_marginStart="8dp"
++        android:button="@drawable/custom_checkboks"
++        android:paddingVertical="15dp"
++        android:textColorHighlight="@color/blue"
++        app:layout_constraintBottom_toBottomOf="@+id/task_info_name"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="@+id/task_info_name"
++        app:layout_constraintVertical_bias="0.36" />
+ 
+     <EditText
+-        android:id="@+id/task_name"
++        android:id="@+id/task_info_name"
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+-        android:layout_marginTop="36dp"
++        android:layout_marginTop="16dp"
++        android:background="@android:color/transparent"
++        android:hint="Set task purpose..."
++        android:imeOptions="actionSend|flagNoEnterAction"
++        android:paddingLeft="5dp"
++        android:layout_marginStart="10dp"
+         app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toEndOf="@+id/task_info_done"
++        app:layout_constraintTop_toTopOf="parent" />
++
++    <View
++        android:layout_width="match_parent"
++        android:layout_height="1dp"
++        android:layout_marginTop="20dp"
++        android:background="#D1DDEE"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
+         app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="parent"
+-        tools:text="Task name" />
+-
+-    <TextView
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:text="Planing date"
+-        app:layout_constraintBottom_toTopOf="@+id/task_plan_date"
+-        app:layout_constraintStart_toStartOf="@+id/task_plan_date" />
++        app:layout_constraintTop_toBottomOf="@+id/task_info_description" />
+ 
+-    <TextView
+-        android:id="@+id/task_plan_date"
+-        style="@style/TextAppearance.AppCompat.Medium"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        app:layout_constraintBottom_toBottomOf="@+id/linearLayout3"
+-        app:layout_constraintEnd_toEndOf="@+id/task_dead_line_date"
+-        app:layout_constraintStart_toStartOf="@+id/task_dead_line_date"
+-        app:layout_constraintTop_toTopOf="@+id/linearLayout3"
+-        tools:text="12-01-2020" />
+-
+-    <TextView
+-        android:id="@+id/textView6"
+-        android:layout_width="wrap_content"
++    <EditText
++        android:id="@+id/task_info_description"
++        android:layout_width="0dp"
+         android:layout_height="wrap_content"
+-        android:text="DeadLine date"
+-        app:layout_constraintBottom_toTopOf="@+id/task_dead_line_date"
+-        app:layout_constraintStart_toStartOf="@+id/task_dead_line_date" />
++        android:layout_marginTop="16dp"
++        android:background="@android:color/transparent"
++        android:hint="@string/description"
++        android:paddingLeft="5dp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="@+id/task_info_estimated_time"
++        app:layout_constraintTop_toBottomOf="@+id/task_info_estimated_time" />
+ 
+     <TextView
+-        android:id="@+id/task_dead_line_date"
+-        style="@style/TextAppearance.AppCompat.Medium"
++        android:id="@+id/task_info_plan_date"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:text="No deadline"
+-        app:layout_constraintBottom_toBottomOf="@+id/linearLayout4"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintTop_toTopOf="@+id/linearLayout4" />
++        android:layout_marginTop="16dp"
++        android:background="@drawable/shape_task_params"
++        android:drawableLeft="@drawable/ic_daata"
++        android:drawablePadding="5dp"
++        android:text="Today"
++        app:layout_constraintStart_toStartOf="@+id/task_info_name"
++        app:layout_constraintTop_toBottomOf="@+id/task_info_name" />
+ 
+     <TextView
+-        android:id="@+id/textView5"
++        android:id="@+id/task_info_deadline_date"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:text="Estimated time"
+-        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+-        app:layout_constraintStart_toStartOf="@+id/linearLayout4" />
++        android:layout_marginTop="16dp"
++        android:background="@drawable/shape_task_params"
++        android:drawableLeft="@drawable/ic_deadline"
++        android:drawablePadding="8dp"
++        android:text="Deadlining date"
++        android:textColor="#979797"
++        app:layout_constraintStart_toStartOf="@+id/task_info_plan_date"
++        app:layout_constraintTop_toBottomOf="@+id/task_info_plan_date" />
+ 
+     <LinearLayout
+-        android:id="@+id/linearLayout4"
++        android:id="@+id/linearLayout7"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_marginStart="16dp"
+-        android:layout_marginTop="36dp"
++        android:layout_marginStart="12dp"
++        android:background="@drawable/shape_task_params"
+         android:orientation="horizontal"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toBottomOf="@+id/task_name">
+-
+-        <Button
+-            android:id="@+id/task_plus_estimated_time_hour"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="-" />
++        app:layout_constraintStart_toEndOf="@+id/task_info_plan_date"
++        app:layout_constraintTop_toTopOf="@+id/task_info_plan_date">
+ 
+         <TextView
+-            android:id="@+id/task_estimated_time_hour"
++            android:id="@+id/task_info_project"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:text="1h" />
++            android:text="Emika" />
+ 
+-        <Button
+-            android:id="@+id/task_minus_estimated_time_hour"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="+" />
+-
+-        <Button
+-            android:id="@+id/task_plus_estimated_time_minute"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="-" />
++        <View
++            android:layout_width="1dp"
++            android:layout_height="match_parent"
++            android:layout_marginStart="5dp"
++            android:layout_marginEnd="5dp"
++            android:background="@color/grey" />
+ 
+         <TextView
+-            android:id="@+id/task_estimated_time_minute"
++            android:id="@+id/task_info_project_section"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:text="10m" />
+-
+-        <Button
+-            android:id="@+id/task_minus_estimated_time_minute"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="+" />
++            android:text="Open tasks" />
+     </LinearLayout>
+ 
+     <TextView
++        android:id="@+id/task_info_estimated_time"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:text="Actual spent time"
+-        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+-        app:layout_constraintStart_toStartOf="@+id/linearLayout3" />
++        android:layout_marginTop="16dp"
++        android:background="@drawable/shape_task_params"
++        android:drawableLeft="@drawable/ic_estimated_time"
++        android:drawablePadding="5dp"
++        android:text="1h"
++        android:textColor="@color/blue"
++        app:layout_constraintStart_toStartOf="@+id/task_info_deadline_date"
++        app:layout_constraintTop_toBottomOf="@+id/task_info_deadline_date" />
+ 
+-    <LinearLayout
+-        android:id="@+id/linearLayout3"
++    <TextView
++        android:id="@+id/task_info_spent_time"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_marginTop="48dp"
+-        android:orientation="horizontal"
+-        app:layout_constraintStart_toStartOf="@+id/linearLayout4"
+-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
++        android:layout_marginStart="20dp"
++        android:background="@drawable/shape_task_params"
++        android:drawableLeft="@drawable/ic_spent_time"
++        android:drawablePadding="5dp"
++        android:text="1h"
++        android:textColor="@color/green"
++        app:layout_constraintBottom_toBottomOf="@+id/task_info_estimated_time"
++        app:layout_constraintStart_toEndOf="@+id/task_info_estimated_time"
++        app:layout_constraintTop_toTopOf="@+id/task_info_estimated_time"
++        app:layout_constraintVertical_bias="0.0" />
+ 
+-        <Button
+-            android:id="@+id/task_plus_spent_time_hour"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="-" />
++    <ImageView
++        android:id="@+id/task_info_user_img"
++        android:layout_width="28dp"
++        android:layout_height="28dp"
++        android:layout_marginStart="16dp"
++        android:layout_marginTop="116dp"
++        android:src="@mipmap/ic_launcher"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/task_info_description" />
++
++    <TextView
++        android:id="@+id/task_info_user_name"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++
++        android:layout_marginStart="20dp"
++        android:text="George Avakyan"
++        app:layout_constraintBottom_toBottomOf="@+id/task_info_user_img"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toEndOf="@+id/task_info_user_img"
++        app:layout_constraintTop_toTopOf="@+id/task_info_user_img"
++        app:layout_constraintVertical_bias="0.0" />
+ 
+-        <TextView
+-            android:id="@+id/task_spent_time_hour"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:text="2h" />
+-
+-        <Button
+-            android:id="@+id/task_minus_spent_time_hour"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="+" />
+-
+-        <Button
+-            android:id="@+id/task_plus_spent_time_minute"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="-" />
++    <TextView
++        android:id="@+id/task_info_priority"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="16dp"
++        android:background="@drawable/shape_task_params"
++        android:drawableLeft="@drawable/ic_priority_low"
++        android:drawablePadding="5dp"
++        android:text="Low"
++        app:layout_constraintBottom_toBottomOf="@+id/task_info_deadline_date"
++        app:layout_constraintStart_toEndOf="@+id/task_info_deadline_date"
++        app:layout_constraintTop_toTopOf="@+id/task_info_deadline_date"
++        app:layout_constraintVertical_bias="0.0" />
+ 
+-        <TextView
+-            android:id="@+id/task_spent_time_minute"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:text="2h" />
+-
+-        <Button
+-            android:id="@+id/task_minus_spent_time_minute"
+-            android:layout_width="40dp"
+-            android:layout_height="wrap_content"
+-            android:text="+" />
+-    </LinearLayout>
++    <TextView
++        android:id="@+id/task_info_epic_links"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:background="@drawable/shape_task_params"
++        android:drawableLeft="@drawable/ic_epic_links"
++        android:drawablePadding="5dp"
++        android:text="Epic links"
++        android:textColor="#979797"
++        app:layout_constraintBottom_toBottomOf="@+id/task_info_priority"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.165"
++        app:layout_constraintStart_toEndOf="@+id/task_info_priority"
++        app:layout_constraintTop_toTopOf="@+id/task_info_priority"
++        app:layout_constraintVertical_bias="0.0" />
++
++
+ 
+ </androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: app/src/main/res/layout/board_layout.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/board_layout.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/layout/board_layout.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
+     android:id="@+id/container"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+@@ -11,7 +12,7 @@
+ 
+         <com.emika.app.features.calendar.BoardView
+             android:id="@+id/board_view"
+-            android:layout_width="match_parent"
++            android:layout_width="0dp"
+             android:layout_height="0dp"
+             app:boardEdges="5dp"
+             app:columnSpacing="20dp"
+@@ -22,42 +23,78 @@
+ 
+     <com.google.android.material.floatingactionbutton.FloatingActionButton
+         android:id="@+id/add_task"
+-        android:translationZ="4dp"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_margin="20dp"
+         android:backgroundTint="#35A666"
+         android:overScrollMode="ifContentScrolls"
+         android:src="@drawable/ic_add"
+-        app:layout_constraintBottom_toBottomOf="@+id/add_task_select_user"
++        android:translationZ="4dp"
++        app:layout_constraintBottom_toBottomOf="@+id/select_current_user"
+         app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintTop_toTopOf="@+id/add_task_select_user" />
++        app:layout_constraintTop_toTopOf="@+id/select_current_user" />
+ 
+     <Button
+         android:id="@+id/left_scroll_to_current_date"
+         android:layout_width="40dp"
+         android:layout_height="40dp"
++        android:background="@drawable/ic_scroll_left"
+         android:visibility="gone"
++        android:animateLayoutChanges="true"
++        android:layout_marginBottom="140dp"
+         app:layout_constraintBottom_toBottomOf="parent"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="parent" />
++        app:layout_constraintStart_toStartOf="parent" />
++
+     <Button
+         android:id="@+id/right_scroll_to_current_date"
+         android:layout_width="40dp"
+         android:layout_height="40dp"
++        android:animateLayoutChanges="true"
++        android:layout_marginBottom="140dp"
++        android:background="@drawable/ic_scroll_right"
+         android:visibility="gone"
+         app:layout_constraintBottom_toBottomOf="parent"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintTop_toTopOf="parent" />
+-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+-            android:id="@+id/add_task_select_user"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_margin="20dp"
+-            android:drawableLeft="@drawable/ic_task_urgent"
+-            android:text="George Avakyan"
+-            android:textSize="12sp"
+-            android:theme="@style/MyMaterialTheme"
++        app:layout_constraintEnd_toEndOf="parent" />
++
++    <androidx.constraintlayout.widget.ConstraintLayout
++        android:id="@+id/select_current_user"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_margin="20dp"
++        android:background="@drawable/shape_fab"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintStart_toStartOf="parent">
++
++        <ImageView
++            android:id="@+id/fab_img"
++            android:layout_width="35dp"
++            android:layout_height="35dp"
+             app:layout_constraintBottom_toBottomOf="parent"
+-            app:layout_constraintStart_toStartOf="parent" />
++            app:layout_constraintStart_toStartOf="parent"
++            app:layout_constraintTop_toTopOf="parent"
++            tools:src="@drawable/ic_user" />
++
++        <TextView
++            android:id="@+id/fab_user_name"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:textColor="@color/black"
++            app:layout_constraintEnd_toEndOf="parent"
++            app:layout_constraintStart_toStartOf="@+id/fab_job_title"
++            app:layout_constraintTop_toTopOf="@+id/fab_img"
++            tools:text="George Ter-g" />
++
++        <TextView
++            android:id="@+id/fab_job_title"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:textSize="12sp"
++            android:gravity="start"
++            android:paddingEnd="5dp"
++            android:layout_marginStart="5dp"
++            app:layout_constraintStart_toEndOf="@+id/fab_img"
++            app:layout_constraintTop_toBottomOf="@+id/fab_user_name"
++            tools:text="Backend developer" />
++    </androidx.constraintlayout.widget.ConstraintLayout>
++
+ </androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: app/src/main/res/layout/bottom_sheet_dialog_fragment.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/bottom_sheet_dialog_fragment.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/layout/bottom_sheet_dialog_fragment.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -1,103 +1,38 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+-    android:id="@+id/bottom_sheet_add_task"
++    android:id="@+id/bottom_sheet_members"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:windowSoftInputMode="stateAlwaysVisible"
+-    android:background="@color/white"
+     app:behavior_hideable="true"
+     app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
+-    tools:context=".presentation.ui.calendar.BottomSheetFragment">
+-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="match_parent">
+-
+-        <androidx.constraintlayout.widget.ConstraintLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="600dp">
++    tools:context=".presentation.ui.calendar.BottomSheetSelectUser">
+ 
+-
+-            <EditText
+-
+-                android:id="@+id/add_task_name"
+-                android:layout_width="0dp"
+-                android:layout_height="wrap_content"
+-                android:layout_marginStart="16dp"
+-                android:layout_marginEnd="16dp"
+-                android:imeOptions="actionSend|flagNoEnterAction"
+-                app:layout_constraintEnd_toEndOf="parent"
+-                app:layout_constraintStart_toStartOf="parent"
+-                app:layout_constraintTop_toTopOf="parent" />
++    <TextView
++        android:id="@+id/textView4"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="16dp"
++        android:gravity="center"
++        android:text="Select assignee"
++        android:textColor="@color/light_black"
++        android:textSize="17sp"
++        android:textStyle="bold"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent" />
+ 
+-            <TextView
+-                android:id="@+id/add_task_plan_date"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_marginStart="16dp"
+-                android:layout_marginTop="16dp"
+-                android:background="@drawable/shape_task_params"
+-                android:drawableLeft="@drawable/ic_daata"
+-                android:drawablePadding="5dp"
+-                android:text="Today"
+-                app:layout_constraintStart_toStartOf="@+id/add_task_name"
+-                app:layout_constraintTop_toBottomOf="@+id/add_task_name" />
+-
+-            <TextView
+-                android:id="@+id/textView11"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_marginStart="16dp"
+-                android:background="@drawable/shape_task_params"
+-                android:drawablePadding="5dp"
+-
+-                android:text="Emika"
+-                app:layout_constraintStart_toEndOf="@+id/add_task_plan_date"
+-                app:layout_constraintTop_toTopOf="@+id/add_task_plan_date" />
+-
+-            <TextView
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_marginStart="16dp"
+-                android:background="@drawable/shape_task_params"
+-                android:drawableLeft="@drawable/ic_estimated_time"
+-                android:drawablePadding="5dp"
+-                android:text="1h"
+-                app:layout_constraintStart_toEndOf="@+id/textView11"
+-                app:layout_constraintTop_toTopOf="@+id/add_task_plan_date" />
++    <androidx.recyclerview.widget.RecyclerView
++        android:id="@+id/bottom_sheet_recycler_select_user"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
+ 
+-            <ImageView
+-                android:id="@+id/add_task_user_img"
+-                android:layout_width="50dp"
+-                android:layout_height="50dp"
+-                android:layout_marginStart="16dp"
+-                android:layout_marginTop="24dp"
+-                android:src="@mipmap/ic_launcher"
+-                app:layout_constraintStart_toStartOf="parent"
+-                app:layout_constraintTop_toBottomOf="@+id/add_task_plan_date" />
+-
+-            <TextView
+-                android:id="@+id/add_task_user_name"
+-                android:layout_width="0dp"
+-                android:layout_height="wrap_content"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+ 
+-                android:layout_marginStart="20dp"
+-                android:layout_marginEnd="20dp"
+-                android:text="George Avakyan"
+-                app:layout_constraintBottom_toBottomOf="@+id/add_task_user_img"
+-                app:layout_constraintEnd_toEndOf="parent"
+-                app:layout_constraintStart_toEndOf="@+id/add_task_user_img"
+-                app:layout_constraintTop_toTopOf="@+id/add_task_user_img"
+-                app:layout_constraintVertical_bias="0.483" />
+-
+-            <Button
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="40dp"
+-                android:layout_marginEnd="16dp"
+-                app:layout_constraintEnd_toEndOf="parent"
+-                app:layout_constraintTop_toBottomOf="@+id/add_task_user_img" />
+-        </androidx.constraintlayout.widget.ConstraintLayout>
+-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+-</FrameLayout>
+\ No newline at end of file
++</androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: app/src/main/res/layout/column_item.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/column_item.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/layout/column_item.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -28,8 +28,8 @@
+             <LinearLayout
+                 android:id="@+id/linearLayout5"
+                 android:layout_width="0dp"
+-                android:layout_marginTop="5dp"
+                 android:layout_height="wrap_content"
++                android:layout_marginTop="5dp"
+                 android:orientation="horizontal"
+                 card_view:layout_constraintEnd_toEndOf="@+id/text"
+                 card_view:layout_constraintStart_toStartOf="@+id/text"
+@@ -40,20 +40,20 @@
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginEnd="10dp"
+-                    android:textSize="12sp"
++                    android:background="@drawable/shape_priority_low"
+                     android:drawablePadding="4dp"
+                     android:padding="4dp"
+-                    android:background="@drawable/shape_priority_low"
++                    android:textSize="12sp"
+                     card_view:layout_constraintStart_toStartOf="@+id/text"
+                     card_view:layout_constraintTop_toBottomOf="@+id/text"
+                     tools:text="urgent" />
+ 
+                 <TextView
+                     android:id="@+id/calendar_task_deadline"
++                    style="@style/TaskParams"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginEnd="10dp"
+-                    style="@style/TaskParams"
+                     android:background="@drawable/shape_deadline"
+                     card_view:layout_constraintStart_toStartOf="@+id/text"
+                     card_view:layout_constraintTop_toBottomOf="@+id/text"
+@@ -61,10 +61,10 @@
+ 
+                 <TextView
+                     android:id="@+id/calendar_task_project"
++                    style="@style/TaskParams"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginEnd="10dp"
+-                    style="@style/TaskParams"
+                     card_view:layout_constraintStart_toStartOf="@+id/text"
+                     card_view:layout_constraintTop_toBottomOf="@+id/text"
+                     tools:text="Emika" />
+@@ -74,7 +74,9 @@
+                 android:id="@+id/task_done"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
++                android:textColorHighlight="@color/blue"
+                 android:button="@drawable/custom_checkboks"
++                android:paddingVertical="15dp"
+                 card_view:layout_constraintBottom_toBottomOf="parent"
+                 card_view:layout_constraintStart_toStartOf="parent"
+                 card_view:layout_constraintTop_toTopOf="parent" />
+Index: app/src/main/res/layout/item_member.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/item_member.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
++++ app/src/main/res/layout/item_member.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -0,0 +1,55 @@
++<?xml version="1.0" encoding="utf-8"?>
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="56dp"
++    android:layout_marginBottom="5dp"
++    xmlns:tools="http://schemas.android.com/tools">
++
++    <ImageView
++        android:layout_marginStart="16dp"
++        android:id="@+id/member_img"
++        android:layout_width="40dp"
++        android:layout_height="40dp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent"
++        tools:src="@drawable/ic_user" />
++
++    <TextView
++        android:id="@+id/member_name"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="12dp"
++        android:ellipsize="end"
++        android:layout_marginEnd="12dp"
++        android:textColor="@color/black"
++        android:textSize="16sp"
++        app:layout_constraintBottom_toBottomOf="@+id/member_img"
++        app:layout_constraintEnd_toStartOf="@+id/member_job_title"
++        app:layout_constraintStart_toEndOf="@+id/member_img"
++        app:layout_constraintTop_toTopOf="@+id/member_img"
++        tools:text="George Teeererere" />
++
++    <TextView
++        android:layout_marginEnd="16dp"
++        android:id="@+id/member_job_title"
++        android:layout_width="0dp"
++        android:textSize="12sp"
++        android:textColor="#7E99BD"
++        android:layout_height="wrap_content"
++        android:ellipsize="end"
++        app:layout_constraintBottom_toBottomOf="@+id/member_img"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintTop_toTopOf="@+id/member_img"
++        tools:text="Product manager" />
++
++    <View
++        android:layout_width="0dp"
++        android:layout_height="1dp"
++        android:background="#40D1DDEE"
++        android:layout_marginStart="16dp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent" />
++</androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: app/src/main/res/values-v23/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values-v23/styles.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/values-v23/styles.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -8,4 +8,17 @@
+         <item name="android:statusBarColor">#E5E5E5</item>
+         <item name="android:navigationBarColor">@color/light_black</item>
+     </style>
++    
++    <style name="TimePicker" >
++        <item name="android:timePickerMode">clock</item>
++    </style>
++    <style name="MyTimePickerWidgetStyle" parent="Theme.AppCompat.Light.Dialog">
++        <item name="android:headerBackground">#ffe082</item>
++        <item name="android:numbersTextColor">#b71c1c</item>
++        <item name="android:numbersInnerTextColor">#f44336</item>
++        <item name="android:numbersSelectorColor">#33691e</item>
++        <item name="android:numbersBackgroundColor">#ef9a9a</item>
++        <item name="android:timePickerMode">spinner</item>
++        <item name="android:amPmTextColor">#9c27b0</item>
++    </style>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/res/values/colors.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/colors.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/values/colors.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -11,4 +11,5 @@
+     <color name="yellow">#BF9040</color>
+     <color name="blue">#1f75fe</color>
+     <color name="green">#00a86b</color>
++    <color name="task_name_done">#6F85A2</color>
+ </resources>
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/styles.xml	(revision 1044be7d95a3bff2ef125f41e3e007248cc008bf)
++++ app/src/main/res/values/styles.xml	(revision e6ae3b6f0fa25425b6133fba1ffaebae271c8ca0)
+@@ -8,7 +8,14 @@
+         <item name="statusBarBackground">#FFF</item>
+         <item name="android:navigationBarColor">@color/light_black</item>
+     </style>
+-
++    <style name="MyTimePickerWidgetStyle" parent="Theme.AppCompat.Light.Dialog">
++        <item name="android:headerBackground">#ffe082</item>
++        <item name="android:numbersTextColor">#b71c1c</item>
++        <item name="android:numbersSelectorColor">#33691e</item>
++        <item name="android:numbersBackgroundColor">#ef9a9a</item>
++        <item name="android:timePickerMode">spinner</item>
++        <item name="android:amPmTextColor">#9c27b0</item>
++    </style>
+     <style name="inputPlaceholder">
+         <item name="hintTextColor">@color/grey</item>
+         <item name="android:textSize">14sp</item>
+@@ -69,6 +76,7 @@
+     </style>
+     <style name="BottomSheetStyle" >
+ <!--        <item name="android:windowIsFloating">false</item>-->
++        <item name="android:background">@drawable/shape_bottom_sheet</item>
+         <item name="android:statusBarColor">@android:color/transparent</item>
+     </style>
+ 

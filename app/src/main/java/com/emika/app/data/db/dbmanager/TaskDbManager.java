@@ -1,5 +1,7 @@
 package com.emika.app.data.db.dbmanager;
 
+import android.util.Log;
+
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dao.TaskDao;
@@ -60,6 +62,7 @@ public class TaskDbManager {
         payloadTaskList = taskDao.getAllTask();
         if (payloadTaskList != null && !payloadTaskList.isEmpty()) {
             taskCallbackCallback.setDbTask(payloadTaskList);
+            Log.d(TAG, "getDBTask: " + payloadTaskList.size());
         }
         return true;
     }

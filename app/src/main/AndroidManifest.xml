@@ -15,9 +15,13 @@
         android:roundIcon="@mipmap/id_emika_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".presentation.ui.calendar.AddTaskActivity"/>
+        <activity
+            android:name=".presentation.ui.calendar.AddTaskActivity"
+            android:windowSoftInputMode="stateAlwaysVisible" />
         <activity android:name=".presentation.ui.profile.EditProfileActivity" />
-        <activity android:name=".presentation.ui.calendar.TaskInfoActivity" />
+        <activity
+            android:name=".presentation.ui.calendar.TaskInfoActivity"
+            android:windowSoftInputMode="stateAlwaysVisible" />
         <activity android:name=".presentation.ui.auth.AuthActivity" />
         <activity
             android:name=".presentation.ui.StartActivity"

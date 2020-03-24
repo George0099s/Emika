@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.dbmanager.ProjectDbManager;
 import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
@@ -132,6 +134,7 @@ public class BoardFragment extends Fragment {
         fabJobTitle.setText(assignee.getJobTitle());
         Glide.with(this).load(assignee.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(fabImg);
         viewModel.getAssigneeMutableLiveData().observe(getViewLifecycleOwner(), getAssignee);
+        viewModel.insertDbUser(userInfo);
     };
 
     @Override
@@ -157,6 +160,7 @@ public class BoardFragment extends Fragment {
         selectCurrentUser.setOnClickListener(this::selectCurrentAssignee);
         userNetworkManager = new UserNetworkManager(token);
         profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
+        profileViewModel.setContext(getContext());
         profileViewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), userInfo);
         rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
         rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
@@ -203,8 +207,7 @@ public class BoardFragment extends Fragment {
                     estimatedTimeNew += task.getDuration() / 60;
                     hourEstimatedNew.setProgress(estimatedTimeNew);
                 }
-//                PayloadTask payloadTask = taskNewPos.second;
-//                viewModel.updateTask(payloadTask);
+
             }
 
             @Override
@@ -273,6 +276,7 @@ public class BoardFragment extends Fragment {
     }
 
     private Observer<List<PayloadTask>> getTask = taskList -> {
+        Log.d(TAG, ":getTask  " + taskList.size());
         resetBoard();
         AsyncTask asyncTask = new AsyncTask();
         asyncTask.execute(taskList);
@@ -360,10 +364,10 @@ public class BoardFragment extends Fragment {
                 column = entry.getKey();
             }
         }
-        if (assignee.getId().equals(user.getId())) {
+        if (assignee.getId().equals(task.getAssignee())) {
             mBoardView.addItem(column, 0, item, true);
         }else {
-
+//
         }
     }
 

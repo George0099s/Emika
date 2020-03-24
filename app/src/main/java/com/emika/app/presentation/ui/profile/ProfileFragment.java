@@ -60,6 +60,7 @@ public class ProfileFragment extends Fragment {
         userImg = view.findViewById(R.id.profile_user_img);
         editProfile.setOnClickListener(this::editProfile);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
+        viewModel.setContext(getContext());
         viewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), getUserInfo);
         app.getComponent().inject(this);
     }

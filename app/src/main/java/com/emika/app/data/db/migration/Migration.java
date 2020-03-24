@@ -36,6 +36,13 @@ public class Migration {
             database.execSQL("CREATE TABLE `Member`  (`id` TEXT NOT NULL, `firstName` TEXT, `lastName` TEXT, `pictureUrl` TEXT, `jobTitle` TEXT, PRIMARY KEY (`id`))");
         }
     };
+    public static final androidx.room.migration.Migration MIGRATION_5_6 = new androidx.room.migration.Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `Project`  (`id` TEXT NOT NULL, `name` TEXT, `status` TEXT, `createdBy` TEXT, `members` TEXT," +
+                    "`isCompanyWide` INTEGER, `isPersonal` INTEGER, `updatedAt` TEXT, `createdAt` TEXT, `companyId` TEXT, `defaultSectionId` TEXT,`color` TEXT, PRIMARY KEY (`id`))");
+        }
+    };
 }
 
 

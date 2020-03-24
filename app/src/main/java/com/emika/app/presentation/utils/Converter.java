@@ -1,20 +1,41 @@
 package com.emika.app.presentation.utils;
 
+import android.util.Log;
+
+import com.emika.app.data.db.entity.MemberEntity;
+import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.TaskEntity;
+import com.emika.app.data.db.entity.UserEntity;
+import com.emika.app.data.network.pojo.member.PayloadMember;
+import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Converter {
+    private static final String TAG = "Converter";
     private List<TaskEntity> taskEntities;
     private List<PayloadTask> payloadTaskList;
+    private List<ProjectEntity> projectEntities;
+    private List<PayloadProject> payloadProjects;
+    private List<MemberEntity> memberEntities;
+    private List<PayloadShortMember> payloadMembers;
     private PayloadTask payloadTask;
     private TaskEntity taskEntity;
 
     public Converter() {
         taskEntities = new ArrayList<>();
         payloadTaskList = new ArrayList<>();
+        projectEntities = new ArrayList<>();
+        payloadTaskList = new ArrayList<>();
+        payloadProjects = new ArrayList<>();
+        memberEntities = new ArrayList<>();
+        payloadMembers = new ArrayList<>();
     }
 
     public List<TaskEntity> fromPayloadTaskToTaskEntityList(List<PayloadTask> taskList) {
@@ -98,5 +119,102 @@ public class Converter {
         taskEntity.setPlanDate(task.getPlanDate());
         taskEntity.setName(task.getName());
         return taskEntity;
+    }
+
+    public List<PayloadProject> fromProjectEntityToPayloadProjectList(List<ProjectEntity> projectEntities){
+        for (int i = 0; i < projectEntities.size(); i++) {
+            PayloadProject project = new PayloadProject();
+            project.setId(projectEntities.get(i).getId());
+            Log.d(TAG, "fromProjectEntityToPayloadProjectList: " + project.getId());
+            project.setName(projectEntities.get(i).getName());
+            project.setColor(projectEntities.get(i).getColor());
+            project.setCompanyId(projectEntities.get(i).getCompanyId());
+            project.setCreatedAt(projectEntities.get(i).getCreatedAt());
+            project.setCreatedBy(projectEntities.get(i).getCreatedBy());
+            project.setDefaultSectionId(projectEntities.get(i).getDefaultSectionId());
+            project.setIsCompanyWide(projectEntities.get(i).getCompanyWide());
+            project.setIsPersonal(projectEntities.get(i).getPersonal());
+            project.setMembers(Collections.singletonList(projectEntities.get(i).getMembers()));
+            project.setStatus(projectEntities.get(i).getStatus());
+            project.setUpdatedAt(projectEntities.get(i).getUpdatedAt());
+            payloadProjects.add(project);
+        }
+        return payloadProjects;
+    }
+
+    public List<ProjectEntity> fromPayloadProjectToProjectEntityList(List<PayloadProject> projects){
+        for (int i = 0; i < projects.size(); i++) {
+            ProjectEntity projectEntity = new ProjectEntity();
+            projectEntity.setId(projects.get(i).getId());
+            Log.d(TAG, "fromPayloadProjectToProjectEntityList: " + projectEntity.getId());
+            projectEntity.setName(projects.get(i).getName());
+            projectEntity.setColor(projects.get(i).getColor());
+            projectEntity.setCompanyId(projects.get(i).getCompanyId());
+            projectEntity.setCreatedAt(projects.get(i).getCreatedAt());
+            projectEntity.setCreatedBy(projects.get(i).getCreatedBy());
+            projectEntity.setDefaultSectionId(projects.get(i).getDefaultSectionId());
+            projectEntity.setCompanyWide(projects.get(i).getIsCompanyWide());
+            projectEntity.setPersonal(projects.get(i).getIsPersonal());
+            projectEntity.setMembers(String.valueOf(projects.get(i).getMembers().size()));
+            projectEntity.setStatus(projects.get(i).getStatus());
+            projectEntity.setUpdatedAt(projects.get(i).getUpdatedAt());
+            projectEntities.add(projectEntity);
+        }
+        return projectEntities;
+    }
+
+    public List<PayloadShortMember> fromMemberEntityToPayloadMember(List<MemberEntity> memberEntityList){
+        payloadMembers = new ArrayList<>();
+        for (int i = 0; i < memberEntityList.size(); i++) {
+            PayloadShortMember member = new PayloadShortMember();
+            member.setId(memberEntityList.get(i).getId());
+            member.setFirstName(memberEntityList.get(i).getFirstName());
+            member.setLastName(memberEntityList.get(i).getLastName());
+            member.setJobTitle(memberEntityList.get(i).getJobTitle());
+            member.setPictureUrl(memberEntityList.get(i).getPictureUrl());
+            payloadMembers.add(member);
+        }
+        return payloadMembers;
+    }
+    public List<MemberEntity> fromPayloadMemberToMemberEntity(List<PayloadShortMember> payloadShortMemberList){
+        memberEntities = new ArrayList<>();
+        for (int i = 0; i < payloadShortMemberList.size(); i++) {
+            MemberEntity member = new MemberEntity();
+            member.setId(payloadShortMemberList.get(i).getId());
+            member.setFirstName(payloadShortMemberList.get(i).getFirstName());
+            member.setLastName(payloadShortMemberList.get(i).getLastName());
+            member.setJobTitle(payloadShortMemberList.get(i).getJobTitle());
+            member.setPictureUrl(payloadShortMemberList.get(i).getPictureUrl());
+            memberEntities.add(member);
+        }
+        return memberEntities;
+    }
+
+    public UserEntity fromUserToUserEntity(Payload user) {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(user.getId());
+        userEntity.setPictureUrl(user.getPictureUrl());
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        userEntity.setActivationCode(user.getActivationCode());
+        userEntity.setAdmin(user.getIsAdmin());
+        userEntity.setBio(user.getBio());
+        userEntity.setJobTitle(user.getJobTitle());
+
+        return userEntity;
+    }
+
+    public Payload fromUserEntityToPayloadUser(UserEntity user) {
+        Payload userPayload = new Payload();
+        userPayload.setPictureUrl(user.getPictureUrl());
+        userPayload.setId(user.getId());
+        userPayload.setFirstName(user.getFirstName());
+        userPayload.setLastName(user.getLastName());
+        userPayload.setActivationCode(user.getActivationCode());
+        userPayload.setIsAdmin(user.getAdmin());
+        userPayload.setBio(user.getBio());
+        userPayload.setJobTitle(user.getJobTitle());
+
+        return userPayload;
     }
 }

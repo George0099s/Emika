@@ -2,13 +2,26 @@ package com.emika.app.domain.repository.calendar;
 
 import android.content.Context;
 
+import com.emika.app.data.db.callback.calendar.MemberDbCallback;
+import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
+import com.emika.app.data.db.dbmanager.EpicLinksDbManager;
+import com.emika.app.data.db.dbmanager.MemberDbManager;
+import com.emika.app.data.db.dbmanager.ProjectDbManager;
 import com.emika.app.data.db.dbmanager.TaskDbManager;
+import com.emika.app.data.db.dbmanager.UserDbManager;
+import com.emika.app.data.db.entity.EpicLinksEntity;
+import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
+import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
+import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
 import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
 
@@ -23,11 +36,18 @@ public class CalendarRepository {
     private Converter converter;
     private String token;
     private Boolean firstRun = true;
+    private ProjectDbManager projectDbManager;
+    private MemberDbManager memberDbManager;
+    private UserDbManager userDbManager;
+    private EpicLinksDbManager epicLinksDbManager;
     public CalendarRepository(String token) {
         this.token = token;
         this.calendarNetworkManager = new CalendarNetworkManager(token);
         converter = new Converter();
         taskDbManager = new TaskDbManager();
+        projectDbManager = new ProjectDbManager();
+        memberDbManager = new MemberDbManager();
+        userDbManager = new UserDbManager();
         payloadTaskList = new ArrayList<>();
     }
 
@@ -52,11 +72,53 @@ public class CalendarRepository {
         taskDbManager.insertDbAllTask(converter.fromPayloadTaskToTaskEntityList(taskList));
     }
 
-    public void addTask(TaskCallback callback, String name, String projectId, String planDate, String deadlineDate, String assignee, String estimatedTime, String description, String priority){
-        calendarNetworkManager.addTask(callback, name, projectId, planDate, deadlineDate, assignee, estimatedTime, description, priority);
+    public void addTask(TaskCallback callback, PayloadTask task){
+        calendarNetworkManager.addTask(callback, task);
     }
 
-    public void getAllMembers(ShortMemberCallback callback){
+    public void downloadAllMembers(ShortMemberCallback callback){
         calendarNetworkManager.getAllMembers(callback);
+    }
+
+    public void getAllDbMembers(MemberDbCallback callback){
+        memberDbManager.getAllMembers(callback);
+    }
+
+    public void getAllProjects(ProjectDbCallback callback){
+        projectDbManager.getAllDbProjects(callback);
+    }
+    public void downloadAllProject(ProjectsCallback callback){
+        calendarNetworkManager.getAllProjects(callback);
+    }
+    public void getAllSections(ProjectsCallback callback){
+        calendarNetworkManager.getAllSections(callback);
+    }
+
+    public void insertDbProject(List<ProjectEntity> projectEntities){
+        projectDbManager.addAllProjects(projectEntities);
+    }
+
+    public void insertDbSections(){
+
+    }
+
+    public void insertDbMembers(List<PayloadShortMember> members){
+        memberDbManager.addAllMembers(converter.fromPayloadMemberToMemberEntity(members));
+    }
+
+    public void insertDbUser(Payload user) {
+        userDbManager.addUser(converter.fromUserToUserEntity(user));
+    }
+
+    public void downloadEpicLinks(EpicLinksCallback callback){
+        calendarNetworkManager.getAllEpicLinks(callback);
+    }
+
+    public void getDbEpicLinks(){
+
+    }
+
+    public void insertDbEpicLinks(List<EpicLinksEntity> epicLinksEntities) {
+//        epicLinksDbManager;
     }
 }

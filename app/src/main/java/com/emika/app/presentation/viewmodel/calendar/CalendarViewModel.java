@@ -10,14 +10,19 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
+import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.TaskEntity;
+import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
+import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.presentation.utils.Converter;
 
@@ -26,7 +31,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, ShortMemberCallback, Parcelable {
+public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, MemberDbCallback, Parcelable {
     private static final String TAG = "CalendarViewModel";
     @Inject
     Assignee assignee;
@@ -121,18 +126,17 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     }
 
     public MutableLiveData<List<PayloadShortMember>> getMembersMutableLiveData() {
-            repository.getAllMembers(this);
+            repository.getAllDbMembers(this);
             return membersMutableLiveData;
-    }
-
-    @Override
-    public void allMembers(List<PayloadShortMember> shortMembers) {
-        membersMutableLiveData.postValue(shortMembers);
     }
 
     public MutableLiveData<Assignee> getAssigneeMutableLiveData() {
         assigneeMutableLiveData.setValue(assignee);
         return assigneeMutableLiveData;
+    }
+
+    public void insertDbUser(Payload user){
+        repository.insertDbUser(user);
     }
 
     @Override
@@ -143,5 +147,10 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(token);
+    }
+
+    @Override
+    public void onMembersLoaded(List<MemberEntity> memberEntityList) {
+            membersMutableLiveData.postValue(converter.fromMemberEntityToPayloadMember(memberEntityList));
     }
 }

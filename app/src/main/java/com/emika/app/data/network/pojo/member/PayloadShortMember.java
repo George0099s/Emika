@@ -23,6 +23,9 @@ public class PayloadShortMember implements Parcelable {
     @Expose
     private String id;
 
+    public PayloadShortMember() {
+    }
+
     protected PayloadShortMember(Parcel in) {
         firstName = in.readString();
         lastName = in.readString();

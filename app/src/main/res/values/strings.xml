@@ -43,4 +43,7 @@
     <!--    //custom view-->
     <string name="progress_template">%dh</string>
     <string name="description">Description...</string>
+    <string name="select_project">Select project</string>
+    <string name="select_section">Select section</string>
+    <string name="set_task_purpose">Set task purpose...</string>
 </resources>
