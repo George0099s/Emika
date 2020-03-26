@@ -68,13 +68,19 @@
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
                     tools:text="Emika" />
+                <TextView
+                    android:id="@+id/calendar_task_epic_links"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/TaskParams"
+                    />
             </LinearLayout>
 
             <CheckBox
                 android:id="@+id/task_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColorHighlight="@color/blue"
+                android:textColorHighlight="@color/grey"
                 android:button="@drawable/custom_checkboks"
                 android:paddingVertical="15dp"
                 card_view:layout_constraintBottom_toBottomOf="parent"

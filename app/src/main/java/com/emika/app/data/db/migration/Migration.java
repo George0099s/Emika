@@ -43,7 +43,13 @@ public class Migration {
                     "`isCompanyWide` INTEGER, `isPersonal` INTEGER, `updatedAt` TEXT, `createdAt` TEXT, `companyId` TEXT, `defaultSectionId` TEXT,`color` TEXT, PRIMARY KEY (`id`))");
         }
     };
+    public static final androidx.room.migration.Migration MIGRATION_6_7 = new androidx.room.migration.Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `Epic links`  (`id` TEXT NOT NULL, `name` TEXT, `status` TEXT, `createdBy` TEXT," +
+                    " `updatedAt` TEXT, `createdAt` TEXT,`projectId` TEXT, `order` TEXT, `emoji` TEXT, PRIMARY KEY (`id`))");
+        }
+    };
 }
-
 
 

@@ -93,7 +93,6 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment i
     }
 
     private Observer<List<PayloadProject>> setProjects = projects -> {
-        Log.d(TAG, ":  " + projects.size());
         projectAdapter = new ProjectAdapter(projects, mViewModel);
         projectRecycler.setAdapter(projectAdapter);
     };

@@ -10,9 +10,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
+import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
+import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
+import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
@@ -31,7 +35,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, MemberDbCallback, Parcelable {
+public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, MemberDbCallback, Parcelable, EpicLinksDbCallback, ProjectDbCallback {
     private static final String TAG = "CalendarViewModel";
     @Inject
     Assignee assignee;
@@ -39,6 +43,8 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     private MutableLiveData<Boolean> currentColumn;
     private MutableLiveData<List<PayloadShortMember>> membersMutableLiveData;
     private MutableLiveData<Assignee> assigneeMutableLiveData;
+    private MutableLiveData<List<EpicLinksEntity>> epicLinksMutableLiveData;
+    private MutableLiveData<List<ProjectEntity>> projectMutableLiveData;
     private CalendarRepository repository;
     private String token;
     private Context context;
@@ -53,6 +59,8 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         this.currentColumn = new MutableLiveData<>();
         assigneeMutableLiveData = new MutableLiveData<>();
         membersMutableLiveData = new MutableLiveData<>();
+        epicLinksMutableLiveData = new MutableLiveData<>();
+        projectMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
         converter = new Converter();
     }
@@ -152,5 +160,25 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     @Override
     public void onMembersLoaded(List<MemberEntity> memberEntityList) {
             membersMutableLiveData.postValue(converter.fromMemberEntityToPayloadMember(memberEntityList));
+    }
+
+    public LiveData<List<EpicLinksEntity>> getEpicLinksMutableLiveData() {
+        repository.getDbEpicLinks(this);
+        return epicLinksMutableLiveData;
+    }
+
+    @Override
+    public void onEpicLinksLoaded(List<EpicLinksEntity> epicLinksEntities) {
+        epicLinksMutableLiveData.postValue(epicLinksEntities);
+    }
+
+    public LiveData<List<ProjectEntity>> getProjectMutableLiveData() {
+        repository.getAllProjects(this);
+        return projectMutableLiveData;
+    }
+
+    @Override
+    public void onProjectLoaded(List<ProjectEntity> projectEntities) {
+        projectMutableLiveData.postValue(projectEntities);
     }
 }

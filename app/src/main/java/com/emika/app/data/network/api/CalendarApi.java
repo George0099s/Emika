@@ -3,6 +3,10 @@ package com.emika.app.data.network.api;
 import com.emika.app.data.network.pojo.task.Model;
 import com.emika.app.data.network.pojo.task.ModelTask;
 
+import org.json.JSONArray;
+
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -40,7 +44,8 @@ public interface CalendarApi {
                             @Field("duration") String estimatedTime,
                             @Field("description") String description,
                             @Field("priority") String priority,
-                            @Field("section_id") String sectionId);
+                            @Field("section_id") String sectionId,
+                            @Field("epic_links") JSONArray epicLinks);
 
 
 }

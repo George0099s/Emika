@@ -2,16 +2,15 @@ package com.emika.app.presentation.ui.calendar;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.companion.AssociationRequest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,13 +24,12 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
-import com.emika.app.data.model.Member;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
+import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
-import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
@@ -48,24 +46,11 @@ import javax.inject.Inject;
 
 public class AddTaskActivity extends AppCompatActivity {
     private static final String TAG = "AddTaskActivity";
-    private String currentDate;
-    private EditText taskName, taskDescription;
-    private ImageView addTask, userImg;
-    private AddTaskListViewModel viewModel;
-    private ProfileViewModel profileViewModel;
-    private Button back;
-    private CalendarViewModel calendarViewModel;
-    private List<PayloadShortMember> memberList;
-    private EmikaApplication app = EmikaApplication.getInstance();
-    private String token, deadlineDateString;
-    private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section;
-    private LinearLayout selectProject;
     @Inject
     Assignee assignee;
     Calendar dateAndTime = Calendar.getInstance();
     @Inject
     Project projectDi;
-
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -76,38 +61,69 @@ public class AddTaskActivity extends AppCompatActivity {
             deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
         }
     };
-    TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
-        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        dateAndTime.set(Calendar.MINUTE, minute);
-        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
-    };
+
+    private String currentDate;
+    private EditText taskName, taskDescription;
+    private ImageView addTask, userImg;
+    private AddTaskListViewModel viewModel;
+    private ProfileViewModel profileViewModel;
+    private Button back;
+    private CalendarViewModel calendarViewModel;
+    private List<PayloadShortMember> memberList;
+    private List<String> epicLinksId;
+    private EmikaApplication app = EmikaApplication.getInstance();
+    private String token, deadlineDateString;
+    private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section, epicLinks;
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
             dateAndTime.set(Calendar.YEAR, year);
             dateAndTime.set(Calendar.MONTH, month);
             dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            currentDate = DateHelper.getDatePicker(year + "-" + (month + 1)  + "-" + dayOfMonth);
+            currentDate = DateHelper.getDatePicker(year + "-" + (month + 1) + "-" + dayOfMonth);
             planDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
         }
+    };
+    private LinearLayout selectProject;
+    TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
+        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        dateAndTime.set(Calendar.MINUTE, minute);
+        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
     };
     private Observer<Payload> userInfo = userInfo -> {
 
     };
-
-
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
     private Observer<PayloadTask> taskObserver = task -> {
         Intent intent = new Intent();
         intent.putExtra("task", task);
         setResult(42, intent);
         finish();
     };
+    private Observer<EpicLinks> getEpicLinks = epicLinks1 -> {
+        if (epicLinks1.getEpicLinksList().size() != 0) {
+            epicLinksId = new ArrayList<>();
+            epicLinks.setText(String.format("%s +%s", epicLinks1.getEpicLinksList().get(0).getName(), String.valueOf(epicLinks1.getEpicLinksList().size() - 1)));
+            for (int i = 0; i <epicLinks1.getEpicLinksList().size() ; i++) {
+                epicLinksId.add(epicLinks1.getEpicLinksList().get(i).getId());
+            }
+        }
+    };
+    private Observer<Assignee> setAssignee = assignee1 -> {
+        userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
+        if (assignee1.getPictureUrl() != null)
+            Glide.with(this).load(assignee1.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+        else
+            Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
+    };
+    private Observer<Project> setProjectData = project1 -> {
+        project.setText(project1.getProjectName());
+        section.setText(project1.getProjectSectionName());
+    };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +165,9 @@ public class AddTaskActivity extends AppCompatActivity {
         section = findViewById(R.id.add_task_project_section);
         selectProject = findViewById(R.id.add_task_select_project);
         selectProject.setOnClickListener(this::selectProject);
+        epicLinks = findViewById(R.id.add_task_epic_links);
+        epicLinks.setOnClickListener(this::selectEpicLinks);
+        viewModel.getEpicLinksMutableLiveData().observe(this, getEpicLinks);
     }
 
     private void onBackPressed(View view) {
@@ -176,6 +195,15 @@ public class AddTaskActivity extends AppCompatActivity {
         mySheetDialog.show(fm, "modalSheetDialog");
     }
 
+    private void selectEpicLinks(View view) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("addTaskViewModel", viewModel);
+        BottomSheetSelectEpicLinks mySheetDialog = new BottomSheetSelectEpicLinks();
+        mySheetDialog.setArguments(bundle);
+        FragmentManager fm = getSupportFragmentManager();
+        mySheetDialog.show(fm, "modalSheetDialog");
+    }
+
     private void addTask(View view) {
         if (taskName.getText().toString().isEmpty()) {
             taskName.requestFocus();
@@ -191,17 +219,10 @@ public class AddTaskActivity extends AppCompatActivity {
             newTask.setDescription(taskDescription.getText().toString());
             newTask.setPriority(priority.getText().toString().toLowerCase());
             newTask.setSectionId(projectDi.getProjectId());
+            newTask.setEpicLinks(epicLinksId);
             viewModel.getMutableLiveData(newTask).observe(this, taskObserver);
         }
     }
-
-    private Observer<Assignee> setAssignee = assignee1 -> {
-        userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
-        if (assignee1.getPictureUrl() != null)
-            Glide.with(this).load(assignee1.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
-        else
-            Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
-    };
 
     private void showPopupMenu(View v) {
         PopupMenu popupMenu = new PopupMenu(this, v);
@@ -260,9 +281,4 @@ public class AddTaskActivity extends AppCompatActivity {
         timePickerDialog.setIcon(R.drawable.ic_estimated_time);
         timePickerDialog.show();
     }
-
-    private Observer<Project> setProjectData = project1 -> {
-          project.setText(project1.getProjectName());
-          section.setText(project1.getProjectSectionName());
-    };
 }

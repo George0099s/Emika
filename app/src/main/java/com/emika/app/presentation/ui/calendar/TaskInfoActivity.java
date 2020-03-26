@@ -14,6 +14,7 @@ import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -58,6 +59,8 @@ public class TaskInfoActivity extends AppCompatActivity {
     private TaskInfoViewModel taskInfoViewModel;
     private String token ,deadlineDateString;
     private CalendarViewModel calendarViewModel;
+    private ImageView menu;
+    private Button back;
     private AddTaskListViewModel addTaskListViewModel;
 
 
@@ -66,8 +69,11 @@ public class TaskInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_info);
+        setSupportActionBar(findViewById(R.id.task_info_toolbar));
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         initViews();
     }
+
     private void initViews() {
         app.getComponent().inject(this);
         token = getIntent().getStringExtra("token");
@@ -93,9 +99,20 @@ public class TaskInfoActivity extends AppCompatActivity {
         userImg.setOnClickListener(this::selectCurrentAssignee);
         userName.setOnClickListener(this::selectCurrentAssignee);
         taskInfoViewModel.getAssigneeMutableLiveData().observe(this, setAssignee);
+        back = findViewById(R.id.task_info_back);
+        back.setOnClickListener(this::onBackPressed);
         setTaskInfo(task);
     }
 
+    private void onBackPressed(View view) {
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.task_info_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
     private Observer<Assignee> setAssignee = assignee1 -> {
         userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
         if (assignee1.getPictureUrl() != null)
@@ -141,12 +158,30 @@ public class TaskInfoActivity extends AppCompatActivity {
     };
 
     private void setTaskInfo(PayloadTask task) {
-        if (task != null){
+        if (task != null) {
             taskName.setText(task.getName());
             planDate.setText(DateHelper.getDate(task.getPlanDate()));
             deadlineDate.setText(task.getDeadlineDate());
-            spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+            switch (task.getPriority()) {
+                case "low":
+                    priority.setText("Low");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
+                    break;
+                case "normal":
+                    priority.setText("Normal");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
+                    break;
+                case "high":
+                    priority.setText("High");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
+                    break;
+                case "urgent":
+                    priority.setText("Urgent");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
+                    break;
+            }
             estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
+            spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
         }
     }
 
@@ -215,7 +250,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             deadlineDateString = DateHelper.getDatePicker(year + "-" + (month + 1) + "-" + dayOfMonth);
             deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
-            task.setDeadlineDate(deadlineDate.getText().toString());
+            task.setDeadlineDate(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             calendarViewModel.updateTask(task);
         }
     };

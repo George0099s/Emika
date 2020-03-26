@@ -11,17 +11,35 @@ import com.emika.app.di.DaggerUserComponent;
 import com.emika.app.di.UserComponent;
 import com.emika.app.di.UserModule;
 import com.emika.app.presentation.utils.Constants;
+import com.github.nkzawa.socketio.client.Manager;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class EmikaApplication extends Application {
     public static EmikaApplication instance;
+    private SharedPreferences sharedPreferences;
+    private AppDatabase database;
+    private UserComponent component;
+    private Manager manager;
 
+    {
+        try {
+            manager = new Manager(new URI(Constants.BASIC_URL));
+        } catch (
+                URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static EmikaApplication getInstance() {
+        return instance;
+    }
 
     public SharedPreferences getSharedPreferences() {
         return sharedPreferences;
     }
-    private SharedPreferences sharedPreferences;
-    private AppDatabase database;
-    private UserComponent component;
 
     @Override
     public void onCreate() {
@@ -29,7 +47,7 @@ public class EmikaApplication extends Application {
         instance = this;
         sharedPreferences = getSharedPreferences(Constants.MY_PREFERENCES, MODE_PRIVATE);
         database = Room.databaseBuilder(this, AppDatabase.class, "emika_db")
-                .addMigrations(Migration.MIGRATION_5_6)
+                .addMigrations(Migration.MIGRATION_6_7)
                 .build();
         component = DaggerUserComponent
                 .builder()
@@ -38,12 +56,12 @@ public class EmikaApplication extends Application {
 
     }
 
-    public static EmikaApplication getInstance() {
-        return instance;
-    }
-
     public AppDatabase getDatabase() {
         return database;
+    }
+
+    public Manager getManager() {
+        return manager;
     }
 
     public UserComponent getComponent() {

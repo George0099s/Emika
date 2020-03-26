@@ -1,17 +1,22 @@
 package com.emika.app.presentation.utils;
 
+import android.hardware.ConsumerIrManager;
 import android.util.Log;
 
+import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
+import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadMember;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.User;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +30,9 @@ public class Converter {
     private List<PayloadProject> payloadProjects;
     private List<MemberEntity> memberEntities;
     private List<PayloadShortMember> payloadMembers;
+    private List<PayloadEpicLinks> payloadEpicLinks;
+    private List<EpicLinksEntity> epicLinksEntities;
+
     private PayloadTask payloadTask;
     private TaskEntity taskEntity;
 
@@ -36,6 +44,8 @@ public class Converter {
         payloadProjects = new ArrayList<>();
         memberEntities = new ArrayList<>();
         payloadMembers = new ArrayList<>();
+        payloadEpicLinks = new ArrayList<>();
+        epicLinksEntities = new ArrayList<>();
     }
 
     public List<TaskEntity> fromPayloadTaskToTaskEntityList(List<PayloadTask> taskList) {
@@ -217,4 +227,49 @@ public class Converter {
 
         return userPayload;
     }
+
+    public List<EpicLinksEntity> fromPayloadEpicLinksToEpicLinksEntity(List<PayloadEpicLinks> payloadEpicLinks){
+//       epicLinksEntities = new ArrayList<>();
+        for (int i = 0; i < payloadEpicLinks.size(); i++) {
+            EpicLinksEntity epicLinksEntity = new EpicLinksEntity();
+            epicLinksEntity.setId(payloadEpicLinks.get(i).getId());
+            epicLinksEntity.setProjectId(payloadEpicLinks.get(i).getProjectId());
+            epicLinksEntity.setCreatedAt(payloadEpicLinks.get(i).getCreatedAt());
+            epicLinksEntity.setEmoji(payloadEpicLinks.get(i).getEmoji());
+            epicLinksEntity.setName(payloadEpicLinks.get(i).getName());
+            epicLinksEntity.setStatus(payloadEpicLinks.get(i).getStatus());
+            epicLinksEntity.setUpdatedAt(payloadEpicLinks.get(i).getUpdatedAt());
+            epicLinksEntity.setOrder(payloadEpicLinks.get(i).getOrder());
+            epicLinksEntities.add(epicLinksEntity);
+        }
+        return epicLinksEntities;
+    }
+
+    public List<PayloadEpicLinks> fromEpicLinksEntityToPayloadEpicLinks(List<EpicLinksEntity> epicLinksEntityList){
+//        payloadEpicLinks = new ArrayList<>();
+        for (int i = 0; i < epicLinksEntityList.size(); i++) {
+            PayloadEpicLinks epicLinks = new PayloadEpicLinks();
+            epicLinks.setId(epicLinksEntityList.get(i).getId());
+            epicLinks.setProjectId(epicLinksEntityList.get(i).getProjectId());
+            epicLinks.setCreatedAt(epicLinksEntityList.get(i).getCreatedAt());
+            epicLinks.setEmoji(epicLinksEntityList.get(i).getEmoji());
+            epicLinks.setName(epicLinksEntityList.get(i).getName());
+            epicLinks.setStatus(epicLinksEntityList.get(i).getStatus());
+            epicLinks.setUpdatedAt(epicLinksEntityList.get(i).getUpdatedAt());
+            epicLinks.setOrder(epicLinksEntityList.get(i).getOrder());
+            payloadEpicLinks.add(epicLinks);
+        }
+        return payloadEpicLinks;
+    }
+
+    public JSONArray fromListToJSONArray(List<String> epicLinks){
+        JSONArray jsonArray = new JSONArray();
+        if (epicLinks!= null)
+        for (int i = 0; i < epicLinks.size(); i++) {
+            jsonArray.put(epicLinks.get(i));
+        }
+        return jsonArray;
+    }
 }
+
+

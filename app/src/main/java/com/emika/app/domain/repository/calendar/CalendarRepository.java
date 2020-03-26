@@ -1,7 +1,9 @@
 package com.emika.app.domain.repository.calendar;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.dbmanager.EpicLinksDbManager;
@@ -18,12 +20,15 @@ import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
+import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.User;
 import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +45,7 @@ public class CalendarRepository {
     private MemberDbManager memberDbManager;
     private UserDbManager userDbManager;
     private EpicLinksDbManager epicLinksDbManager;
+    private static final String TAG = "CalendarRepository";
     public CalendarRepository(String token) {
         this.token = token;
         this.calendarNetworkManager = new CalendarNetworkManager(token);
@@ -49,6 +55,11 @@ public class CalendarRepository {
         memberDbManager = new MemberDbManager();
         userDbManager = new UserDbManager();
         payloadTaskList = new ArrayList<>();
+        epicLinksDbManager = new EpicLinksDbManager();
+    }
+
+    public CalendarRepository() {
+
     }
 
     public List<PayloadTask> getPayloadTaskList(TaskListCallback taskListCallback, TaskDbCallback taskDbCallback, Context context) {
@@ -72,8 +83,8 @@ public class CalendarRepository {
         taskDbManager.insertDbAllTask(converter.fromPayloadTaskToTaskEntityList(taskList));
     }
 
-    public void addTask(TaskCallback callback, PayloadTask task){
-        calendarNetworkManager.addTask(callback, task);
+    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks){
+        calendarNetworkManager.addTask(callback, task, epicLinks);
     }
 
     public void downloadAllMembers(ShortMemberCallback callback){
@@ -95,6 +106,7 @@ public class CalendarRepository {
     }
 
     public void insertDbProject(List<ProjectEntity> projectEntities){
+        projectDbManager.deleteAllProjects();
         projectDbManager.addAllProjects(projectEntities);
     }
 
@@ -103,6 +115,7 @@ public class CalendarRepository {
     }
 
     public void insertDbMembers(List<PayloadShortMember> members){
+        memberDbManager.deleteAllMembers();
         memberDbManager.addAllMembers(converter.fromPayloadMemberToMemberEntity(members));
     }
 
@@ -114,11 +127,12 @@ public class CalendarRepository {
         calendarNetworkManager.getAllEpicLinks(callback);
     }
 
-    public void getDbEpicLinks(){
-
+    public void getDbEpicLinks(EpicLinksDbCallback callback){
+        epicLinksDbManager.getAllMembers(callback);
     }
 
-    public void insertDbEpicLinks(List<EpicLinksEntity> epicLinksEntities) {
-//        epicLinksDbManager;
+    public void insertDbEpicLinks(List<EpicLinksEntity> epicLinks) {
+//        epicLinksDbManager.deleteAllEpicLinks();
+        epicLinksDbManager.insertAllEpicLinks(epicLinks);
     }
 }

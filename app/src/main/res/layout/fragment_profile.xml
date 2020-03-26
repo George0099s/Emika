@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".presentation.ui.profile.ProfileFragment">
      <ImageView
         android:id="@+id/profile_user_img"
@@ -20,9 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/profile_edit"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/profile_user_img"
         app:layout_constraintTop_toTopOf="@+id/profile_user_img"
         tools:text="George Ter-Grigoryants" />
@@ -50,11 +49,11 @@
         android:id="@+id/profile_edit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="Edit account"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="4dp"
+        android:text="@string/edit_account"
+        android:textColor="@color/green"
+        app:layout_constraintStart_toStartOf="@+id/profile_user_job_title"
+        app:layout_constraintTop_toBottomOf="@+id/profile_user_job_title" />
 
     <TextView
         android:id="@+id/textView14"
@@ -62,7 +61,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="28dp"
-        android:text="Contacts"
+        android:text="@string/contacts"
+        android:textColor="@color/light_black"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView13" />
@@ -74,6 +74,7 @@
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/profile_user_img"
         app:layout_constraintStart_toStartOf="@+id/profile_user_name"
+        app:layout_constraintTop_toBottomOf="@+id/profile_user_name"
         tools:text="Android dev" />
 
     <TextView
@@ -82,8 +83,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="44dp"
-        android:text="Performance"
+        android:text="@string/performance"
         android:textSize="22sp"
+        android:textColor="@color/light_black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_user_img" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.emika.app.data.db.entity;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -70,7 +72,8 @@ public class EpicLinksEntity {
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
-
+    @NonNull
+    @PrimaryKey
     private String id;
     private String name;
     private String status;

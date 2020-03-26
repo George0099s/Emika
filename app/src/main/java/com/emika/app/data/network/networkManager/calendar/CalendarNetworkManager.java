@@ -29,6 +29,8 @@ import com.emika.app.data.network.pojo.task.ModelTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.presentation.utils.Constants;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,13 +76,12 @@ public class CalendarNetworkManager {
         });
     }
 
-    public void addTask(TaskCallback callback, PayloadTask task) {
+    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks) {
         Retrofit retrofit = networkService.getRetrofit();
 
         CalendarApi service = retrofit.create(CalendarApi.class);
         Call<ModelTask> call = service.addTask(token, task.getName(), task.getProjectId(), task.getPlanDate(), task.getDeadlineDate(), task.getAssignee(), String.valueOf(task.getDuration()),
-                task.getDescription(), task.getPriority(), task.getSectionId());
-
+                task.getDescription(), task.getPriority(), task.getSectionId(), epicLinks);
         call.enqueue(new Callback<ModelTask>() {
             @Override
             public void onResponse(retrofit2.Call<ModelTask> call, Response<ModelTask> response) {

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_cancel_task"
+        android:title="@string/cancel_task"
+        android:icon="@drawable/ic_cancel_task"
+        />
+    <item android:id="@+id/menu_rename_task"
+        android:title="@string/rename_task"/>
+    <item android:id="@+id/menu_move_task"
+        android:title="@string/move_task"/>
+    <item android:id="@+id/menu_duplicate_task"
+        android:title="@string/duplicate_task"/>
+    <item android:id="@+id/menu_copy_task"
+        android:title="@string/copy_task"/>
+</menu>

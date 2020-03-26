@@ -15,26 +15,25 @@
         android:roundIcon="@mipmap/id_emika_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".presentation.ui.calendar.AddTaskActivity"
-            android:windowSoftInputMode="stateAlwaysVisible" />
+        <activity android:name=".presentation.ui.calendar.AddTaskActivity" />
         <activity android:name=".presentation.ui.profile.EditProfileActivity" />
+        <activity android:name=".presentation.ui.calendar.TaskInfoActivity" />
         <activity
-            android:name=".presentation.ui.calendar.TaskInfoActivity"
-            android:windowSoftInputMode="stateAlwaysVisible" />
-        <activity android:name=".presentation.ui.auth.AuthActivity" />
+            android:name=".presentation.ui.auth.AuthActivity"
+            android:noHistory="true" />
         <activity
             android:name=".presentation.ui.StartActivity"
             android:noHistory="true">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN"
-                    android:windowSoftInputMode="adjustPan" />
+                     />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".presentation.ui.MainActivity" />
+        <activity android:name=".presentation.ui.MainActivity"
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>

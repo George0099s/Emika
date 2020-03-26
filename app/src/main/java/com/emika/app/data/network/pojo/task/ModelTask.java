@@ -12,6 +12,10 @@ public class ModelTask {
     @SerializedName("payload")
     @Expose
     private PayloadTask payloadTask;
+    @SerializedName("error")
+    @Expose
+    private String error;
+
 
     public Boolean getOk() {
         return ok;
@@ -27,5 +31,13 @@ public class ModelTask {
 
     public void setPayloadTask(PayloadTask payloadTask) {
         this.payloadTask = payloadTask;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }

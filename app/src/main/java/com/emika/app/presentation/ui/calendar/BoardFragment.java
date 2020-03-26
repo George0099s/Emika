@@ -55,11 +55,14 @@ import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.ProjectDbManager;
+import com.emika.app.data.db.entity.EpicLinksEntity;
+import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
+import com.emika.app.di.EpicLinks;
 import com.emika.app.di.User;
 import com.emika.app.features.calendar.BoardView;
 import com.emika.app.features.calendar.ColumnProperties;
@@ -74,6 +77,7 @@ import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.Flushable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,14 +92,18 @@ public class BoardFragment extends Fragment {
     User user;
     @Inject
     Assignee assignee;
+    @Inject
+    EpicLinks epicLinks;
     private BoardView mBoardView;
     private ConstraintLayout selectCurrentUser;
     private String token;
     private int mColumns;
+    private List<EpicLinksEntity> epicLinksEntities = new ArrayList<>();
     private Button rightScroll, leftScroll;
     private EmikaApplication app = EmikaApplication.getInstance();
     private FloatingActionButton addTask;
     private List<PayloadTask> payloadTaskList = new ArrayList<>();
+    private List<ProjectEntity> projectEntities = new ArrayList<>();
     private ProfileViewModel profileViewModel;
     private BottomSheetDialogViewModel bottomSheetDialogViewModel;
     private UserNetworkManager userNetworkManager;
@@ -171,6 +179,8 @@ public class BoardFragment extends Fragment {
         addTask.setOnClickListener(this::goToAddTask);
         mBoardView = view.findViewById(R.id.board_view);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
+        viewModel.getEpicLinksMutableLiveData().observe(getViewLifecycleOwner(), getEpicLinks);
+        viewModel.getProjectMutableLiveData().observe(getViewLifecycleOwner(), getProjectEntity);
         mBoardView.setSnapToColumnsWhenScrolling(true);
         mBoardView.setSnapToColumnWhenDragging(true);
         mBoardView.setSnapDragItemToTouch(true);
@@ -186,7 +196,6 @@ public class BoardFragment extends Fragment {
             @Override
             public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
                 if (fromColumn != toColumn || fromRow != toRow) {
-
 //                    Toast.makeText(getContext(), "End - column: " + toColumn + " row: " + toRow, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -274,9 +283,11 @@ public class BoardFragment extends Fragment {
         viewModel.getCurrentDate().observe(getViewLifecycleOwner(), setColumn);
         viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
     }
+    private Observer<List<EpicLinksEntity>> getEpicLinks = epicLinksEntities -> {
+        this.epicLinksEntities = epicLinksEntities;
+    };
 
     private Observer<List<PayloadTask>> getTask = taskList -> {
-        Log.d(TAG, ":getTask  " + taskList.size());
         resetBoard();
         AsyncTask asyncTask = new AsyncTask();
         asyncTask.execute(taskList);
@@ -315,7 +326,7 @@ public class BoardFragment extends Fragment {
             mItemArray.add(new Pair<Long, PayloadTask>(id, payloadTaskList.get(i)));
         }
 
-        ItemAdapter listAdapter = new ItemAdapter(mItemArray, R.layout.column_item, R.id.item_layout, true, getContext(), token);
+        ItemAdapter listAdapter = new ItemAdapter(mItemArray, R.layout.column_item, R.id.item_layout, true, getContext(), token, epicLinksEntities, projectEntities);
         listAdapter.setContext(getContext());
         listAdapter.setmDragOnLongPress(true);
         listAdapter.setmLayoutId(R.layout.column_item);
@@ -354,6 +365,10 @@ public class BoardFragment extends Fragment {
             addTask(task);
         }
     }
+
+    private Observer<List<ProjectEntity>> getProjectEntity = projectEntities1 -> {
+        projectEntities = projectEntities1;
+    };
 
     private void addTask(PayloadTask task) {
         long id = sCreatedItems++;

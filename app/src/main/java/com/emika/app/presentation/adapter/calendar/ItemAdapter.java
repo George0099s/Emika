@@ -35,14 +35,22 @@ import androidx.cardview.widget.CardView;
 import androidx.core.util.Pair;
 
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.entity.EpicLinksEntity;
+import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.di.EpicLinks;
+import com.emika.app.di.Project;
 import com.emika.app.features.calendar.DragItemAdapter;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.DateHelper;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter.ViewHolder> {
     private static final String TAG = "ItemAdapter";
@@ -52,15 +60,20 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     private Context context;
     private String token;
     private CalendarNetworkManager calendarNetworkManager;
+    private List<EpicLinksEntity> epicLinksEntities;
+    private List<ProjectEntity> projectEntities;
 
-    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token) {
+    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
         this.context = context;
         this.token = token;
+        this.projectEntities = projectEntities;
+        this.epicLinksEntities = epicLinksEntities;
         calendarNetworkManager = new CalendarNetworkManager(token);
         setItemList(list);
+
     }
 
     public void setmLayoutId(int mLayoutId) {
@@ -99,6 +112,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         holder.itemView.setTag(mItemList.get(position));
         holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
         holder.spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+
         holder.project.setText("Emika");
         holder.isDone.setOnClickListener(v-> {
             if (holder.isDone.isChecked()) {
@@ -144,6 +158,23 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
 
                 break;
         }
+        if (task.getEpicLinks()!=null && task.getEpicLinks().size() != 0){
+            for (int i = 0; i < task.getEpicLinks().size(); i++) {
+                for (int j = 0; j < epicLinksEntities.size(); j++) {
+                    if (task.getEpicLinks().get(i).equals(epicLinksEntities.get(j).getId())){
+                        holder.epicLink.setText(epicLinksEntities.get(j).getName());
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < projectEntities.size(); i++) {
+            if (task.getProjectId() != null)
+            if (task.getProjectId().equals(projectEntities.get(i).getId())){
+                holder.project.setText(projectEntities.get(i).getName());
+            }
+        }
+
         holder.priority.setText(Constants.priority.get(task.getPriority()));
         if (task.getDeadlineDate() != null)
             holder.deadLine.setText(DateHelper.getDate(task.getDeadlineDate()));
@@ -183,12 +214,13 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     }
 
     class ViewHolder extends DragItemAdapter.ViewHolder {
-        TextView mText, spentTime, estimatedTime, deadLine, project, priority;
+        TextView mText, spentTime, estimatedTime, deadLine, project, priority, epicLink;
         CardView cardView;
         FrameLayout layout;
         CheckBox isDone;
         ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
+            epicLink = itemView.findViewById(R.id.calendar_task_epic_links);
             mText = (TextView) itemView.findViewById(R.id.text);
             layout = itemView.findViewById(R.id.item_layout);
             cardView = itemView.findViewById(R.id.card);

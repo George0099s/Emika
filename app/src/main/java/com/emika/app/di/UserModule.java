@@ -26,4 +26,9 @@ public class UserModule {
     static Project getProjectInstance() {
         return new Project();
     }
+    @Provides
+    @Singleton
+    static EpicLinks getEpicLinks() {
+        return new EpicLinks();
+    }
 }

@@ -18,7 +18,7 @@ import com.emika.app.presentation.utils.Converter;
 
 import java.util.List;
 
-public class StartActivityViewModel extends ViewModel implements ShortMemberCallback, ProjectsCallback, ProjectDbCallback, EpicLinksCallback {
+public class StartActivityViewModel extends ViewModel implements ShortMemberCallback, ProjectsCallback, EpicLinksCallback {
     private static final String TAG = "StartActivityViewModel";
     private String token;
     private CalendarRepository repository;
@@ -50,17 +50,12 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         repository.insertDbMembers(shortMembers);
     }
 
-    @Override
-    public void onProjectLoaded(List<ProjectEntity> projectEntities) {
-        
-    }
-
     public void setToken(String token) {
         this.token = token;
     }
 
     @Override
     public void onEpicLinksLoaded(List<PayloadEpicLinks> epicLinks) {
-        repository.insertDbEpicLinks();
+        repository.insertDbEpicLinks(converter.fromPayloadEpicLinksToEpicLinksEntity(epicLinks));
     }
 }

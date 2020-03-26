@@ -46,4 +46,13 @@
     <string name="select_project">Select project</string>
     <string name="select_section">Select section</string>
     <string name="set_task_purpose">Set task purpose...</string>
+    <string name="select_epic_links">Select Epic Links</string>
+    <string name="edit_account">Edit account</string>
+    <string name="performance">Performance</string>
+    <string name="contacts">Contacts</string>
+    <string name="rename_task">Rename task</string>
+    <string name="move_task">Move task</string>
+    <string name="duplicate_task">Duplicate task</string>
+    <string name="copy_task">Copy task</string>
+    <string name="cancel_task">Cancel task</string>
 </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="select_section">Select section</string>
+    <string name="move_task">Move task</string>
+    <string name="duplicate_task">Duplicate task</string>
 </resources>
