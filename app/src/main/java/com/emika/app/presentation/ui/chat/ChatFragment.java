@@ -82,23 +82,12 @@ public class ChatFragment extends Fragment {
 
     private void initViews(View view) {
         EmikaApplication.getInstance().getComponent().inject(this);
-        manager = EmikaApplication.getInstance().getManager();
-        socket = manager.socket("/all");
-        token = getActivity().getIntent().getStringExtra("token");
-        tokenJson = new JSONObject();
         emikaImg = view.findViewById(R.id.chat_emika_img);
+        socket = EmikaApplication.getInstance().getSocket();
+        token = getActivity().getIntent().getStringExtra("token");
         Glide.with(getContext()).asGif().load(R.drawable.emika_gif).apply(RequestOptions.circleCropTransform()).into(emikaImg);
-        try {
-            tokenJson.put("token", token);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        socket.emit("server_create_connection", tokenJson);
         socket.on("new_message", onNewMessage);
-        socket.on("create_connection_successful", onConnectionSuccessful);
-
         socket.connect();
-
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ChatViewModel.class);
         viewModel.getMessageMutableLiveData(offset, limit).observe(getViewLifecycleOwner(), getMessage);
         chatRecycler = view.findViewById(R.id.chat_recycler);
@@ -166,7 +155,6 @@ public class ChatFragment extends Fragment {
         }
     };
     private Emitter.Listener onConnectionSuccessful = args -> {
-        Log.d(TAG, ":asdasdasdasdasdasdad  " + args.length);
 
     };
 

@@ -12,6 +12,7 @@ import com.emika.app.di.UserComponent;
 import com.emika.app.di.UserModule;
 import com.emika.app.presentation.utils.Constants;
 import com.github.nkzawa.socketio.client.Manager;
+import com.github.nkzawa.socketio.client.Socket;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +24,11 @@ public class EmikaApplication extends Application {
     private UserComponent component;
     private Manager manager;
 
+    public Socket getSocket() {
+        return socket;
+    }
+
+    private Socket socket;
     {
         try {
             manager = new Manager(new URI(Constants.BASIC_URL));
@@ -53,6 +59,8 @@ public class EmikaApplication extends Application {
                 .builder()
                 .userModule(new UserModule())
                 .build();
+        socket = getManager().socket("/all");
+        socket.connect();
 
     }
 

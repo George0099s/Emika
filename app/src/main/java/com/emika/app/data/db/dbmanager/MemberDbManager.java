@@ -43,7 +43,7 @@ public class MemberDbManager {
                 .subscribe((io.reactivex.functions.Consumer<? super List<MemberEntity>>) callback::onMembersLoaded);
     }
 
-    public void addAllMembers(List<MemberEntity> memberEntityList) {
+    public void addAllMembers(List<MemberEntity> memberEntityList, MemberDbCallback callback) {
         Completable.fromAction(() -> db.memberDao().insert(memberEntityList)).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
             @Override
@@ -58,6 +58,7 @@ public class MemberDbManager {
 
             @Override
             public void onError(Throwable e) {
+//                callback.onMembersLoaded(null);
                 Log.d(TAG, "onError: "+ e.toString());
             }
         });

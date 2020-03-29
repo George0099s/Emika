@@ -129,6 +129,9 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         if (task.getStatus().equals("done")) {
             holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));
             holder.isDone.setChecked(true);
+        } else {
+            holder.mText.setTextColor(context.getResources().getColor(R.color.black));
+            holder.isDone.setChecked(false);
         }
         holder.mText.setOnClickListener(v -> {
             Intent intent = new Intent(context, TaskInfoActivity.class);
@@ -162,11 +165,15 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
             for (int i = 0; i < task.getEpicLinks().size(); i++) {
                 for (int j = 0; j < epicLinksEntities.size(); j++) {
                     if (task.getEpicLinks().get(i).equals(epicLinksEntities.get(j).getId())){
-                        holder.epicLink.setText(epicLinksEntities.get(j).getName());
+                        if (task.getEpicLinks().size() > 1)
+                            holder.epicLink.setText(String.format("%s+%d", epicLinksEntities.get(j).getName(), task.getEpicLinks().size() - 1));
+                        else
+                            holder.epicLink.setText(epicLinksEntities.get(j).getName());
+
                     }
                 }
             }
-        }
+        } else holder.epicLink.setVisibility(View.GONE);
 
         for (int i = 0; i < projectEntities.size(); i++) {
             if (task.getProjectId() != null)

@@ -46,10 +46,6 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
         return projectListMutableLiveData;
     }
 
-    public void setProjectListMutableLiveData(MutableLiveData<List<PayloadProject>> projectListMutableLiveData) {
-        this.projectListMutableLiveData = projectListMutableLiveData;
-    }
-
     @Override
     public void getProjects(List<PayloadProject> projects) {
         projectListMutableLiveData.postValue(projects);

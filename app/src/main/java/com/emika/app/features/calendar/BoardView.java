@@ -53,75 +53,6 @@ import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 public class BoardView extends HorizontalScrollView implements AutoScroller.AutoScrollListener {
     private static final String TAG = "BoardView";
-    public interface BoardCallback {
-        boolean canDragItemAtPosition(int column, int row);
-
-        boolean canDropItemAtPosition(int oldColumn, int oldRow, int newColumn, int newRow);
-    }
-
-    public interface BoardListener {
-        void onItemDragStarted(int column, int row);
-
-        void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow);
-
-        void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow);
-
-        void onItemChangedColumn(int oldColumn, int newColumn);
-
-        void onFocusedColumnChanged(int oldColumn, int newColumn);
-
-        void onColumnDragStarted(int position);
-
-        void onColumnDragChangedPosition(int oldPosition, int newPosition);
-
-        void onColumnDragEnded(int position);
-        
-        
-    }
-
-        @Override
-        public boolean isAttachedToWindow() {
-            return super.isAttachedToWindow();
-        }
-
-    public static abstract class BoardListenerAdapter implements BoardListener {
-        @Override
-        public void onItemDragStarted(int column, int row) {
-        }
-
-        @Override
-        public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
-        }
-
-        @Override
-        public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
-        }
-
-        @Override
-        public void onItemChangedColumn(int oldColumn, int newColumn) {
-        }
-
-        @Override
-        public void onFocusedColumnChanged(int oldColumn, int newColumn) {
-        }
-
-        @Override
-        public void onColumnDragStarted(int position) {
-        }
-
-        @Override
-        public void onColumnDragChangedPosition(int oldPosition, int newPosition) {
-        }
-
-        @Override
-        public void onColumnDragEnded(int position) {
-        }
-    }
-
-    public enum ColumnSnapPosition {
-        LEFT, CENTER, RIGHT
-    }
-
     private static final int SCROLL_ANIMATION_DURATION = 325;
     private Scroller mScroller;
     private AutoScroller mAutoScroller;
@@ -153,27 +84,28 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     private int mLastDragColumn = NO_POSITION;
     private int mLastDragRow = NO_POSITION;
     private SavedState mSavedState;
-
+    private Boolean firstRun = true;
     public BoardView(Context context) {
         super(context);
     }
-
     public BoardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
     }
-
     public BoardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs);
     }
 
-    private void init(AttributeSet attrs) {
-        TypedArray a = getContext().obtainStyledAttributes(attrs,R.styleable.BoardView);
+    @Override
+    public boolean isAttachedToWindow() {
+        return super.isAttachedToWindow();
+    }
 
+    private void init(AttributeSet attrs) {
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.BoardView);
         mColumnSpacing = a.getDimensionPixelSize(R.styleable.BoardView_columnSpacing, 0);
         mBoardEdge = a.getDimensionPixelSize(R.styleable.BoardView_boardEdges, 0);
-
         a.recycle();
     }
 
@@ -207,25 +139,27 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         mRootLayout.addView(mColumnLayout);
         mRootLayout.addView(mDragItem.getDragItemView());
         addView(mRootLayout);
-
     }
+
+
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         updateBoardSpaces();
+
         // Snap to closes column after first layout.
         // This is needed so correct column is scrolled to after a rotation.
         if (!mHasLaidOut && mSavedState != null) {
             mCurrentColumn = mSavedState.currentColumn;
             mSavedState = null;
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollToColumn(mCurrentColumn, false);
-                }
+            post(() -> {
+
             });
+
         }
+        if (getFocusedColumn() != 15)
+            setStartColumn(15);
         mHasLaidOut = true;
     }
 
@@ -608,6 +542,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
 
     public void scrollToColumn(int column, boolean animate) {
         if (mLists.size() <= column) {
+
             return;
         }
 
@@ -811,11 +746,17 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
             }
         });
     }
-    public void setStartColumn(int column){
-        mCurrentColumn = column;
-        scrollToColumn(column, false);
-    
+
+    public void setStartColumn(int column) {
+        if (firstRun) {
+            mCurrentColumn = column;
+            if (getColumnCount()>column) {
+                scrollToColumn(column, true);
+                firstRun = false;
+            }
+        }
     }
+
     private void moveColumn(final int fromIndex, final int toIndex) {
         DragItemRecyclerView list = mLists.remove(fromIndex);
         mLists.add(toIndex, list);
@@ -852,9 +793,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
      * @param header           Header view that will be positioned above the column. Can be null.
      * @param columnDragView   View that will act as handle to drag and drop columns. Can be null.
      * @param hasFixedItemSize If the items will have a fixed or dynamic size.
-     *
      * @return The created DragItemRecyclerView.
-     *
      * @deprecated use {@link #insertColumn(int, ColumnProperties)}
      */
     public DragItemRecyclerView insertColumn(final DragItemAdapter adapter, int index, final @Nullable View header, @Nullable View columnDragView, boolean hasFixedItemSize) {
@@ -862,7 +801,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     }
 
     /**
-     *
      * @deprecated use {@link #insertColumn(int, ColumnProperties)}
      */
     public DragItemRecyclerView insertColumn(final DragItemAdapter adapter, int index, final @Nullable View header, @Nullable View columnDragView, boolean hasFixedItemSize, @NonNull RecyclerView.LayoutManager layoutManager) {
@@ -892,9 +830,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
      * @param header           Header view that will be positioned above the column. Can be null.
      * @param columnDragView   View that will act as handle to drag and drop columns. Can be null.
      * @param hasFixedItemSize If the items will have a fixed or dynamic size.
-     *
      * @return The created DragItemRecyclerView.
-     *
      * @deprecated use {@link #addColumn(ColumnProperties)}
      */
     public DragItemRecyclerView addColumn(final DragItemAdapter adapter, final @Nullable View header, @Nullable View columnDragView, boolean hasFixedItemSize) {
@@ -1035,7 +971,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         return recyclerView;
     }
 
-    private void setupColumnDragListener(View columnDragView, final DragItemRecyclerView recyclerView ) {
+    private void setupColumnDragListener(View columnDragView, final DragItemRecyclerView recyclerView) {
         if (columnDragView != null) {
             columnDragView.setOnLongClickListener(new OnLongClickListener() {
                 @Override
@@ -1065,6 +1001,105 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
                 layoutParams.leftMargin = oneSideIntervalSpace;
                 layoutParams.rightMargin = oneSideIntervalSpace;
             }
+        }
+    }
+
+    public enum ColumnSnapPosition {
+        LEFT, CENTER, RIGHT
+    }
+
+    public interface BoardCallback {
+        boolean canDragItemAtPosition(int column, int row);
+
+        boolean canDropItemAtPosition(int oldColumn, int oldRow, int newColumn, int newRow);
+    }
+
+    public interface BoardListener {
+        void onItemDragStarted(int column, int row);
+
+        void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow);
+
+        void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow);
+
+        void onItemChangedColumn(int oldColumn, int newColumn);
+
+        void onFocusedColumnChanged(int oldColumn, int newColumn);
+
+        void onColumnDragStarted(int position);
+
+        void onColumnDragChangedPosition(int oldPosition, int newPosition);
+
+        void onColumnDragEnded(int position);
+
+
+    }
+
+    public static abstract class BoardListenerAdapter implements BoardListener {
+        @Override
+        public void onItemDragStarted(int column, int row) {
+        }
+
+        @Override
+        public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
+        }
+
+        @Override
+        public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
+        }
+
+        @Override
+        public void onItemChangedColumn(int oldColumn, int newColumn) {
+        }
+
+        @Override
+        public void onFocusedColumnChanged(int oldColumn, int newColumn) {
+        }
+
+        @Override
+        public void onColumnDragStarted(int position) {
+        }
+
+        @Override
+        public void onColumnDragChangedPosition(int oldPosition, int newPosition) {
+        }
+
+        @Override
+        public void onColumnDragEnded(int position) {
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    static class SavedState extends BaseSavedState {
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+        public int currentColumn;
+
+        private SavedState(Parcelable superState, int currentColumn) {
+            super(superState);
+            this.currentColumn = currentColumn;
+        }
+
+        public SavedState(Parcel source) {
+            super(source);
+            currentColumn = source.readInt();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeInt(currentColumn);
         }
     }
 
@@ -1107,41 +1142,5 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
             scrollToColumn(newColumn, true);
             return true;
         }
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    static class SavedState extends BaseSavedState {
-        public int currentColumn;
-
-        private SavedState(Parcelable superState, int currentColumn) {
-            super(superState);
-            this.currentColumn = currentColumn;
-        }
-
-        public SavedState(Parcel source) {
-            super(source);
-            currentColumn = source.readInt();
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(currentColumn);
-        }
-
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 }

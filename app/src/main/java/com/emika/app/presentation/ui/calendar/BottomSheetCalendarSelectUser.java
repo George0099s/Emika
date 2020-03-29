@@ -18,10 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
 import com.emika.app.presentation.adapter.calendar.SelectCurrentUserAdapter;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
@@ -38,9 +40,8 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     private String from = null;
     private static final String TAG = "BottomSheetSelectUser";
     private AddTaskListViewModel addTaskListViewModel;
-    public static BottomSheetCalendarSelectUser newInstance() {
-        return new BottomSheetCalendarSelectUser();
-    }
+    private TaskInfoViewModel taskInfoViewModel;
+    private PayloadTask task;
     private EmikaApplication app = EmikaApplication.getInstance();
     @Inject
     Assignee assignee;
@@ -56,8 +57,7 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     }
 
     private Observer<List<PayloadShortMember>> members = members1 -> {
-        Log.d(TAG, ": " + members1.size());
-        adapter = new SelectCurrentUserAdapter(members1, getContext(), calendarViewModel, addTaskListViewModel, this);
+        adapter = new SelectCurrentUserAdapter(members1, getContext(), calendarViewModel, addTaskListViewModel, taskInfoViewModel, this);
         memberRecycler.setAdapter(adapter);
     };
 
@@ -65,8 +65,10 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
         app.getComponent().inject(this);
         memberList = getArguments().getParcelableArrayList("members");
         from = getArguments().getString("from");
+        task = getArguments().getParcelable("task");
         calendarViewModel = getArguments().getParcelable("viewModel");
         addTaskListViewModel = getArguments().getParcelable("addTaskViewModel");
+        taskInfoViewModel = getArguments().getParcelable("taskInfoViewModel");
         calendarViewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), members);
         memberRecycler = view.findViewById(R.id.bottom_sheet_recycler_select_user);
         memberRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -74,9 +76,12 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
 
     }
 
-
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
+        if (taskInfoViewModel != null) {
+            task.setAssignee(assignee.getId());
+            calendarViewModel.updateTask(task);
+        }
         super.onDismiss(dialog);
 
     }

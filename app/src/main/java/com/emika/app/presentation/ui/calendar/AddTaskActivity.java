@@ -102,7 +102,9 @@ public class AddTaskActivity extends AppCompatActivity {
     private Observer<EpicLinks> getEpicLinks = epicLinks1 -> {
         if (epicLinks1.getEpicLinksList().size() != 0) {
             epicLinksId = new ArrayList<>();
+            if (epicLinks1.getEpicLinksList().size() > 1)
             epicLinks.setText(String.format("%s +%s", epicLinks1.getEpicLinksList().get(0).getName(), String.valueOf(epicLinks1.getEpicLinksList().size() - 1)));
+            else epicLinks.setText(epicLinks1.getEpicLinksList().get(0).getName());
             for (int i = 0; i <epicLinks1.getEpicLinksList().size() ; i++) {
                 epicLinksId.add(epicLinks1.getEpicLinksList().get(i).getId());
             }
@@ -163,6 +165,8 @@ public class AddTaskActivity extends AppCompatActivity {
         memberList = getIntent().getParcelableArrayListExtra("members");
         project = findViewById(R.id.add_task_project);
         section = findViewById(R.id.add_task_project_section);
+        project.setText(projectDi.getProjectName());
+        section.setText(projectDi.getProjectSectionName());
         selectProject = findViewById(R.id.add_task_select_project);
         selectProject.setOnClickListener(this::selectProject);
         epicLinks = findViewById(R.id.add_task_epic_links);
@@ -277,7 +281,7 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     public void setTime(View v) {
-        CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, dateAndTime.get(Calendar.HOUR_OF_DAY), dateAndTime.get(Calendar.MINUTE), true);
+        CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, 1, 0, true);
         timePickerDialog.setIcon(R.drawable.ic_estimated_time);
         timePickerDialog.show();
     }

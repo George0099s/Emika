@@ -12,6 +12,7 @@ import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.di.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -35,12 +36,10 @@ public class EpicLinksDbManager {
         db.epicLinksDao().getAllEpicLinks()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((epicLinksEntities -> {
-                    callback.onEpicLinksLoaded(epicLinksEntities);
-                }));
+                .subscribe((callback::onEpicLinksLoaded));
     }
 
-    public void insertAllEpicLinks(List<EpicLinksEntity> epicLinksEntities) {
+    public void insertAllEpicLinks(List<EpicLinksEntity> epicLinksEntities, EpicLinksDbCallback callback) {
         Completable.fromAction(() -> db.epicLinksDao().insert(epicLinksEntities)).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
             @Override
@@ -50,11 +49,13 @@ public class EpicLinksDbManager {
 
             @Override
             public void onComplete() {
+                callback.onEpicLinksLoaded(new ArrayList<>());
                 Log.d(TAG, "onComplete: ");
             }
 
             @Override
             public void onError(Throwable e) {
+//                callback.onEpicLinksLoaded(null);
                 Log.d(TAG, "onError: "+ e.toString());
             }
         });

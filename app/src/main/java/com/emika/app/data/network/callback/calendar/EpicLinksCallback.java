@@ -5,5 +5,5 @@ import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import java.util.List;
 
 public interface EpicLinksCallback {
-    void onEpicLinksLoaded(List<PayloadEpicLinks> epicLinks);
+    void onEpicLinksDownloaded(List<PayloadEpicLinks> epicLinks);
 }

@@ -1,5 +1,6 @@
 package com.emika.app.presentation.adapter.calendar;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.di.EpicLinks;
+import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 
 import java.util.List;
 
@@ -26,10 +28,13 @@ public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.Epic
     EpicLinks epicLinksDi;
 
     private List<PayloadEpicLinks> epicLinks;
-
+    private Context context;
     private static final String TAG = "EpicLinksAdapter";
-    public EpicLinksAdapter(List<PayloadEpicLinks> epicLinks) {
+    private AddTaskListViewModel addTaskListViewModel;
+    public EpicLinksAdapter(List<PayloadEpicLinks> epicLinks, Context context, AddTaskListViewModel addTaskListViewModel) {
         this.epicLinks = epicLinks;
+        this.context = context;
+        this.addTaskListViewModel = addTaskListViewModel;
         EmikaApplication.getInstance().getComponent().inject(this);
     }
 
@@ -45,15 +50,33 @@ public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.Epic
     public void onBindViewHolder(@NonNull EpicLInksViewHolder holder, int position) {
         PayloadEpicLinks epicLink = epicLinks.get(position);
         holder.epicLinkName.setText(epicLink.getName());
-        holder.item.setOnClickListener(v -> {
-            if (!epicLinksDi.getEpicLinksList().contains(epicLink)) {
-                epicLinksDi.getEpicLinksList().add(epicLink);
+        for (int i = 0; i < epicLinksDi.getEpicLinksList().size(); i++) {
+            if (epicLinksDi.getEpicLinksList().get(i).getName().equals(epicLink.getName()))
                 holder.checkBox.setChecked(true);
-            } else {
-                epicLinksDi.getEpicLinksList().remove(epicLink);
-                holder.checkBox.setChecked(false);
-            }
-        });
+
+        }
+//        holder.checkBox.setOnClickListener(v -> {
+//            if (!epicLinksDi.getEpicLinksList().contains(epicLink) && !holder.checkBox.isChecked()) {
+//                epicLinksDi.getEpicLinksList().add(epicLink);
+//                holder.checkBox.setChecked(true);
+//                addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
+//            } else if (epicLinksDi.getEpicLinksList().contains(epicLink) && holder.checkBox.isChecked()){
+//                epicLinksDi.getEpicLinksList().remove(epicLink);
+//                holder.checkBox.setChecked(false);
+//                addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
+//            }
+//        });
+            holder.item.setOnClickListener(v -> {
+                if (!epicLinksDi.getEpicLinksList().contains(epicLink) && !holder.checkBox.isChecked()) {
+                    epicLinksDi.getEpicLinksList().add(epicLink);
+                    holder.checkBox.setChecked(true);
+                    addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
+                } else if (epicLinksDi.getEpicLinksList().contains(epicLink) && holder.checkBox.isChecked()){
+                    epicLinksDi.getEpicLinksList().remove(epicLink);
+                    holder.checkBox.setChecked(false);
+                    addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
+                }
+            });
     }
 
     @Override

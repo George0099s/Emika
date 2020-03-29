@@ -2,16 +2,19 @@ package com.emika.app.presentation.ui.profile;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -23,7 +26,16 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.AppDatabase;
+import com.emika.app.data.network.callback.TokenCallback;
+import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
+import com.emika.app.domain.repository.auth.CreateUserRepository;
+import com.emika.app.domain.repository.profile.UserRepository;
+import com.emika.app.presentation.ui.auth.AuthActivity;
+import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 import com.karumi.dexter.Dexter;
@@ -40,12 +52,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class EditProfileActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity implements TokenCallback{
     private ProfileViewModel mViewModel;
     private EditText firstName, lastName, jobTitle, biography;
     private Button updatePhoto, logOut, saveChanges;
     private String token;
     private ImageView userImg;
+    private static final String TAG = "EditProfileActivity";
     private static final int IMAGE_REQUEST = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +69,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void initView() {
         token = getIntent().getStringExtra("token");
+        logOut  = findViewById(R.id.edit_log_out);
+        logOut.setOnClickListener(this::logOut);
         firstName = findViewById(R.id.edit_first_name);
         lastName = findViewById(R.id.edit_last_name);
         jobTitle = findViewById(R.id.edit_job_title);
@@ -69,6 +84,16 @@ public class EditProfileActivity extends AppCompatActivity {
         mViewModel = ViewModelProviders.of(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         mViewModel.getUserMutableLiveData().observe(this, getUserLiveData);
 
+    }
+
+    private void logOut(View view) {
+        if (NetworkState.getInstance(this).isOnline()) {
+            AuthNetworkManager networkManager = new AuthNetworkManager(token);
+            networkManager.logOut();
+            networkManager.createToken(this);
+        } else {
+            Toast.makeText(this, "Lost internet connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updatePhoto(View view) {
@@ -86,20 +111,38 @@ public class EditProfileActivity extends AppCompatActivity {
                 && data.getData() != null) {
             Uri uri = data.getData();
             OutputStream os = null;
-            Matrix matrix = new Matrix();
-            matrix.postRotate(270);
+            int rotation = 0;
+
             try {
                 InputStream is = getContentResolver().openInputStream(uri);
                 String type = getContentResolver().getType(uri);
-
                 File result = new File(getFilesDir(),  "."
                         + MimeTypeMap.getSingleton().getExtensionFromMimeType(type));
                 os = new BufferedOutputStream(new FileOutputStream(result));
+                ExifInterface exifInterface = new ExifInterface(is);
+                int orientation = exifInterface.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        rotation = 90;
+                        Log.d(TAG, "onActivityResult: 90");
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        Log.d(TAG, "onActivityResult: 180");
+                        rotation = 180;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        rotation = 270;
+                        Log.d(TAG, "onActivityResult: 270");
+                        break;
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(rotation);
 
                 Bitmap pictureBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri); // obtaining the Bitmap
-//                Bitmap.createBitmap(pictureBitmap, 0, 0, pictureBitmap.getWidth(), pictureBitmap.getHeight(), matrix, true);
-                pictureBitmap.compress(Bitmap.CompressFormat.JPEG,50 , os); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-                Glide.with(this).load(uri).apply(RequestOptions.circleCropTransform()).into(userImg);
+                Bitmap rotatedBitmap = Bitmap.createBitmap(pictureBitmap, 0, 0, pictureBitmap.getWidth(), pictureBitmap.getHeight(), matrix, true);
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG,50 , os); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
                 mViewModel.updateImage(result);
                 os.flush();
                 os.close();
@@ -123,6 +166,7 @@ public class EditProfileActivity extends AppCompatActivity {
         Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
     };
 
+
     private void requestStoragePermission() {
         Dexter.withActivity(this)
                 .withPermissions(
@@ -134,15 +178,11 @@ public class EditProfileActivity extends AppCompatActivity {
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         // check if all permissions are granted
                         if (report.areAllPermissionsGranted()) {
-
 //                             Toast.makeText(getApplicationContext(), "All permissions are granted!", Toast.LENGTH_SHORT).show();
-
                         }
-
                         // check for permanent denial of any permission
                         if (report.isAnyPermissionPermanentlyDenied()) {
                             // show alert dialog navigating to Settings
-
                         }
                     }
 
@@ -155,5 +195,14 @@ public class EditProfileActivity extends AppCompatActivity {
                 withErrorListener(error -> Toast.makeText(getApplicationContext(), "Error occurred! ", Toast.LENGTH_SHORT).show())
                 .onSameThread()
                 .check();
+    }
+
+    @Override
+    public void getToken(String token) {
+        Intent intent = new Intent(this, AuthActivity.class);
+        intent.putExtra("token", token);
+        SharedPreferences sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        sharedPreferences.edit().putBoolean("logged in", false).apply();
+        startActivity(intent);
     }
 }

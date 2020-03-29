@@ -71,7 +71,7 @@
             android:layout_gravity="center"
             android:layout_marginEnd="12dp"
             hour:color="@color/blue"
-            hour:inactiveColor="#FFF"
+            hour:inactiveColor="@color/grey"
             hour:progress="12"
             hour:strokeWidth="2dp"
             hour:textSize="12sp" />
@@ -83,7 +83,7 @@
             android:layout_gravity="center"
             android:layout_marginEnd="12dp"
             hour:color="@color/green"
-            hour:inactiveColor="#FFF"
+            hour:inactiveColor="@color/grey"
             hour:progress="0"
             hour:strokeWidth="2dp"
             hour:textSize="12sp" />

@@ -15,17 +15,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.di.EpicLinks;
+import com.emika.app.di.Project;
 import com.emika.app.presentation.adapter.calendar.EpicLinksAdapter;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetSelectEpicLinksViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -40,7 +43,8 @@ public class BottomSheetSelectEpicLinks extends BottomSheetDialogFragment {
     private String token;
     private Button addEpicLinks;
     @Inject
-    EpicLinks epicLinksDi;
+    Project projectDi;
+
     public static BottomSheetSelectEpicLinks newInstance() {
         return new BottomSheetSelectEpicLinks();
     }
@@ -80,7 +84,7 @@ public class BottomSheetSelectEpicLinks extends BottomSheetDialogFragment {
 
 
     private Observer<List<PayloadEpicLinks>> getEpicLinks = epicLinks -> {
-        adapter = new EpicLinksAdapter(epicLinks);
+        adapter = new EpicLinksAdapter(epicLinks, getContext(), addTaskListViewModel);
         epicLinksRecycler.setAdapter(adapter);
     };
 }

@@ -22,6 +22,7 @@ import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
+import com.emika.app.data.network.pojo.chat.Message;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -29,8 +30,16 @@ import com.emika.app.di.Assignee;
 import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.presentation.utils.Converter;
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Manager;
+import com.github.nkzawa.socketio.client.Socket;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -50,8 +59,11 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     private Context context;
     private Converter converter;
     private Boolean firstRun = true;
+    private JSONObject tokenJson;
     EmikaApplication emikaApplication = EmikaApplication.getInstance();
-
+    private Socket socket;
+    private Manager manager;
+    private JSONObject taskJSON;
     public CalendarViewModel(String token) {
         emikaApplication.getComponent().inject(this);
         this.token = token;
@@ -63,8 +75,34 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         projectMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
         converter = new Converter();
+        manager = emikaApplication.getManager();
+        socket = manager.socket("/all");
+        tokenJson = new JSONObject();
+        try {
+            tokenJson.put("token", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        socket.emit("server_create_connection", tokenJson);
+        socket.on("update_task", onUpdateTask);
+        socket.connect();
     }
 
+    private Emitter.Listener onUpdateTask = args -> {
+        String name, id;
+        JSONObject jsonObject = null;
+        try {
+            JSONArray jsonArray = new JSONArray(Arrays.toString(args));
+            jsonObject = jsonArray.getJSONObject(0);
+            name = jsonObject.getString("name");
+            id = jsonObject.getString("_id");
+
+//            Log.d(TAG, ":  " + name);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    };
 
     protected CalendarViewModel(Parcel in) {
         token = in.readString();

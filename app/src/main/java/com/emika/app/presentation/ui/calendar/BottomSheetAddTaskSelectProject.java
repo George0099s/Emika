@@ -37,7 +37,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment implements ProjectDbCallback {
+public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
 
     private static final String TAG = "BottomSheetAddTaskSelec";
     private BottomSheetAddTaskSelectProjectViewModel mViewModel;
@@ -105,9 +105,4 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment i
         sectionAdapter = new SectionAdapter(sections, mViewModel);
         sectionRecycler.setAdapter(sectionAdapter);
     };
-
-    @Override
-    public void onProjectLoaded(List<ProjectEntity> projectEntities) {
-        Toast.makeText(app, String.valueOf(projectEntities.size()), Toast.LENGTH_SHORT).show();
-    }
 }

@@ -37,10 +37,10 @@ import com.emika.app.presentation.viewmodel.auth.AuthViewModel;
 public class AuthFragment extends Fragment implements TokenCallback {
     private static final String TAG = "AuthFragment";
     private AuthViewModel mViewModel;
-    private TextView title;
+    private TextView title, restorePassBtn;
     private EditText email, password;
     private String token;
-    private Button next, back, restorePassBtn;
+    private Button next, back;
     private FragmentManager fm;
     private TokenDbManager dbManager;
     private SharedPreferences sharedPreferences;

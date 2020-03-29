@@ -46,7 +46,6 @@ public class UserNetworkManager {
 
         UserApi service = retrofit.create(UserApi.class);
         Call<UpdateUserModel> call = service.updateAccountInfo(token, firstName, lastName, jobTitle, bio);
-        Log.d(TAG, "updateUserInfo: " + call.request().url());
         call.enqueue(new Callback<UpdateUserModel>() {
             @Override
             public void onResponse(retrofit2.Call<UpdateUserModel> call, Response<UpdateUserModel> response) {
@@ -70,7 +69,6 @@ public class UserNetworkManager {
 
         UserApi service = retrofit.create(UserApi.class);
         Call<Model> call = service.getUserInfo(token);
-        Log.d(TAG, "getUserInfo: " + call.request().url());
         call.enqueue(new Callback<Model>() {
             @Override
             public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {

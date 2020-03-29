@@ -153,10 +153,10 @@ public class Converter {
     }
 
     public List<ProjectEntity> fromPayloadProjectToProjectEntityList(List<PayloadProject> projects){
+        projectEntities = new ArrayList<>();
         for (int i = 0; i < projects.size(); i++) {
             ProjectEntity projectEntity = new ProjectEntity();
             projectEntity.setId(projects.get(i).getId());
-            Log.d(TAG, "fromPayloadProjectToProjectEntityList: " + projectEntity.getId());
             projectEntity.setName(projects.get(i).getName());
             projectEntity.setColor(projects.get(i).getColor());
             projectEntity.setCompanyId(projects.get(i).getCompanyId());
@@ -229,7 +229,7 @@ public class Converter {
     }
 
     public List<EpicLinksEntity> fromPayloadEpicLinksToEpicLinksEntity(List<PayloadEpicLinks> payloadEpicLinks){
-//       epicLinksEntities = new ArrayList<>();
+       epicLinksEntities = new ArrayList<>();
         for (int i = 0; i < payloadEpicLinks.size(); i++) {
             EpicLinksEntity epicLinksEntity = new EpicLinksEntity();
             epicLinksEntity.setId(payloadEpicLinks.get(i).getId());
@@ -246,7 +246,7 @@ public class Converter {
     }
 
     public List<PayloadEpicLinks> fromEpicLinksEntityToPayloadEpicLinks(List<EpicLinksEntity> epicLinksEntityList){
-//        payloadEpicLinks = new ArrayList<>();
+
         for (int i = 0; i < epicLinksEntityList.size(); i++) {
             PayloadEpicLinks epicLinks = new PayloadEpicLinks();
             epicLinks.setId(epicLinksEntityList.get(i).getId());
@@ -270,6 +270,8 @@ public class Converter {
         }
         return jsonArray;
     }
+
+
 }
 
 

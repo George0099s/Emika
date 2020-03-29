@@ -70,6 +70,7 @@
                     tools:text="Emika" />
                 <TextView
                     android:id="@+id/calendar_task_epic_links"
+                    android:background="@drawable/shape_task_project"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/TaskParams"

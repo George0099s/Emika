@@ -30,6 +30,11 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     private MutableLiveData<PayloadTask> mutableLiveData;
     private MutableLiveData<Assignee> assignee;
     private MutableLiveData<Project> projectMutableLiveData;
+
+    public void setEpicLinksMutableLiveData(EpicLinks epicLinks) {
+        this.epicLinksMutableLiveData.setValue(epicLinks);
+    }
+
     private MutableLiveData<EpicLinks> epicLinksMutableLiveData;
     private EmikaApplication app = EmikaApplication.getInstance();
     private Converter converter;
@@ -39,6 +44,8 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     Project projectDi;
     @Inject
     EpicLinks epicLinksDi;
+
+
     public AddTaskListViewModel(String token) {
         this.token = token;
         repository = new CalendarRepository(token);

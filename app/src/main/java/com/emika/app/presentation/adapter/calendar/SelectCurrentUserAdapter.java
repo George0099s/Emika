@@ -20,6 +20,7 @@ import com.emika.app.di.Assignee;
 import com.emika.app.presentation.ui.calendar.BottomSheetCalendarSelectUser;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
 import java.util.List;
 
@@ -34,13 +35,15 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     private CalendarViewModel calendarViewModel;
     private BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser;
+    private TaskInfoViewModel taskInfoViewModel;
     private AddTaskListViewModel addTaskListViewModel;
-    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel, AddTaskListViewModel addTaskListViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
+    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel, AddTaskListViewModel addTaskListViewModel, TaskInfoViewModel taskInfoViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
         this.memberList = memberList;
         this.context = context;
         this.calendarViewModel = calendarViewModel;
         this.bottomSheetCalendarSelectUser = bottomSheetCalendarSelectUser;
         this.addTaskListViewModel = addTaskListViewModel;
+        this.taskInfoViewModel = taskInfoViewModel;
         emikaApplication.getComponent().inject(this);
     }
 
@@ -71,11 +74,13 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
                 assignee.setJobTitle(member.getJobTitle());
                 assignee.setPictureUrl(member.getPictureUrl());
                 bottomSheetCalendarSelectUser.dismiss();
-                if (addTaskListViewModel == null) {
+                if (addTaskListViewModel == null && taskInfoViewModel == null) {
                     calendarViewModel.getListMutableLiveData();
                     calendarViewModel.getAssigneeMutableLiveData();
-                } else {
+                } else if (addTaskListViewModel != null){
                     addTaskListViewModel.getAssignee();
+                } else {
+                    taskInfoViewModel.getAssigneeMutableLiveData();
                 }
             });
         }

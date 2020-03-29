@@ -57,11 +57,6 @@ public class CalendarRepository {
         payloadTaskList = new ArrayList<>();
         epicLinksDbManager = new EpicLinksDbManager();
     }
-
-    public CalendarRepository() {
-
-    }
-
     public List<PayloadTask> getPayloadTaskList(TaskListCallback taskListCallback, TaskDbCallback taskDbCallback, Context context) {
         if(NetworkState.getInstance(context).isOnline() && firstRun) {
             calendarNetworkManager.getAllTask(taskListCallback);
@@ -74,8 +69,8 @@ public class CalendarRepository {
     }
 
     public void updateTask(PayloadTask task){
-        taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
         calendarNetworkManager.updateTask(task);
+        taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
     }
 
     public void sedDbData(List<PayloadTask> taskList) {
@@ -105,18 +100,18 @@ public class CalendarRepository {
         calendarNetworkManager.getAllSections(callback);
     }
 
-    public void insertDbProject(List<ProjectEntity> projectEntities){
-        projectDbManager.deleteAllProjects();
-        projectDbManager.addAllProjects(projectEntities);
+    public void insertDbProject(List<ProjectEntity> projectEntities, ProjectDbCallback callback){
+//        projectDbManager.deleteAllProjects();
+        projectDbManager.addAllProjects(projectEntities, callback);
     }
 
     public void insertDbSections(){
 
     }
 
-    public void insertDbMembers(List<PayloadShortMember> members){
+    public void insertDbMembers(List<PayloadShortMember> members, MemberDbCallback callback){
         memberDbManager.deleteAllMembers();
-        memberDbManager.addAllMembers(converter.fromPayloadMemberToMemberEntity(members));
+        memberDbManager.addAllMembers(converter.fromPayloadMemberToMemberEntity(members), callback);
     }
 
     public void insertDbUser(Payload user) {
@@ -131,8 +126,8 @@ public class CalendarRepository {
         epicLinksDbManager.getAllMembers(callback);
     }
 
-    public void insertDbEpicLinks(List<EpicLinksEntity> epicLinks) {
+    public void insertDbEpicLinks(List<EpicLinksEntity> epicLinks, EpicLinksDbCallback callback) {
 //        epicLinksDbManager.deleteAllEpicLinks();
-        epicLinksDbManager.insertAllEpicLinks(epicLinks);
+        epicLinksDbManager.insertAllEpicLinks(epicLinks, callback);
     }
 }

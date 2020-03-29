@@ -3,4 +3,5 @@
     <string name="select_section">Select section</string>
     <string name="move_task">Move task</string>
     <string name="duplicate_task">Duplicate task</string>
+    <string name="archieve_task">Archive task</string>
 </resources>

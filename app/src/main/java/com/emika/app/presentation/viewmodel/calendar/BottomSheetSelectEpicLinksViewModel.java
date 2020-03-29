@@ -7,13 +7,14 @@ import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.entity.EpicLinksEntity;
+import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.presentation.utils.Converter;
 
 import java.util.List;
 
-public class BottomSheetSelectEpicLinksViewModel extends ViewModel implements EpicLinksDbCallback {
+public class BottomSheetSelectEpicLinksViewModel extends ViewModel implements EpicLinksDbCallback, EpicLinksCallback {
     private static final String TAG = "BottomSheetSelectEpicLi";
     private MutableLiveData<List<PayloadEpicLinks>> epicLinksMutableLiveData;
     private Converter converter;
@@ -31,7 +32,14 @@ public class BottomSheetSelectEpicLinksViewModel extends ViewModel implements Ep
 
     @Override
     public void onEpicLinksLoaded(List<EpicLinksEntity> epicLinksEntities) {
-        Log.d(TAG, "onEpicLinksLoaded:12312312312 " + epicLinksEntities.size());
+        if (epicLinksEntities == null)
+            repository.downloadEpicLinks(this);
+        else
         epicLinksMutableLiveData.postValue(converter.fromEpicLinksEntityToPayloadEpicLinks(epicLinksEntities));
+    }
+
+    @Override
+    public void onEpicLinksDownloaded(List<PayloadEpicLinks> epicLinks) {
+        repository.insertDbEpicLinks(converter.fromPayloadEpicLinksToEpicLinksEntity(epicLinks), this);
     }
 }

@@ -16,6 +16,7 @@ import com.emika.app.di.Project;
 import com.emika.app.di.User;
 import com.emika.app.features.calendar.swipe.ListSwipeHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -50,7 +51,7 @@ public class ProjectDbManager {
                 .subscribe((io.reactivex.functions.Consumer<? super List<ProjectEntity>>) callback::onProjectLoaded);
     }
 
-    public void addAllProjects(List<ProjectEntity> projects) {
+    public void addAllProjects(List<ProjectEntity> projects, ProjectDbCallback callback) {
         Completable.fromAction(() -> db.projectDao().insert(projects)).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
             @Override
@@ -59,11 +60,14 @@ public class ProjectDbManager {
 
             @Override
             public void onComplete() {
+                callback.onProjectLoaded(new ArrayList<>());
+
                 Log.d(TAG, "onComplete: ");
             }
 
             @Override
             public void onError(Throwable e) {
+//                callback.onProjectLoaded(null);
                 Log.d(TAG, "onError: "+ e.toString());
             }
         });

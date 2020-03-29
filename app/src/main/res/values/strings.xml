@@ -55,4 +55,7 @@
     <string name="duplicate_task">Duplicate task</string>
     <string name="copy_task">Copy task</string>
     <string name="cancel_task">Cancel task</string>
+    <string name="restore_password">Restore password</string>
+    <string name="next">next</string>
+    <string name="archieve_task">Archive task</string>
 </resources>
