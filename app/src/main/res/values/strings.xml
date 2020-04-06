@@ -58,4 +58,8 @@
     <string name="restore_password">Restore password</string>
     <string name="next">next</string>
     <string name="archieve_task">Archive task</string>
+    <string name="continue_string">Continue⭢</string>
+    <string name="check_invitations">Check invitations</string>
+    <string name="or_string">or</string>
+    <string name="deadline_string">Deadline</string>
 </resources>

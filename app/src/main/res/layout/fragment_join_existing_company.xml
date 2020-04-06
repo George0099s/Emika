@@ -37,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/default_size_indentation"
+            android:textColor="@color/black"
             android:text="@string/please_ask_a_member_of_the_company"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -47,22 +48,38 @@
     <Button
         android:id="@+id/check_invitation"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:text="Check invitations"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/shape_next_btn"
+        android:text="@string/check_invitations"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/or_string"
+        app:layout_constraintEnd_toEndOf="@+id/check_invitation"
+        app:layout_constraintStart_toStartOf="@+id/check_invitation"
+        app:layout_constraintTop_toBottomOf="@+id/check_invitation" />
 
     <TextView
         android:id="@+id/create_company"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="52dp"
-        android:text="@string/create_company"
-        app:layout_constraintBottom_toBottomOf="@+id/check_invitation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/check_invitation"
-        app:layout_constraintVertical_bias="0.586" />
+        android:layout_marginTop="8dp"
+        android:text="@string/create_new_workspace"
+        android:textColor="@color/green"
+        app:layout_constraintEnd_toEndOf="@+id/check_invitation"
+        app:layout_constraintHorizontal_bias="0.517"
+        app:layout_constraintStart_toStartOf="@+id/check_invitation"
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
     <TextView
         android:id="@+id/join_company_log_out"
         android:layout_width="wrap_content"

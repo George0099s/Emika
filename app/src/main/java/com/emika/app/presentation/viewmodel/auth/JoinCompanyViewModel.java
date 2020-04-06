@@ -65,9 +65,6 @@ public class JoinCompanyViewModel extends ViewModel implements CompanyCallback, 
         this.inviteId = inviteId;
     }
 
-    public String getToken() {
-        return  repository.getToken(this);
-    }
 
     @Override
     public void getToken(String token) {

@@ -1,6 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\GANSOR-PC\\StudioProjects\\emika_key\\emika.jks')
+            storePassword 'geo0099s'
+            keyAlias = 'key'
+            keyPassword 'geo0099s'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
@@ -33,6 +42,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.firebase:firebase-messaging:20.1.5'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -42,6 +52,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.7.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'andhradroid.dev:aFilechooser:1.0.1'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+
 
     implementation 'com.google.android.material:material:1.1.0'
 
@@ -88,6 +100,21 @@ dependencies {
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.17'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
 
+    //img params
     implementation "com.android.support:exifinterface:25.1.0"
+
+    //keyboard listener
+    implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:1.0.0'
+
+    //flow layout
+    implementation 'org.apmem.tools:layouts:1.10@aar'
+
+
+    //butter knife
+//    implementation 'com.jakewharton:butterknife:8.8.1'
+//    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    //paging
+    implementation 'android.arch.paging:runtime:1.0.1'
 
 }

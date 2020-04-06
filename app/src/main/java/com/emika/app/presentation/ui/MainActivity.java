@@ -1,13 +1,20 @@
 package com.emika.app.presentation.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.emika.app.R;
@@ -23,9 +30,12 @@ import com.emika.app.presentation.ui.chat.ChatFragment;
 import com.emika.app.presentation.ui.profile.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
+
 import javax.inject.Inject;
 
-public class MainActivity extends AppCompatActivity implements UserInfoCallback {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     @Inject User user;
     private BottomNavigationView navigationView;
@@ -35,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements UserInfoCallback 
     private BoardFragment boardFragment = new BoardFragment();
     private ChatFragment chatFragment = new ChatFragment();
     private EmikaApplication  app = EmikaApplication.getInstance();
+    private ConstraintLayout main;
     private UserNetworkManager networkManager;
     Fragment active = boardFragment;
     @Override
@@ -47,13 +58,25 @@ public class MainActivity extends AppCompatActivity implements UserInfoCallback 
     private void initView() {
         app.getComponent().inject(this);
         networkManager = new UserNetworkManager(getIntent().getStringExtra("token"));
+        main = findViewById(R.id.main);
         fragmentManager = getSupportFragmentManager();
         navigationView = findViewById(R.id.bottom_navigation);
         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         fragmentManager.beginTransaction().add(R.id.main_container, boardFragment).commit();
         fragmentManager.beginTransaction().add(R.id.main_container, profileFragment).hide(profileFragment).commit();
         fragmentManager.beginTransaction().add(R.id.main_container, chatFragment).hide(chatFragment).commit();
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.chat_bg));
+
+        KeyboardVisibilityEvent.setEventListener(
+                MainActivity.this,
+                isOpen -> {
+                    if (isOpen)
+                        navigationView.setVisibility(View.GONE);
+                    else
+                        navigationView.setVisibility(View.VISIBLE);
+                });
     }
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
         switch (item.getItemId()) {
@@ -88,23 +111,10 @@ public class MainActivity extends AppCompatActivity implements UserInfoCallback 
     };
 
     @Override
-    public void updateInfo(UpdateUserModel model) {
-
-    }
-
-    @Override
     public void onBackPressed() {
         Intent startMain = new Intent(Intent.ACTION_MAIN);
         startMain.addCategory(Intent.CATEGORY_HOME);
         startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(startMain);
-    }
-
-    @Override
-    public void getUserInfo(Payload userModel) {
-//        user.setFirstName(userModel.getFirstName());
-//        user.setLastName(userModel.getLastName());
-//        user.setPictureUrl(userModel.getPictureUrl());
-//        Log.d(TAG, "getUserInfo: " + user.getPictureUrl());
     }
 }

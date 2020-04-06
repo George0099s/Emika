@@ -10,15 +10,18 @@ import com.emika.app.data.db.callback.calendar.UserDbCallback;
 import com.emika.app.data.db.dao.ProjectDao;
 import com.emika.app.data.db.dao.UserDao;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import rx.Observable;
 
 public class UserDbManager {
     private AppDatabase db;
@@ -29,8 +32,6 @@ public class UserDbManager {
         db = app.getDatabase();
         userDao = db.userDao();
     }
-
-
 
     @SuppressLint("CheckResult")
     public void getUser(UserDbCallback callback) {
@@ -58,4 +59,27 @@ public class UserDbManager {
             }
         });
     }
-}
+
+
+    public void dropAllTable() {
+        Observable.fromCallable((new ClearAllTables()))
+                .subscribeOn(rx.schedulers.Schedulers.io())
+                .observeOn(rx.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe();
+    }
+
+    public Boolean dropDB(){
+        db.clearAllTables();
+    return true;
+    }
+
+    private class ClearAllTables implements Callable<Boolean> {
+        public ClearAllTables() {
+
+        }
+
+        @Override
+        public Boolean call() throws Exception {
+            return dropDB();
+        }
+    }}

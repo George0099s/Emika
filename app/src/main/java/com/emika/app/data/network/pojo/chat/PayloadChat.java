@@ -13,7 +13,7 @@ public class PayloadChat {
     private List<Message> messages = null;
     @SerializedName("suggestions")
     @Expose
-    private List<Object> suggestions = null;
+    private List<Suggestion> suggestions = null;
     @SerializedName("placeholder")
     @Expose
     private Placeholder placeholder;
@@ -26,11 +26,11 @@ public class PayloadChat {
         this.messages = messages;
     }
 
-    public List<Object> getSuggestions() {
+    public List<Suggestion> getSuggestions() {
         return suggestions;
     }
 
-    public void setSuggestions(List<Object> suggestions) {
+    public void setSuggestions(List<Suggestion> suggestions) {
         this.suggestions = suggestions;
     }
 

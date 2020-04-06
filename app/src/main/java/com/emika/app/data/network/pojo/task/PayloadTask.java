@@ -10,6 +10,7 @@ import androidx.room.PrimaryKey;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 @Entity
 public class PayloadTask implements Parcelable {
@@ -77,10 +78,10 @@ public class PayloadTask implements Parcelable {
     private Integer durationActual;
     @SerializedName("attachments")
     @Expose
-    private List<String> attachments = null;
+    private List<String> attachments = new ArrayList<>();
     @SerializedName("epic_links")
     @Expose
-    private List<String> epicLinks = null;
+    private List<String> epicLinks = new ArrayList<>();
     @SerializedName("epic_links_emika")
     @Expose
     private Boolean epicLinksEmika;

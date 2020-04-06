@@ -10,15 +10,20 @@ import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
+import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
+import com.emika.app.features.calendar.swipe.ListSwipeHelper;
 import com.emika.app.presentation.adapter.calendar.MySwipeRefreshLayout;
 import com.emika.app.presentation.utils.Converter;
 
 import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -30,12 +35,8 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     private MutableLiveData<PayloadTask> mutableLiveData;
     private MutableLiveData<Assignee> assignee;
     private MutableLiveData<Project> projectMutableLiveData;
-
-    public void setEpicLinksMutableLiveData(EpicLinks epicLinks) {
-        this.epicLinksMutableLiveData.setValue(epicLinks);
-    }
-
-    private MutableLiveData<EpicLinks> epicLinksMutableLiveData;
+    private MutableLiveData<List<PayloadEpicLinks>> epicLinksMutableLiveData;
+    private List<PayloadEpicLinks>  epicLinksList;
     private EmikaApplication app = EmikaApplication.getInstance();
     private Converter converter;
     @Inject
@@ -53,6 +54,7 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
         assignee = new MutableLiveData<>();
         projectMutableLiveData = new MutableLiveData<>();
         epicLinksMutableLiveData = new MutableLiveData<>();
+        epicLinksList = new ArrayList<>();
         converter = new Converter();
         app.getComponent().inject(this);
     }
@@ -74,10 +76,6 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
         }
     };
 
-//    public void addTask(PayloadTask task) {
-//        repository.addTask(this, task);
-//    }
-
     @Override
     public void getAddedTask(PayloadTask task) {
         this.task = task;
@@ -91,10 +89,6 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     public MutableLiveData<PayloadTask> getMutableLiveData(PayloadTask task) {
         repository.addTask(this, task, converter.fromListToJSONArray(task.getEpicLinks()));
         return mutableLiveData;
-    }
-
-    public void setMutableLiveData(MutableLiveData<PayloadTask> mutableLiveData) {
-        this.mutableLiveData = mutableLiveData;
     }
 
     @Override
@@ -119,8 +113,12 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
         return projectMutableLiveData;
     }
 
-    public MutableLiveData<EpicLinks> getEpicLinksMutableLiveData() {
-        epicLinksMutableLiveData.setValue(epicLinksDi);
+    public MutableLiveData<List<PayloadEpicLinks>> getEpicLinksMutableLiveData() {
+        epicLinksMutableLiveData.setValue(epicLinksList);
         return epicLinksMutableLiveData;
+    }
+
+    public List<PayloadEpicLinks> getEpicLinksList() {
+        return epicLinksList;
     }
 }

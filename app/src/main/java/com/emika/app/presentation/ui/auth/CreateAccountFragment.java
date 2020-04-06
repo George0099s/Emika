@@ -1,5 +1,6 @@
 package com.emika.app.presentation.ui.auth;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -41,7 +42,7 @@ public class CreateAccountFragment extends Fragment{
     private AppDatabase db;
     private FragmentManager fm;
     private TextView logout;
-    private TokenDbManager dbManager;
+    private SharedPreferences sharedPreferences;
     public static CreateAccountFragment newInstance() {
         return new CreateAccountFragment();
     }
@@ -56,6 +57,8 @@ public class CreateAccountFragment extends Fragment{
 
     private void initViews(View view) {
         emikaApplication = EmikaApplication.getInstance();
+        sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        token = sharedPreferences.getString("token", "");
         db = emikaApplication.getDatabase();
         fm = getParentFragmentManager();
         logout = view.findViewById(R.id.create_account_log_out);
@@ -67,7 +70,6 @@ public class CreateAccountFragment extends Fragment{
         next = view.findViewById(R.id.create_next_btn);
         next.setOnClickListener(this::onclick);
         viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token, firstName.getText().toString(), lastName.getText().toString(), jobTitle, bio)).get(CreateAccountViewModel.class);
-        viewModel.getExistTokenMutableLiveData().observe(getViewLifecycleOwner(), getTokenLiveData);
     }
 
     private void logOut(View view) {
@@ -105,11 +107,6 @@ public class CreateAccountFragment extends Fragment{
 
     private Observer<Payload> observeUserLiveData = user -> {
         Toast.makeText(getContext(), user.getFirstName(), Toast.LENGTH_SHORT).show();
-    };
-
-    private Observer<String> getTokenLiveData = token -> {
-        viewModel.setToken(token);
-        this.token = token;
     };
 
     private Observer<UpdateUserModel> updateUserInfo = updateUserModel -> {

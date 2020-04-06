@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".presentation.ui.auth.AuthFragment">
 
     <TextView
@@ -21,7 +22,8 @@
         android:id="@+id/linear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
+
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -32,7 +34,9 @@
             android:id="@+id/auth_email"
             style="@style/inputPlaceholder"
             android:layout_width="match_parent"
+            android:layout_marginStart="36dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="36dp"
             android:background="@drawable/selector_input"
             android:hint="@string/enter_your_email"
             android:inputType="textEmailAddress"
@@ -44,7 +48,9 @@
             android:id="@+id/auth_pass"
             style="@style/inputPlaceholder"
             android:layout_width="match_parent"
+            android:layout_marginStart="36dp"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="36dp"
             android:background="@drawable/selector_input"
             android:hint="@string/enter_your_password_at_least_6_chars"
             android:inputType="textPassword"
@@ -59,8 +65,8 @@
         android:id="@+id/restore_pass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:textColor="@color/green"
+        android:layout_marginStart="36dp"
+        android:textColor="@color/blue"
         android:text="@string/restore_password"
         app:layout_constraintBottom_toBottomOf="@+id/auth_next_btn"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,24 +75,28 @@
     <Button
         android:id="@+id/auth_next_btn"
         android:layout_width="wrap_content"
+        android:textColor="@color/white"
         android:layout_height="30dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="36dp"
         android:background="@drawable/shape_next_btn"
-        android:text="@string/next"
+        android:text="@string/continue_string"
+        android:textAllCaps="false"
+        style="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintEnd_toEndOf="@+id/linear"
         app:layout_constraintTop_toBottomOf="@+id/linear" />
 
-    <Button
+    <TextView
         android:id="@+id/back_btn"
+        style="@style/TextAppearance.AppCompat.Small"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:background="@drawable/shape_next_btn"
         android:text="@string/back"
+        android:textAllCaps="false"
+        android:textColor="@color/grey"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/auth_next_btn"
         app:layout_constraintEnd_toStartOf="@+id/auth_next_btn"
-        app:layout_constraintStart_toEndOf="@+id/restore_pass"
         app:layout_constraintTop_toTopOf="@+id/auth_next_btn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

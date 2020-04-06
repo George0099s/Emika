@@ -37,6 +37,7 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
     private BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser;
     private TaskInfoViewModel taskInfoViewModel;
     private AddTaskListViewModel addTaskListViewModel;
+
     public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel, AddTaskListViewModel addTaskListViewModel, TaskInfoViewModel taskInfoViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
         this.memberList = memberList;
         this.context = context;
@@ -66,24 +67,25 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
                     Glide.with(context).load(member.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(holder.memberImg);
                 else
                     Glide.with(context).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(holder.memberImg);
+                holder.item.setOnClickListener(v -> {
+                    assignee.setFirstName(member.getFirstName());
+                    assignee.setLastName(member.getLastName());
+                    assignee.setId(member.getId());
+                    assignee.setJobTitle(member.getJobTitle());
+                    assignee.setPictureUrl(member.getPictureUrl());
+                    bottomSheetCalendarSelectUser.dismiss();
+                    if (addTaskListViewModel == null && taskInfoViewModel == null) {
+                        calendarViewModel.getListMutableLiveData();
+                        calendarViewModel.getAssigneeMutableLiveData();
+                    } else if (addTaskListViewModel != null) {
+                        addTaskListViewModel.getAssignee();
+                    } else {
+                        taskInfoViewModel.getAssigneeMutableLiveData();
+                    }
+                });
             }
-            holder.item.setOnClickListener(v -> {
-                assignee.setFirstName(member.getFirstName());
-                assignee.setLastName(member.getLastName());
-                assignee.setId(member.getId());
-                assignee.setJobTitle(member.getJobTitle());
-                assignee.setPictureUrl(member.getPictureUrl());
-                bottomSheetCalendarSelectUser.dismiss();
-                if (addTaskListViewModel == null && taskInfoViewModel == null) {
-                    calendarViewModel.getListMutableLiveData();
-                    calendarViewModel.getAssigneeMutableLiveData();
-                } else if (addTaskListViewModel != null){
-                    addTaskListViewModel.getAssignee();
-                } else {
-                    taskInfoViewModel.getAssigneeMutableLiveData();
-                }
-            });
         }
+
     }
 
     @Override
@@ -95,6 +97,7 @@ public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrent
         private ImageView memberImg;
         private TextView memberName, memberJobTitle;
         private ConstraintLayout item;
+
         public MemberViewHolder(@NonNull View itemView) {
             super(itemView);
             item = itemView.findViewById(R.id.member);

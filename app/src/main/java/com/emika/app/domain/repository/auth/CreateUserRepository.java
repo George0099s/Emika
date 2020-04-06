@@ -67,7 +67,7 @@ public class CreateUserRepository {
     }
 
     public String getExistToken(TokenCallback callback) {
-        tokenDbManager.getToken(callback);
+//        tokenDbManager.getToken(callback);
         return token;
     }
     public void logOut(TokenCallback callback) {

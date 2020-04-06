@@ -10,31 +10,32 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
-import com.emika.app.di.EpicLinks;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
+import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
-public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.EpicLInksViewHolder>{
-    @Inject
-    EpicLinks epicLinksDi;
+public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.EpicLInksViewHolder> {
+    private static final String TAG = "EpicLinksAdapter";
 
     private List<PayloadEpicLinks> epicLinks;
     private Context context;
-    private static final String TAG = "EpicLinksAdapter";
     private AddTaskListViewModel addTaskListViewModel;
-    public EpicLinksAdapter(List<PayloadEpicLinks> epicLinks, Context context, AddTaskListViewModel addTaskListViewModel) {
+    private TaskInfoViewModel taskInfoViewModel;
+    private List<String> epicLinksId;
+
+    public EpicLinksAdapter(List<PayloadEpicLinks> epicLinks, Context context, AddTaskListViewModel addTaskListViewModel, TaskInfoViewModel taskInfoViewModel) {
         this.epicLinks = epicLinks;
         this.context = context;
         this.addTaskListViewModel = addTaskListViewModel;
+        this.taskInfoViewModel = taskInfoViewModel;
+        epicLinksId = new ArrayList<>();
         EmikaApplication.getInstance().getComponent().inject(this);
     }
 
@@ -50,33 +51,50 @@ public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.Epic
     public void onBindViewHolder(@NonNull EpicLInksViewHolder holder, int position) {
         PayloadEpicLinks epicLink = epicLinks.get(position);
         holder.epicLinkName.setText(epicLink.getName());
-        for (int i = 0; i < epicLinksDi.getEpicLinksList().size(); i++) {
-            if (epicLinksDi.getEpicLinksList().get(i).getName().equals(epicLink.getName()))
-                holder.checkBox.setChecked(true);
-
-        }
-//        holder.checkBox.setOnClickListener(v -> {
-//            if (!epicLinksDi.getEpicLinksList().contains(epicLink) && !holder.checkBox.isChecked()) {
-//                epicLinksDi.getEpicLinksList().add(epicLink);
-//                holder.checkBox.setChecked(true);
-//                addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
-//            } else if (epicLinksDi.getEpicLinksList().contains(epicLink) && holder.checkBox.isChecked()){
-//                epicLinksDi.getEpicLinksList().remove(epicLink);
-//                holder.checkBox.setChecked(false);
-//                addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
-//            }
-//        });
-            holder.item.setOnClickListener(v -> {
-                if (!epicLinksDi.getEpicLinksList().contains(epicLink) && !holder.checkBox.isChecked()) {
-                    epicLinksDi.getEpicLinksList().add(epicLink);
+        if (addTaskListViewModel != null)
+            for (int i = 0; i < addTaskListViewModel.getEpicLinksList().size(); i++) {
+                if (addTaskListViewModel.getEpicLinksList().get(i).getId().equals(epicLink.getId()))
                     holder.checkBox.setChecked(true);
-                    addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
-                } else if (epicLinksDi.getEpicLinksList().contains(epicLink) && holder.checkBox.isChecked()){
-                    epicLinksDi.getEpicLinksList().remove(epicLink);
+            }
+        if (taskInfoViewModel != null)
+            for (int i = 0; i < taskInfoViewModel.getTask().getEpicLinks().size(); i++) {
+                if (taskInfoViewModel.getTask().getEpicLinks().get(i).equals(epicLink.getId()))
+                    holder.checkBox.setChecked(true);
+            }
+
+        holder.item.setOnClickListener(v -> {
+            if (addTaskListViewModel != null) {
+                if (!addTaskListViewModel.getEpicLinksList().contains(epicLink) && !holder.checkBox.isChecked()) {
+                    holder.checkBox.setChecked(true);
+                        addTaskListViewModel.getEpicLinksList().add(epicLink);
+                        addTaskListViewModel.getEpicLinksMutableLiveData();
+
+                } else {
                     holder.checkBox.setChecked(false);
-                    addTaskListViewModel.setEpicLinksMutableLiveData(epicLinksDi);
+                        for (int i = 0; i < addTaskListViewModel.getEpicLinksList().size(); i++) {
+                            if (addTaskListViewModel.getEpicLinksList().get(i).getId().equals(epicLink.getId()))
+                                addTaskListViewModel.getEpicLinksList().remove(i);
+                        }
+                        addTaskListViewModel.getEpicLinksMutableLiveData();
                 }
-            });
+            }
+            if (taskInfoViewModel != null) {
+                if (!taskInfoViewModel.getTask().getEpicLinks().contains(epicLink.getId()) && !holder.checkBox.isChecked()) {
+                    holder.checkBox.setChecked(true);
+                    taskInfoViewModel.getTask().getEpicLinks().add(epicLink.getId());
+                    taskInfoViewModel.getEpicLinksMutableLiveData();
+                    taskInfoViewModel.updateTask(taskInfoViewModel.getTask());
+                } else {
+                    holder.checkBox.setChecked(false);
+                        for (int i = 0; i < taskInfoViewModel.getTask().getEpicLinks().size(); i++) {
+                            if (taskInfoViewModel.getTask().getEpicLinks().get(i).equals(epicLink.getId()))
+                                taskInfoViewModel.getTask().getEpicLinks().remove(i);
+                        }
+                    taskInfoViewModel.getEpicLinksMutableLiveData();
+                    taskInfoViewModel.updateTask(taskInfoViewModel.getTask());
+                }
+            }
+        });
     }
 
     @Override
@@ -88,6 +106,7 @@ public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.Epic
         private TextView epicLinkName;
         private CheckBox checkBox;
         private ConstraintLayout item;
+
         public EpicLInksViewHolder(@NonNull View itemView) {
             super(itemView);
             item = itemView.findViewById(R.id.epic_link_item);

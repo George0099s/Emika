@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="false">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <corners android:radius="1dp" />
+
+                    <solid android:color="#35A666"/>
+                    <size
+                        android:width="25dp"
+                        android:height="25dp" />
+                </shape>
+            </item>
+
+            <item android:drawable="@drawable/ic_send"
+                android:right="5dp"
+                android:top="5dp"
+                android:left="2dp"
+                android:bottom="2dp"/>
+        </layer-list>
+    </item>
+
+</selector>

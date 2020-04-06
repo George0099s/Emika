@@ -39,9 +39,9 @@ public class ProfileViewModel extends ViewModel implements UserInfoCallback, Use
         return userMutableLiveData;
     }
 
-    public void downloadUserInfo(){
-        repository.downloadUserInfo(this);
-    }
+//    public void downloadUserInfo(){
+//        repository.downloadUserInfo(this);
+//    }
 
     public void updateUser(String firstName, String lastName, String bio, String jobTitle){
         repository.updateUser(firstName, lastName, bio, jobTitle, this);

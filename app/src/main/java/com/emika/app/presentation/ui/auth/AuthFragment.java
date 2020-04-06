@@ -30,26 +30,25 @@ import com.emika.app.data.network.pojo.singIn.ModelAuth;
 import com.emika.app.data.network.pojo.PayloadEmail;
 import com.emika.app.data.network.pojo.singUp.ModelSignUp;
 import com.emika.app.presentation.ui.MainActivity;
+import com.emika.app.presentation.ui.StartActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.viewModelFactory.auth.AuthViewModelFactory;
 import com.emika.app.presentation.viewmodel.auth.AuthViewModel;
 
-public class AuthFragment extends Fragment implements TokenCallback {
+public class AuthFragment extends Fragment {
     private static final String TAG = "AuthFragment";
     private AuthViewModel mViewModel;
-    private TextView title, restorePassBtn;
+    private TextView title, restorePassBtn, back;
     private EditText email, password;
     private String token;
-    private Button next, back;
+    private Button next ;
     private FragmentManager fm;
     private TokenDbManager dbManager;
     private SharedPreferences sharedPreferences;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
 
     public static AuthFragment newInstance() {
-
         return new AuthFragment();
-
     }
 
     @Override
@@ -63,8 +62,8 @@ public class AuthFragment extends Fragment implements TokenCallback {
 
     private void initViews(View view) {
         sharedPreferences = emikaApplication.getSharedPreferences();
-        dbManager = new TokenDbManager();
-        dbManager.getToken(this);
+        token = sharedPreferences.getString("token","");
+        mViewModel = new ViewModelProvider(this, new AuthViewModelFactory(token)).get(AuthViewModel.class);
         restorePassBtn = view.findViewById(R.id.restore_pass);
         restorePassBtn.setOnClickListener(this::restorePass);
         fm = getParentFragmentManager();
@@ -116,6 +115,7 @@ public class AuthFragment extends Fragment implements TokenCallback {
     }
 
     private Observer<PayloadEmail> checkEmail = tokenPayload -> {
+        if (tokenPayload != null)
         if (tokenPayload.getExists()){
             email.setEnabled(false);
             password.setVisibility(View.VISIBLE);
@@ -131,11 +131,12 @@ public class AuthFragment extends Fragment implements TokenCallback {
             next.setOnClickListener(this::signUp);
             back.setVisibility(View.VISIBLE);
         }
+        else Toast.makeText(emikaApplication, "Something went wrong", Toast.LENGTH_SHORT).show();
     };  
 
     private Observer<ModelAuth> logIn = auth -> {
         if (auth.getOk() && auth.getPayload()){
-            Intent intent = new Intent(getContext(), MainActivity.class);
+            Intent intent = new Intent(getContext(), StartActivity.class);
             sharedPreferences.edit().putBoolean("logged in", true).apply();
             intent.putExtra("token", token);
             startActivity(intent);
@@ -159,10 +160,4 @@ public class AuthFragment extends Fragment implements TokenCallback {
         }
     };
 
-    @Override
-    public void getToken(String token) {
-        this.token = token;
-        mViewModel = new ViewModelProvider(this, new AuthViewModelFactory(token)).get(AuthViewModel.class);
-
-    }
 }

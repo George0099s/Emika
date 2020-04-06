@@ -24,6 +24,8 @@ import com.emika.app.data.db.dbmanager.ProjectDbManager;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadSection;
+import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Project;
 import com.emika.app.presentation.adapter.calendar.ProjectAdapter;
 import com.emika.app.presentation.adapter.calendar.SectionAdapter;
@@ -31,6 +33,7 @@ import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
+import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.List;
@@ -46,9 +49,11 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
     private SectionAdapter sectionAdapter;
     private String token;
     private AddTaskListViewModel addTaskListViewModel;
+    private TaskInfoViewModel taskInfoViewModel;
     private Button selectProject;
     private EmikaApplication app = EmikaApplication.getInstance();
     private Converter converter;
+    private PayloadTask task;
     @Inject
     Project projectDi;
     public static BottomSheetAddTaskSelectProject newInstance() {
@@ -67,20 +72,27 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
     private void initView(View view) {
         app.getComponent().inject(this);
         addTaskListViewModel = getArguments().getParcelable("addTaskViewModel");
+        taskInfoViewModel = getArguments().getParcelable("taskInfoViewModel");
+        task = getArguments().getParcelable("task");
+        token = getActivity().getIntent().getStringExtra("token");
         projectRecycler = view.findViewById(R.id.recycler_add_task_project);
         projectRecycler.setHasFixedSize(true);
         projectRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         sectionRecycler = view.findViewById(R.id.recycler_add_task_section);
         sectionRecycler.setHasFixedSize(true);
         sectionRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        token = getActivity().getIntent().getStringExtra("token");
         selectProject = view.findViewById(R.id.add_task_add_project_btn);
         selectProject.setOnClickListener(this::addProject);
         converter = new Converter();
     }
 
     private void addProject(View view) {
+        if (addTaskListViewModel != null)
         addTaskListViewModel.getProjectMutableLiveData();
+        if (taskInfoViewModel != null) {
+            taskInfoViewModel.getProjectMutableLiveData();
+            taskInfoViewModel.updateTask(task);
+        }
         dismiss();
     }
 

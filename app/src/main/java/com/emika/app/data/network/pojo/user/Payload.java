@@ -19,6 +19,9 @@ public class Payload {
     @SerializedName("invite_code")
     @Expose
     private String inviteCode;
+    @SerializedName("company_id")
+    @Expose
+    private String company_id;
     @SerializedName("activation_email_requested_at")
     @Expose
     private String activationEmailRequestedAt;
@@ -248,5 +251,13 @@ public class Payload {
 
     public void setPictureUrl(String pictureUrl) {
         this.pictureUrl = pictureUrl;
+    }
+
+    public String getCompany_id() {
+        return company_id;
+    }
+
+    public void setCompany_id(String company_id) {
+        this.company_id = company_id;
     }
 }

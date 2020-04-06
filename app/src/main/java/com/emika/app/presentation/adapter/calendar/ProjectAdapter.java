@@ -1,5 +1,6 @@
 package com.emika.app.presentation.adapter.calendar;
 
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +45,9 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     @Override
     public void onBindViewHolder(@NonNull ProjectViewHolder holder, int position) {
         PayloadProject project = projects.get(position);
+//        if (projectDi.getProjectId().equals(project.getId()))
+//            holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
+//        else holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
         if (project.getIsPersonal())
             holder.memberCount.setText("Private");
         else

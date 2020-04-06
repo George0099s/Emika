@@ -24,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -59,6 +60,8 @@ public class AddTaskActivity extends AppCompatActivity {
             dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             deadlineDateString = DateHelper.getDatePicker(year + "-" + (month + 1) + "-" + dayOfMonth);
             deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
+            deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null );
+            deadlineDate.setTextColor(getResources().getColor(R.color.black));
         }
     };
 
@@ -74,6 +77,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private EmikaApplication app = EmikaApplication.getInstance();
     private String token, deadlineDateString;
     private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section, epicLinks;
+    private BottomSheetSelectEpicLinks mySheetDialog;
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -94,20 +98,22 @@ public class AddTaskActivity extends AppCompatActivity {
 
     };
     private Observer<PayloadTask> taskObserver = task -> {
-        Intent intent = new Intent();
-        intent.putExtra("task", task);
-        setResult(42, intent);
+//        Intent intent = new Intent();
+//        intent.putExtra("task", task);
+//        setResult(42, intent);
         finish();
     };
-    private Observer<EpicLinks> getEpicLinks = epicLinks1 -> {
-        if (epicLinks1.getEpicLinksList().size() != 0) {
+    private Observer<List<PayloadEpicLinks>> getEpicLinks = epicLinks1 -> {
+        if (epicLinks1.size() != 0) {
             epicLinksId = new ArrayList<>();
-            if (epicLinks1.getEpicLinksList().size() > 1)
-            epicLinks.setText(String.format("%s +%s", epicLinks1.getEpicLinksList().get(0).getName(), String.valueOf(epicLinks1.getEpicLinksList().size() - 1)));
-            else epicLinks.setText(epicLinks1.getEpicLinksList().get(0).getName());
-            for (int i = 0; i <epicLinks1.getEpicLinksList().size() ; i++) {
-                epicLinksId.add(epicLinks1.getEpicLinksList().get(i).getId());
+            if (epicLinks1.size() > 1)
+            epicLinks.setText(String.format("%s +%s", epicLinks1.get(0).getName(), String.valueOf(epicLinks1.size() - 1)));
+            else epicLinks.setText(epicLinks1.get(0).getName());
+            for (int i = 0; i <epicLinks1.size() ; i++) {
+                epicLinksId.add(epicLinks1.get(i).getId());
             }
+        } else {
+            epicLinks.setText("Epic links");
         }
     };
     private Observer<Assignee> setAssignee = assignee1 -> {
@@ -136,6 +142,8 @@ public class AddTaskActivity extends AppCompatActivity {
 
     private void initView() {
         taskDescription = findViewById(R.id.add_task_description);
+        mySheetDialog = new BottomSheetSelectEpicLinks();
+
         app.getComponent().inject(this);
         token = getIntent().getStringExtra("token");
         userImg = findViewById(R.id.add_task_user_img);
@@ -202,7 +210,6 @@ public class AddTaskActivity extends AppCompatActivity {
     private void selectEpicLinks(View view) {
         Bundle bundle = new Bundle();
         bundle.putParcelable("addTaskViewModel", viewModel);
-        BottomSheetSelectEpicLinks mySheetDialog = new BottomSheetSelectEpicLinks();
         mySheetDialog.setArguments(bundle);
         FragmentManager fm = getSupportFragmentManager();
         mySheetDialog.show(fm, "modalSheetDialog");
@@ -223,6 +230,7 @@ public class AddTaskActivity extends AppCompatActivity {
             newTask.setDescription(taskDescription.getText().toString());
             newTask.setPriority(priority.getText().toString().toLowerCase());
             newTask.setSectionId(projectDi.getProjectId());
+            newTask.setPlanOrder("1");
             newTask.setEpicLinks(epicLinksId);
             viewModel.getMutableLiveData(newTask).observe(this, taskObserver);
         }

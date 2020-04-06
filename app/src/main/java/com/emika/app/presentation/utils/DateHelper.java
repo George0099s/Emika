@@ -27,8 +27,9 @@ public class DateHelper {
     }
 
     public static String getDate(String date){
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat formatted = new SimpleDateFormat("MMM dd");
+        SimpleDateFormat formatted = new SimpleDateFormat("d MMM");
 
         Calendar c = Calendar.getInstance();
         try {
@@ -38,8 +39,8 @@ public class DateHelper {
             e.printStackTrace();
         }
          // number of days to add
+        if (date != null)
         date = formatted.format(c.getTime());
-
         return date;
     }
     public static String getDatePicker(String date){
@@ -52,6 +53,7 @@ public class DateHelper {
                 e.printStackTrace();
             }
             // number of days to add
+        if (date != null)
             date = formatted.format(c.getTime());
             return date;
     }

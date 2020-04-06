@@ -49,12 +49,9 @@ public class InvitationAdapter extends RecyclerView.Adapter<InvitationAdapter.In
         Invitation invitation = invitations.get(position);
         holder.title.setText(invitation.getCompany().getName());
         holder.creator.setText(invitation.getCreator().getFirstName());
-        holder.accept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.setInviteId(invitation.getId());
-                viewModel.getAcceptMutableLiveData().observe(owner, observeAccepted);
-            }
+        holder.accept.setOnClickListener(v -> {
+            viewModel.setInviteId(invitation.getId());
+            viewModel.getAcceptMutableLiveData().observe(owner, observeAccepted);
         });
     }
 

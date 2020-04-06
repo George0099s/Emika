@@ -64,8 +64,9 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     private void initView(View view) {
         emikaApplication = EmikaApplication.getInstance();
         sharedPreferences = emikaApplication.getSharedPreferences();
-        tokenDbManager = new TokenDbManager();
-        tokenDbManager.getToken(this);
+        token = getActivity().getIntent().getStringExtra("token");
+//        networkManager.setToken(token);
+        startActivityViewModel = new ViewModelProvider(getActivity().getViewModelStore(), new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
         fm = getParentFragmentManager();
         logout = view.findViewById(R.id.create_company_log_out);
         logout.setOnClickListener(this::logout);
@@ -147,8 +148,6 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
 
     @Override
     public void getToken(String token) {
-        networkManager.setToken(token);
-        startActivityViewModel = new ViewModelProvider(getActivity().getViewModelStore(), new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
-        this.token = token;
+       this.token = token;
     }
 }

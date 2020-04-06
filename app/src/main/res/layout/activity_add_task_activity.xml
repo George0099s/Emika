@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E5E5E5"
+    android:background="@color/white"
     android:windowSoftInputMode="stateAlwaysVisible"
     tools:context=".presentation.ui.calendar.AddTaskActivity">
 
@@ -14,8 +14,8 @@
         android:layout_height="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:padding="10dp"
         android:background="@drawable/ic_back"
+        android:padding="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -30,34 +30,23 @@
         android:hint="@string/set_task_purpose"
         android:imeOptions="actionSend|flagNoEnterAction"
         android:inputType="textPersonName|textMultiLine"
-        android:textSize="22sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_task_back" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="16dp"
-        android:background="#D1DDEE"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_task_description" />
-
     <EditText
         android:id="@+id/add_task_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:hint="@string/description"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:textSize="22sp"
         android:inputType="textPersonName|textMultiLine"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,13 +55,13 @@
     <TextView
         android:id="@+id/add_task_plan_date"
         android:layout_width="wrap_content"
-
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@drawable/shape_task_params"
         android:drawableLeft="@drawable/ic_daata"
         android:drawablePadding="5dp"
         android:text="Today"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/add_task_name"
         app:layout_constraintTop_toBottomOf="@+id/add_task_name" />
@@ -81,12 +70,12 @@
         android:id="@+id/add_task_deadline_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/shape_task_params"
         android:drawableLeft="@drawable/ic_deadline"
         android:drawablePadding="8dp"
-        android:text="Deadlining date"
-        android:textColor="#979797"
+        android:text="@string/deadline_string"
+        android:textColor="@color/grey"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/add_task_plan_date"
         app:layout_constraintTop_toBottomOf="@+id/add_task_plan_date" />
@@ -95,7 +84,7 @@
         android:id="@+id/add_task_select_project"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/shape_task_params"
         android:orientation="horizontal"
         app:layout_constraintStart_toEndOf="@+id/add_task_plan_date"
@@ -106,6 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Emika"
+            android:textColor="@color/black"
             android:textSize="16sp" />
 
         <View
@@ -117,10 +107,10 @@
 
         <TextView
             android:id="@+id/add_task_project_section"
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Open tasks"
+            android:textColor="@color/black"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -128,11 +118,12 @@
         android:id="@+id/add_task_estimated_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
 
         android:background="@drawable/shape_task_params"
         android:drawableLeft="@drawable/ic_estimated_time"
         android:drawablePadding="5dp"
+        android:fontFamily="sans-serif-black"
         android:text="1h"
         android:textColor="@color/blue"
         android:textSize="16sp"
@@ -153,10 +144,10 @@
         android:id="@+id/add_task_user_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="8dp"
         android:text="George Avakyan"
-        android:textSize="16sp"
         android:textColor="@color/black"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/add_task_user_img"
         app:layout_constraintEnd_toStartOf="@+id/add_task_img"
         app:layout_constraintStart_toEndOf="@+id/add_task_user_img"
@@ -167,7 +158,7 @@
         android:id="@+id/add_task_priority"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
 
         android:background="@drawable/shape_task_params"
         android:drawableLeft="@drawable/ic_priority_low"
@@ -184,15 +175,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_task_params"
-
         android:drawableLeft="@drawable/ic_epic_links"
         android:drawablePadding="5dp"
         android:text="Epic links"
-        android:textColor="#979797"
+        android:singleLine = "false"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/add_task_priority"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.165"
+        app:layout_constraintHorizontal_bias="0.08"
         app:layout_constraintStart_toEndOf="@+id/add_task_priority"
         app:layout_constraintTop_toTopOf="@+id/add_task_priority"
         app:layout_constraintVertical_bias="0.0" />
@@ -202,7 +193,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_add_task"
+        android:src="@drawable/custom_add_task_btn"
 
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/add_task_user_img"

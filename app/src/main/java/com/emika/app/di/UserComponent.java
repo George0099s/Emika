@@ -5,7 +5,8 @@ import com.emika.app.presentation.adapter.calendar.ItemAdapter;
 import com.emika.app.presentation.adapter.calendar.ProjectAdapter;
 import com.emika.app.presentation.adapter.calendar.SectionAdapter;
 import com.emika.app.presentation.adapter.calendar.SelectCurrentUserAdapter;
-import com.emika.app.presentation.adapter.chat.ChatAdapter;
+import com.emika.app.deprecated.ChatAdapterOld;
+import com.emika.app.presentation.adapter.chat.QuickAnswerAdapter;
 import com.emika.app.presentation.ui.MainActivity;
 import com.emika.app.presentation.ui.calendar.AddTaskActivity;
 import com.emika.app.presentation.ui.calendar.BoardFragment;
@@ -44,10 +45,11 @@ public interface UserComponent {
     void inject(TaskInfoViewModel taskInfoViewModel);
     void inject(EpicLinksAdapter adapter);
     void inject(BottomSheetSelectEpicLinks bottomSheetSelectEpicLinks);
-    void inject(ChatAdapter chatAdapter);
+    void inject(ChatAdapterOld chatAdapter);
     void inject(ChatFragment chatFragment);
     void inject(ItemAdapter adapter);
     void inject(StartActivityViewModel startActivityViewModel);
+    void inject(QuickAnswerAdapter quickAnswerAdapter);
 
 
 }

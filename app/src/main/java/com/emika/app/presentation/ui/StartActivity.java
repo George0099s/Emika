@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -15,6 +16,7 @@ import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.ProjectDbManager;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
+import com.emika.app.data.network.NetworkService;
 import com.emika.app.data.network.api.AuthApi;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.pojo.ModelToken;
@@ -64,7 +66,8 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
                         .subscribeOn(Schedulers.io())
                         .subscribe();
             else {
-                tokenDbManager.getToken(this);
+                validateToken(sharedPreferences.getString("token", ""));
+//                tokenDbManager.getToken(this);
             }
         else {
             startActivity(new Intent(this, MainActivity.class));
@@ -86,13 +89,11 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
                 ModelToken model = response.body();
                 if (model.getOk()) {
                     startActivityViewModel = new ViewModelProvider((ViewModelStoreOwner) lifecycleOwner, new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
-                    tokenDbManager.insertToken(token);
+//                    tokenDbManager.insertToken(token);
+                    sharedPreferences.edit().putString("token", token).apply();
                     startActivityViewModel.setToken(token);
                     if (sharedPreferences.getBoolean("logged in", false)) {
-                        Intent intent = new Intent(StartActivity.this, MainActivity.class);
-                        intent.putExtra("token", token);
-                        startActivityViewModel.fetchAllData();
-                        startActivity(intent);
+                        startActivityViewModel.getHasCompanyId().observe(lifecycleOwner, hasCompanyId);
                     } else {
                         Intent intent = new Intent(StartActivity.this, AuthActivity.class);
                         startActivity(intent);
@@ -115,11 +116,22 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
         return true;
     }
 
+    private Observer<Boolean> hasCompanyId = has -> {
+        if (has) {
+            Intent intent = new Intent(StartActivity.this, MainActivity.class);
+            intent.putExtra("token", startActivityViewModel.getToken());
+            startActivityViewModel.fetchAllData();
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(StartActivity.this, AuthActivity.class);
+            intent.putExtra("token", startActivityViewModel.getToken());
+            intent.putExtra("continue", true);
+            startActivity(intent);
+        }
+    };
+
     private Boolean createToken() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL) // Адрес сервера
-                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
-                .build();
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
 
         AuthApi service = retrofit.create(AuthApi.class);
         Call<ModelToken> call = service.createToken();
@@ -152,7 +164,6 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
 
     @Override
     public void getToken(String token) {
-        Log.d(TAG, "getToken: " + token);
         validateToken(token);
     }
 

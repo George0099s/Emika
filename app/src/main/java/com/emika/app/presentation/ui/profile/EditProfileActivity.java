@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +30,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
+import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -60,6 +63,9 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
     private ImageView userImg;
     private static final String TAG = "EditProfileActivity";
     private static final int IMAGE_REQUEST = 1;
+    private  UserDbManager userDbManager;
+    private AuthNetworkManager networkManager;
+    private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +75,9 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
 
     private void initView() {
         token = getIntent().getStringExtra("token");
+        sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        userDbManager = new UserDbManager();
+        networkManager = new AuthNetworkManager(token);
         logOut  = findViewById(R.id.edit_log_out);
         logOut.setOnClickListener(this::logOut);
         firstName = findViewById(R.id.edit_first_name);
@@ -83,14 +92,15 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
         saveChanges.setOnClickListener(this::updateInfo);
         mViewModel = ViewModelProviders.of(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         mViewModel.getUserMutableLiveData().observe(this, getUserLiveData);
-
     }
 
     private void logOut(View view) {
         if (NetworkState.getInstance(this).isOnline()) {
-            AuthNetworkManager networkManager = new AuthNetworkManager(token);
+            userDbManager.dropAllTable();
             networkManager.logOut();
+            sharedPreferences.edit().remove("token").apply();
             networkManager.createToken(this);
+
         } else {
             Toast.makeText(this, "Lost internet connection", Toast.LENGTH_SHORT).show();
         }
@@ -159,11 +169,16 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
     }
 
     private Observer<Payload> getUserLiveData = user ->{
-        firstName.setText(user.getFirstName());
-        lastName.setText(user.getLastName());
-        biography.setText(user.getBio());
-        jobTitle.setText(user.getJobTitle());
-        Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+        if (user!=null) {
+            firstName.setText(user.getFirstName());
+            lastName.setText(user.getLastName());
+            biography.setText(user.getBio());
+            jobTitle.setText(user.getJobTitle());
+            if (user.getPictureUrl() != null)
+            Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+        else
+            Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
+        }
     };
 
 
@@ -188,9 +203,7 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
 
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-
                     }
-
                 }).
                 withErrorListener(error -> Toast.makeText(getApplicationContext(), "Error occurred! ", Toast.LENGTH_SHORT).show())
                 .onSameThread()
@@ -203,6 +216,7 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
         intent.putExtra("token", token);
         SharedPreferences sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
         sharedPreferences.edit().putBoolean("logged in", false).apply();
+        sharedPreferences.edit().putString("token", token).apply();
         startActivity(intent);
     }
 }

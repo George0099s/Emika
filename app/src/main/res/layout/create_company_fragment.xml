@@ -11,6 +11,7 @@
         style="@style/subTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="@string/choose_a_name_of_your_workspace"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,12 +53,12 @@
             android:id="@+id/workspace_radio_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
             <RadioButton
                 android:id="@+id/personal_workspace"
                 style="@style/radioButton"
+                android:checked="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
@@ -95,6 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
+                android:checked="true"
                 android:button="@android:color/transparent"
                 android:text="@string/under_20" />
 
@@ -127,8 +129,12 @@
     <Button
         android:id="@+id/create_company_next_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/shape_next_btn"
         android:text="@string/create_company"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/linearLayout"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
@@ -136,7 +142,7 @@
         android:id="@+id/create_company_waiting_to_join"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="36dp"
         android:text="@string/wait_to_be_invited"
         app:layout_constraintBottom_toBottomOf="@+id/create_company_next_btn"
         app:layout_constraintEnd_toStartOf="@+id/create_company_next_btn"

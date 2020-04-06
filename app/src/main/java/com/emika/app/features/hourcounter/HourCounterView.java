@@ -24,7 +24,7 @@ import com.emika.app.R;
  */
 public class HourCounterView extends View {
 
-    public static final int MAX_PROGRESS = 12;
+    public static final double MAX_PROGRESS = 12.0;
 
     private static final String TAG = "FinanceProgressView";
 
@@ -59,7 +59,7 @@ public class HourCounterView extends View {
         canvas.translate(mStrokeWidth / 2, mStrokeWidth / 2);
         updateProgressRect();
         canvas.drawArc(mProgressRect, START_ANGLE, MAX_ANGLE, false, mInactiveCirclePaint);
-        canvas.drawArc(mProgressRect, START_ANGLE, mProgress * MAX_ANGLE / MAX_PROGRESS, false, mCirclePaint);
+        canvas.drawArc(mProgressRect, START_ANGLE, (float) (mProgress * MAX_ANGLE / MAX_PROGRESS), false, mCirclePaint);
         drawText(canvas);
     }
 
@@ -67,7 +67,7 @@ public class HourCounterView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 //        Log.d(TAG, "onMeasure() called with: widthMeasureSpec = [" + MeasureSpec.toString(widthMeasureSpec) + "]," +
 //                " heightMeasureSpec = [" + MeasureSpec.toString(heightMeasureSpec) + "]");
-        getTextBounds(formatString(MAX_PROGRESS));
+        getTextBounds(formatString((int) MAX_PROGRESS));
         // PI не трогать!!!
         int requestedSize = (int) (Math.max(mTextBounds.width(), mTextBounds.height()) + Math.PI * mStrokeWidth);
         final int suggestedMinimumSize = Math.max(getSuggestedMinimumHeight(), getSuggestedMinimumWidth());

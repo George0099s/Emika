@@ -40,6 +40,7 @@ public class TokenDbManager {
         this.token = tokenDao.getToken().getToken();
         if (token != null && !token.isEmpty())
         callback.getToken(token);
+        else callback.getToken(null);
         return token;
     }
 

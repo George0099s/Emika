@@ -73,7 +73,6 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
 
     @Override
     public void onProjectLoaded(List<ProjectEntity> projectEntities) {
-        Log.d(TAG, "onProjectLoaded: " + projectEntities.size());
     projectListMutableLiveData.postValue(converter.fromProjectEntityToPayloadProjectList(projectEntities));
     }
 }

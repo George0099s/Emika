@@ -77,6 +77,7 @@ public class AuthNetworkManager {
             }
         });
     }
+
     public void getAuthModelAuth(AuthCallback callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.BASIC_URL) // Адрес сервера
@@ -182,7 +183,6 @@ public class AuthNetworkManager {
 
         AuthApi service = retrofit.create(AuthApi.class);
         Call<ModelToken> call = service.createToken();
-        Log.d(TAG, "createToken: " + call.request().url());
         call.enqueue(new Callback<ModelToken>() {
             @Override
             public void onResponse(Call<ModelToken> call, Response<ModelToken> response) {

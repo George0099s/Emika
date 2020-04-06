@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <corners android:radius="1dp" />
+
+                    <solid android:color="#EDB83D"/>
+                    <size
+                        android:width="25dp"
+                        android:height="25dp" />
+                </shape>
+            </item>
+
+            <item android:drawable="@drawable/ic_refresh"
+                android:width="18dp"
+                android:height="16dp"
+                android:top="4.7dp"
+                android:left="3.7dp"/>
+        </layer-list>
+    </item>
+
+</selector>

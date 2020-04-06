@@ -19,10 +19,12 @@ import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
+import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.network.pojo.chat.Message;
+import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -44,7 +46,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, MemberDbCallback, Parcelable, EpicLinksDbCallback, ProjectDbCallback {
+public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, MemberDbCallback, Parcelable, EpicLinksDbCallback, ProjectDbCallback, DurationActualCallback {
     private static final String TAG = "CalendarViewModel";
     @Inject
     Assignee assignee;
@@ -54,16 +56,14 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     private MutableLiveData<Assignee> assigneeMutableLiveData;
     private MutableLiveData<List<EpicLinksEntity>> epicLinksMutableLiveData;
     private MutableLiveData<List<ProjectEntity>> projectMutableLiveData;
+    private MutableLiveData<List<PayloadDurationActual>> durationMutableLiveData;
     private CalendarRepository repository;
     private String token;
     private Context context;
     private Converter converter;
-    private Boolean firstRun = true;
-    private JSONObject tokenJson;
     EmikaApplication emikaApplication = EmikaApplication.getInstance();
-    private Socket socket;
-    private Manager manager;
-    private JSONObject taskJSON;
+
+
     public CalendarViewModel(String token) {
         emikaApplication.getComponent().inject(this);
         this.token = token;
@@ -73,36 +73,11 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         membersMutableLiveData = new MutableLiveData<>();
         epicLinksMutableLiveData = new MutableLiveData<>();
         projectMutableLiveData = new MutableLiveData<>();
+        durationMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
         converter = new Converter();
-        manager = emikaApplication.getManager();
-        socket = manager.socket("/all");
-        tokenJson = new JSONObject();
-        try {
-            tokenJson.put("token", token);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        socket.emit("server_create_connection", tokenJson);
-        socket.on("update_task", onUpdateTask);
-        socket.connect();
     }
 
-    private Emitter.Listener onUpdateTask = args -> {
-        String name, id;
-        JSONObject jsonObject = null;
-        try {
-            JSONArray jsonArray = new JSONArray(Arrays.toString(args));
-            jsonObject = jsonArray.getJSONObject(0);
-            name = jsonObject.getString("name");
-            id = jsonObject.getString("_id");
-
-//            Log.d(TAG, ":  " + name);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    };
 
     protected CalendarViewModel(Parcel in) {
         token = in.readString();
@@ -218,5 +193,16 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     @Override
     public void onProjectLoaded(List<ProjectEntity> projectEntities) {
         projectMutableLiveData.postValue(projectEntities);
+    }
+
+    @Override
+    public void onDurationLogDownloaded(List<PayloadDurationActual> durationActualList) {
+        Log.d(TAG, "onDurationLogDownloaded: " + durationActualList.size());
+        durationMutableLiveData.postValue(durationActualList);
+    }
+
+    public MutableLiveData<List<PayloadDurationActual>> getDurationMutableLiveData() {
+        repository.downloadDurationActualLog(this);
+        return durationMutableLiveData;
     }
 }

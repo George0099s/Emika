@@ -5,8 +5,8 @@
         <!-- Customize your theme here. -->
         <item name="background">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:statusBarColor">#E5E5E5</item>
-        <item name="android:navigationBarColor">@color/light_black</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/black</item>
     </style>
     
     <style name="TimePicker" >
@@ -21,4 +21,5 @@
         <item name="android:timePickerMode">spinner</item>
         <item name="android:amPmTextColor">#9c27b0</item>
     </style>
+
 </resources>

@@ -13,6 +13,7 @@ import com.emika.app.data.db.dbmanager.TaskDbManager;
 import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
@@ -110,7 +111,7 @@ public class CalendarRepository {
     }
 
     public void insertDbMembers(List<PayloadShortMember> members, MemberDbCallback callback){
-        memberDbManager.deleteAllMembers();
+//        memberDbManager.deleteAllMembers();
         memberDbManager.addAllMembers(converter.fromPayloadMemberToMemberEntity(members), callback);
     }
 
@@ -129,5 +130,13 @@ public class CalendarRepository {
     public void insertDbEpicLinks(List<EpicLinksEntity> epicLinks, EpicLinksDbCallback callback) {
 //        epicLinksDbManager.deleteAllEpicLinks();
         epicLinksDbManager.insertAllEpicLinks(epicLinks, callback);
+    }
+
+    public void downloadDurationActualLog(DurationActualCallback callback){
+        calendarNetworkManager.downLoadDurationLog(callback);
+    }
+
+    public void sendRegistrationKey(String key) {
+        calendarNetworkManager.sendRegistrationKey(key);
     }
 }

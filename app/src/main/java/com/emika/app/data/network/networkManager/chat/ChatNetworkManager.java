@@ -4,18 +4,10 @@ import android.util.Log;
 
 import com.emika.app.data.network.NetworkService;
 import com.emika.app.data.network.api.ChatApi;
-import com.emika.app.data.network.api.MemberApi;
-import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.chat.MessagesCallback;
 import com.emika.app.data.network.pojo.chat.Message;
 import com.emika.app.data.network.pojo.chat.ModelChat;
 import com.emika.app.data.network.pojo.chat.PayloadChat;
-import com.emika.app.data.network.pojo.member.ModelShortMember;
-import com.emika.app.data.network.pojo.member.PayloadShortMember;
-import com.emika.app.presentation.adapter.chat.ChatAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,10 +32,9 @@ public class ChatNetworkManager {
                 if (response.body() != null) {
                     ModelChat model = response.body();
                     PayloadChat payloadChat = model.getPayload();
-                    List<Message> messages = payloadChat.getMessages();
-                    if (messages != null)
-                        callback.onMessagesLoaded(messages);
-                    else callback.onMessagesLoaded(new ArrayList<>());
+                    if (payloadChat != null)
+                        callback.onMessagesLoaded(payloadChat);
+                    else callback.onMessagesLoaded(new PayloadChat());
                 }
             }
 

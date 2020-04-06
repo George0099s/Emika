@@ -61,6 +61,7 @@ public class UserNetworkManager {
             }
         });
     }
+
     public void getUserInfo(UserInfoCallback callback) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.BASIC_URL) // Адрес сервера
@@ -72,6 +73,7 @@ public class UserNetworkManager {
         call.enqueue(new Callback<Model>() {
             @Override
             public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+                Log.d(TAG, "onResponse: " + call.request().url());
                 if (response.body() != null) {
                     Model model = response.body();
                     Payload payload = model.getPayload();
