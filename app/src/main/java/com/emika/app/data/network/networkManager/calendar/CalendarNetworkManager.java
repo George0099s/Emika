@@ -3,6 +3,7 @@ package com.emika.app.data.network.networkManager.calendar;
 import android.util.Log;
 
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.callback.calendar.SubTaskCallback;
 import com.emika.app.data.network.NetworkService;
 import com.emika.app.data.network.api.CalendarApi;
 import com.emika.app.data.network.api.EpicLinksApi;
@@ -24,6 +25,9 @@ import com.emika.app.data.network.pojo.project.ModelProject;
 import com.emika.app.data.network.pojo.project.ModelSection;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadSection;
+import com.emika.app.data.network.pojo.subTask.ModelSubTask;
+import com.emika.app.data.network.pojo.subTask.PayloadSubTask;
+import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.Model;
 import com.emika.app.data.network.pojo.task.ModelTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
@@ -57,7 +61,6 @@ public class CalendarNetworkManager {
     public CalendarNetworkManager(String token) {
         this.token = token;
         tokenJson = new JSONObject();
-
         socket = EmikaApplication.getInstance().getSocket();
         socket.on("create_connection_successful", onConnectSuccess);
         socket.on("create_connection_failed", onConnectfailed);
@@ -92,12 +95,12 @@ public class CalendarNetworkManager {
         });
     }
 
-    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks) {
+    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks, JSONArray subTasks) {
         Retrofit retrofit = networkService.getRetrofit();
 
         CalendarApi service = retrofit.create(CalendarApi.class);
         Call<ModelTask> call = service.addTask(token, task.getName(), task.getProjectId(), task.getPlanDate(), task.getDeadlineDate(), task.getAssignee(), String.valueOf(task.getDuration()),
-                task.getDescription(), task.getPriority(), task.getSectionId(), epicLinks);
+                task.getDescription(), task.getPriority(), task.getSectionId(), epicLinks, subTasks);
         call.enqueue(new Callback<ModelTask>() {
             @Override
             public void onResponse(retrofit2.Call<ModelTask> call, Response<ModelTask> response) {
@@ -110,10 +113,9 @@ public class CalendarNetworkManager {
                         callback.getAddedTask(new PayloadTask());
                 }
             }
-
             @Override
             public void onFailure(retrofit2.Call<ModelTask> call, Throwable t) {
-                Log.d(TAG, t.getMessage().toString());
+                Log.d(TAG, t.getMessage());
             }
         });
     }
@@ -261,7 +263,6 @@ public class CalendarNetworkManager {
                     else callback.onEpicLinksDownloaded(new ArrayList<>());
                 }
             }
-
             @Override
             public void onFailure(retrofit2.Call<ModelEpicLinks> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
@@ -311,6 +312,30 @@ public class CalendarNetworkManager {
 
             @Override
             public void onFailure(retrofit2.Call<ModelDurationActual> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void getSubTaskList(String taskId, SubTaskCallback callback) {
+        Retrofit retrofit = networkService.getRetrofit();
+        CalendarApi service = retrofit.create(CalendarApi.class);
+        Call<ModelSubTask> call = service.getSubTask(taskId, token);
+        call.enqueue(new Callback<ModelSubTask>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelSubTask> call, Response<ModelSubTask> response) {
+                if (response.body() != null) {
+                    ModelSubTask model = response.body();
+                    PayloadSubTask payloadSubTask = model.getPayload();
+                    List<SubTask> subTasks = payloadSubTask.getSubTasks();
+                    if (subTasks != null)
+                        callback.onSubTaskLoaded(subTasks);
+                    else callback.onSubTaskLoaded(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelSubTask> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
             }
         });

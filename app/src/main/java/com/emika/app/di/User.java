@@ -1,5 +1,7 @@
 package com.emika.app.di;
 
+import com.emika.app.data.network.pojo.user.Contact;
+
 import java.util.List;
 
 
@@ -22,6 +24,7 @@ public class User {
     private Boolean isRemote;
     private List<Object> extraCoworkers = null;
     private List<Object> extraLeaders = null;
+    private List<Contact> contacts = null;
     private String context;
     private String updatedAt;
     private String pictureUrl;
@@ -233,5 +236,13 @@ public class User {
 
     public void setPictureUrl(String pictureUrl) {
         this.pictureUrl = pictureUrl;
+    }
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
     }
 }

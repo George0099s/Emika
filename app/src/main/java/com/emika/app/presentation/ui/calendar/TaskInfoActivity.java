@@ -13,6 +13,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,18 +31,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.entity.EpicLinksEntity;
+import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
 import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
+import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
 import com.emika.app.presentation.ui.MainActivity;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
@@ -69,8 +74,10 @@ public class TaskInfoActivity extends AppCompatActivity {
     private EmikaApplication app = EmikaApplication.getInstance();
     private PayloadTask task;
     private EditText taskName, taskDescription;
+    private RecyclerView subTaskRecycler;
+    private SubTaskAdapter adapter;
     private ImageView userImg;
-    private TextView spentTime, estimatedTime, planDate, deadlineDate, userName, priority, project, section, epicLink;
+    private TextView spentTime, estimatedTime, planDate, deadlineDate, userName, priority, project, section, epicLink, addSubTask;
     private TaskInfoViewModel taskInfoViewModel;
     private String token, deadlineDateString;
     private LinearLayout selectProject;
@@ -189,11 +196,18 @@ public class TaskInfoActivity extends AppCompatActivity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         app.getComponent().inject(this);
         task = getIntent().getParcelableExtra("task");
-        token = getIntent().getStringExtra("token");
+        token = EmikaApplication.getInstance().getSharedPreferences().getString("token", null);
+        subTaskRecycler = findViewById(R.id.task_info_subtask_recycler);
+        subTaskRecycler.setHasFixedSize(true);
+        subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
+        addSubTask = findViewById(R.id.task_info_add_sub_task);
+        addSubTask.setOnClickListener(this::addSubTask);
+
         taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
         taskInfoViewModel.setTask(task);
         taskInfoViewModel.getEpicLinksMutableLiveData().observe(this, setTaskEpicLinks);
+        taskInfoViewModel.getSubTaskMutableLiveData(task.getId()).observe(this, getSubTask);
         taskDescription = findViewById(R.id.task_info_description);
         taskDescription.addTextChangedListener(taskDescriptionTextWatcher);
         taskName = findViewById(R.id.task_info_name);
@@ -229,6 +243,11 @@ public class TaskInfoActivity extends AppCompatActivity {
         setTaskInfo(task);
     }
 
+    private void addSubTask(View view) {
+        SubTask subTask = new SubTask();
+        adapter.addSubTask(subTask);
+    }
+
     private void refreshTask(View view) {
         task.setStatus("wip");
         calendarViewModel.updateTask(task);
@@ -258,6 +277,12 @@ public class TaskInfoActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         mySheetDialog.show(fm, "modalSheetDialog");
     }
+
+    private Observer<List<SubTask>> getSubTask = subTask -> {
+        Log.d("123", ": " + subTask.size());
+            adapter = new SubTaskAdapter(subTask);
+            subTaskRecycler.setAdapter(adapter);
+    };
 
     private void taskDone(View view) {
         if (task.getStatus().equals("done")) {

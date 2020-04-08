@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Layout;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -28,6 +29,7 @@ import com.emika.app.di.UserModule;
 import com.emika.app.presentation.ui.calendar.BoardFragment;
 import com.emika.app.presentation.ui.chat.ChatFragment;
 import com.emika.app.presentation.ui.profile.ProfileFragment;
+import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private EmikaApplication  app = EmikaApplication.getInstance();
     private ConstraintLayout main;
     private UserNetworkManager networkManager;
+    private Socket socket;
     Fragment active = boardFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         app.getComponent().inject(this);
+        socket = app.getSocket();
         networkManager = new UserNetworkManager(getIntent().getStringExtra("token"));
         main = findViewById(R.id.main);
         fragmentManager = getSupportFragmentManager();
@@ -77,6 +81,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
         switch (item.getItemId()) {
@@ -93,15 +102,20 @@ public class MainActivity extends AppCompatActivity {
                 if (active != profileFragment) {
                     fragmentManager.beginTransaction().hide(active).show(profileFragment).commit();
                     getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
+                    setSupportActionBar(findViewById(R.id.profile_toolbar));
+                    getSupportActionBar().setDisplayShowTitleEnabled(false);
                     active = profileFragment;
 
                 }
                 return true;
             case R.id.menu_chat:
                 if (active != chatFragment) {
+
                     fragmentManager.beginTransaction().hide(active).show(chatFragment).commit();
                     getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
+                    socket.emit("server_read_messages");
                     active = chatFragment;
+
                 }
                 return true;
 

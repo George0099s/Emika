@@ -6,44 +6,82 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".presentation.ui.profile.ProfileFragment">
-     <ImageView
-        android:id="@+id/profile_user_img"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:src="@mipmap/id_emika_round"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/profile_user_name"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/profile_toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:textSize="22sp"
-        android:textColor="@color/black"
-        app:layout_constraintStart_toEndOf="@+id/profile_user_img"
-        app:layout_constraintTop_toTopOf="@+id/profile_user_img"
-        tools:text="George Ter-Grigoryants" />
+        android:layout_marginTop="12dp"
+        android:contentInsetLeft="0dp"
+        android:contentInsetStart="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        android:contentInsetRight="0dp"
+        android:contentInsetEnd="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetEnd="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/profile_user_img"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="10dp"
+            android:src="@mipmap/id_emika_round"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-<!--    <ImageView-->
-<!--        android:id="@+id/imageView3"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="12dp"-->
-<!--        android:src="@drawable/ic_whats_up"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/textView14"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/textView14" />-->
+            <LinearLayout
+                android:id="@+id/linearLayout9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/profile_user_img"
+                app:layout_constraintTop_toTopOf="@+id/profile_user_img">
 
-<!--    <TextView-->
-<!--        android:id="@+id/textView13"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:text="Good job!"-->
-<!--        app:layout_constraintEnd_toEndOf="@+id/textView12"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/textView12" />-->
+                <TextView
+                    android:id="@+id/profile_user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/black"
+                    android:textSize="24sp"
+                    app:layout_constraintStart_toEndOf="@+id/profile_user_img"
+                    app:layout_constraintTop_toTopOf="@+id/profile_user_img"
+                    tools:text="George Ter-Grigoryants" />
+
+                <TextView
+                    android:id="@+id/profile_user_job_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:fontFamily="@font/sfuitext_regular"
+                    android:textSize="14sp"
+
+                    tools:text="Android dev" />
+            </LinearLayout>
+
+<!--            <ImageView-->
+<!--                android:id="@+id/profile_option_menu"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:src="@drawable/ic_option_menu"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="@+id/linearLayout9" />-->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+
+
 
 
     <TextView
@@ -54,32 +92,29 @@
         android:text="@string/edit_account"
         android:textColor="@color/green"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="@+id/profile_user_job_title"
-        app:layout_constraintTop_toBottomOf="@+id/profile_user_job_title" />
-
-<!--    <TextView-->
-<!--        android:id="@+id/textView14"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:layout_marginTop="28dp"-->
-<!--        android:text="@string/contacts"-->
-<!--        android:textColor="@color/light_black"-->
-<!--        android:textSize="22sp"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/textView13" />-->
+/>
 
     <TextView
-        android:id="@+id/profile_user_job_title"
-        android:layout_width="0dp"
+        android:id="@+id/textView17"
+        style="@style/ProfileTitles"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/profile_user_img"
-        app:layout_constraintEnd_toEndOf="@+id/profile_user_name"
-        app:layout_constraintHorizontal_bias="0.125"
-        app:layout_constraintStart_toStartOf="@+id/profile_user_name"
-        app:layout_constraintTop_toBottomOf="@+id/profile_user_name"
-        tools:text="Android dev" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/contacts"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_toolbar" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/profile_contacts_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+
 
     <TextView
         android:id="@+id/log_out"
@@ -92,15 +127,5 @@
         android:text="@string/log_out"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-    <!--    <TextView-->
-<!--        android:id="@+id/textView12"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:layout_marginTop="44dp"-->
-<!--        android:text="@string/performance"-->
-<!--        android:textSize="22sp"-->
-<!--        android:textColor="@color/light_black"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/profile_user_img" />-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>

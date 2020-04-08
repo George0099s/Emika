@@ -7,7 +7,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -17,28 +16,21 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
-import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.pojo.user.Payload;
-import com.emika.app.di.User;
-import com.emika.app.domain.repository.auth.CreateUserRepository;
-import com.emika.app.domain.repository.profile.UserRepository;
 import com.emika.app.presentation.ui.auth.AuthActivity;
-import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 import com.karumi.dexter.Dexter;
@@ -58,8 +50,8 @@ import java.util.List;
 public class EditProfileActivity extends AppCompatActivity implements TokenCallback{
     private ProfileViewModel mViewModel;
     private EditText firstName, lastName, jobTitle, biography;
-    private Button updatePhoto, logOut, saveChanges;
     private String token;
+    private TextView cancel, saveChanges;
     private ImageView userImg;
     private static final String TAG = "EditProfileActivity";
     private static final int IMAGE_REQUEST = 1;
@@ -74,36 +66,26 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
     }
 
     private void initView() {
-        token = getIntent().getStringExtra("token");
         sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        token = sharedPreferences.getString("token", "");
         userDbManager = new UserDbManager();
         networkManager = new AuthNetworkManager(token);
-        logOut  = findViewById(R.id.edit_log_out);
-        logOut.setOnClickListener(this::logOut);
+        cancel  = findViewById(R.id.edit_cancel);
+        cancel.setOnClickListener(this::cancel);
         firstName = findViewById(R.id.edit_first_name);
         lastName = findViewById(R.id.edit_last_name);
         jobTitle = findViewById(R.id.edit_job_title);
         userImg = findViewById(R.id.edit_user_img);
         biography = findViewById(R.id.edit_biography);
-        updatePhoto = findViewById(R.id.edit_update_photo);
-        updatePhoto.setOnClickListener(this::updatePhoto);
-        logOut = findViewById(R.id.edit_log_out);
+        userImg.setOnClickListener(this::updatePhoto);
         saveChanges = findViewById(R.id.edit_save_changes);
         saveChanges.setOnClickListener(this::updateInfo);
         mViewModel = ViewModelProviders.of(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         mViewModel.getUserMutableLiveData().observe(this, getUserLiveData);
     }
 
-    private void logOut(View view) {
-        if (NetworkState.getInstance(this).isOnline()) {
-            userDbManager.dropAllTable();
-            networkManager.logOut();
-            sharedPreferences.edit().remove("token").apply();
-            networkManager.createToken(this);
-
-        } else {
-            Toast.makeText(this, "Lost internet connection", Toast.LENGTH_SHORT).show();
-        }
+    private void cancel(View view) {
+       finish();
     }
 
     private void updatePhoto(View view) {
@@ -166,6 +148,7 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
 
     private void updateInfo(View view) {
         mViewModel.updateUser(firstName.getText().toString(), lastName.getText().toString(), biography.getText().toString(), jobTitle.getText().toString());
+        Toast.makeText(this, "All changes are saved", Toast.LENGTH_SHORT).show();
     }
 
     private Observer<Payload> getUserLiveData = user ->{

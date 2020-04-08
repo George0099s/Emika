@@ -5,9 +5,11 @@ import android.util.Log;
 
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
+import com.emika.app.data.db.entity.MessageEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
+import com.emika.app.data.network.pojo.chat.Message;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadMember;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
@@ -32,6 +34,9 @@ public class Converter {
     private List<PayloadShortMember> payloadMembers;
     private List<PayloadEpicLinks> payloadEpicLinks;
     private List<EpicLinksEntity> epicLinksEntities;
+    private List<Message> messages;
+    private JSONArray subTasks;
+
 
     private PayloadTask payloadTask;
     private TaskEntity taskEntity;
@@ -46,6 +51,8 @@ public class Converter {
         payloadMembers = new ArrayList<>();
         payloadEpicLinks = new ArrayList<>();
         epicLinksEntities = new ArrayList<>();
+        messages = new ArrayList<>();
+        subTasks = new JSONArray();
     }
 
     public List<TaskEntity> fromPayloadTaskToTaskEntityList(List<PayloadTask> taskList) {
@@ -271,6 +278,19 @@ public class Converter {
         return jsonArray;
     }
 
+    public JSONArray formListSubTaskToJsonArray(List<String> subTaskList) {
+        subTasks = new JSONArray();
+        for (String subTask: subTaskList) {
+            subTasks.put(subTask);
+        }
+        return subTasks;
+    }
+
+
+//    public List<Message> fromMessageEntityToMessagePayload(List<MessageEntity> messageEntities){
+//        messageEntities
+//
+//    };
 
 }
 

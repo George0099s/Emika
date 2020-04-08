@@ -3,6 +3,7 @@ package com.emika.app.data.network.pojo.user;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Payload {
@@ -76,7 +77,21 @@ public class Payload {
     @SerializedName("picture_url")
     @Expose
     private String pictureUrl;
+    @SerializedName("unread_count")
+    @Expose
+    private int unreadCount;
 
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    @SerializedName("contacts")
+    @Expose
+    private List<Contact> contacts = new ArrayList<>();
     public String getId() {
         return id;
     }
@@ -259,5 +274,13 @@ public class Payload {
 
     public void setCompany_id(String company_id) {
         this.company_id = company_id;
+    }
+
+    public int getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(int unreadCount) {
+        this.unreadCount = unreadCount;
     }
 }

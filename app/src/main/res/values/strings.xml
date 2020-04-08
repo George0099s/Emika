@@ -62,4 +62,7 @@
     <string name="check_invitations">Check invitations</string>
     <string name="or_string">or</string>
     <string name="deadline_string">Deadline</string>
+    <string name="email_string">email</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>

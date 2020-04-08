@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,7 +22,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.chat.Message;
+import com.emika.app.data.network.pojo.chat.PayloadChat;
 import com.emika.app.data.network.pojo.chat.Suggestion;
+import com.emika.app.deprecated.ChatAdapterOld;
 import com.emika.app.di.User;
 import com.emika.app.presentation.adapter.chat.QuickAnswerAdapter;
 import com.emika.app.presentation.adapter.chat.ChatAdapter;
@@ -52,21 +55,21 @@ public class ChatFragment extends Fragment {
     private RecyclerView chatRecycler;
     private RecyclerView quickAnswerRecycler;
     private QuickAnswerAdapter quickAnswerAdapter;
-    private ChatAdapter adapter;
+    private ChatAdapterOld adapter;
     private int offset = 0;
     private int limit = 25;
     private Button sendMessage;
     private Socket socket;
     private ImageView emikaImg;
-//    private Observer<PayloadChat> getMessage = chat -> {
-//        if (chat != null) {
-//            if (chat.getMessages() != null) {
-//                adapter = new ChatAdapterOld(getContext(), chat.getMessages());
-//                chatRecycler.setAdapter(adapter);
-//                chatRecycler.scrollToPosition(0);
-//            }
-//        }
-//    };
+    private Observer<PayloadChat> getMessage = chat -> {
+        if (chat != null) {
+            if (chat.getMessages() != null) {
+                adapter = new ChatAdapterOld(getContext(), chat.getMessages());
+                chatRecycler.setAdapter(adapter);
+                chatRecycler.scrollToPosition(0);
+            }
+        }
+    };
     private Emitter.Listener onUpdateSuggestion = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -103,7 +106,7 @@ public class ChatFragment extends Fragment {
         String text, createdAt, id;
         Boolean isEmika;
         Message message;
-        PagedList<Message> messagePagedList = adapter.getCurrentList();
+//        PagedList<Message> messagePagedList = adapter.getCurrentList();
         try {
             JSONArray jsonArray = new JSONArray(Arrays.toString(args));
             JSONObject jsonObject = jsonArray.getJSONObject(0);
@@ -116,10 +119,11 @@ public class ChatFragment extends Fragment {
             message.setIsEmika(isEmika);
             message.setText(text);
             message.setCreatedAt(createdAt);
+            adapter.update(message);
+//            viewModel.updateMessage(message);
             chatRecycler.scrollToPosition(0);
-            viewModel.updateMessage(message);
-            adapter.notifyItemInserted(0);
-            adapter.notifyDataSetChanged();
+//            adapter.notifyItemInserted(0);
+//            adapter.notifyDataSetChanged();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -138,7 +142,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        adapter = new ChatAdapter(getContext());
+        adapter = new ChatAdapterOld();
         EmikaApplication.getInstance().getComponent().inject(this);
         emikaImg = view.findViewById(R.id.chat_emika_img);
         socket = EmikaApplication.getInstance().getSocket();
@@ -160,11 +164,12 @@ public class ChatFragment extends Fragment {
         layoutManager.setStackFromEnd(true);
         chatRecycler.setLayoutManager(layoutManager);
         chatRecycler.setHasFixedSize(true);
-        viewModel.getItemPagedList().observe(getViewLifecycleOwner(), items -> {
-            adapter.submitList(items);
-            chatRecycler.scrollToPosition(0);
-        });
-        chatRecycler.setAdapter(adapter);
+//        viewModel.getItemPagedList().observe(getViewLifecycleOwner(), items -> {
+//            adapter.submitList(items);
+//            chatRecycler.scrollToPosition(0);
+//        });
+//        chatRecycler.setAdapter(adapter);
+        viewModel.getMessageMutableLiveData(0, 200).observe(getViewLifecycleOwner(), getMessage);
         sendMessage = view.findViewById(R.id.chat_send_message);
         sendMessage.setOnClickListener(this::sendMessage);
         messageBody = view.findViewById(R.id.chat_body_message);

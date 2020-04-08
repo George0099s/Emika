@@ -50,6 +50,23 @@ public class Migration {
                     " `updatedAt` TEXT, `createdAt` TEXT,`projectId` TEXT, `order` TEXT, `emoji` TEXT, PRIMARY KEY (`id`))");
         }
     };
+
+    public static final androidx.room.migration.Migration MIGRATION_7_8 = new androidx.room.migration.Migration(7, 8) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `Messages`  (`id` TEXT NOT NULL, `type` TEXT, `isEmika` INTEGER, `accountId` TEXT," +
+                    " `text` TEXT,`createdAt` TEXT, `chainPosition` INTEGER, `delay` INTEGER," +
+                    "`isPassword` INTEGER,`isSeen` INTEGER,`updatedAt` TEXT, PRIMARY KEY (`id`))");
+        }
+    };
+
+    public static final androidx.room.migration.Migration MIGRATION_8_9 = new androidx.room.migration.Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE user  ADD COLUMN `unreadCount` TEXT");
+        }
+    };
+
 }
 
 

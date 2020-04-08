@@ -1,5 +1,9 @@
 package com.emika.app.presentation.utils;
 
+import android.graphics.drawable.Drawable;
+
+import com.emika.app.R;
+
 import java.util.HashMap;
 
 public final class Constants {
@@ -13,6 +17,17 @@ public final class Constants {
         put("high", "High");
         put("urgent", "Urgent");
     }};
+
+//    public static HashMap<String, Drawable> contactImg = new HashMap<String, Drawable>(){{
+//        put("email", R.drawable.);
+//        put("telegram", "Low");
+//        put("whatsapp", "High");
+//        put("instagram", "Urgent");
+//        put("facebook", "Normal");
+//        put("linkedin", "Low");
+//        put("wechat", "High");
+//        put("vk", "Urgent");
+//    }};
 
 
 }

@@ -19,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -26,12 +28,14 @@ import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
+import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
@@ -71,9 +75,12 @@ public class AddTaskActivity extends AppCompatActivity {
     private AddTaskListViewModel viewModel;
     private ProfileViewModel profileViewModel;
     private Button back;
+    private SubTaskAdapter subTaskAdapter;
+    private RecyclerView subTaskRecycler;
     private CalendarViewModel calendarViewModel;
     private List<PayloadShortMember> memberList;
     private List<String> epicLinksId;
+    private TextView addSubTask;
     private EmikaApplication app = EmikaApplication.getInstance();
     private String token, deadlineDateString;
     private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section, epicLinks;
@@ -143,9 +150,17 @@ public class AddTaskActivity extends AppCompatActivity {
     private void initView() {
         taskDescription = findViewById(R.id.add_task_description);
         mySheetDialog = new BottomSheetSelectEpicLinks();
+        List<SubTask> tasks = new ArrayList<>();
 
+        subTaskAdapter = new SubTaskAdapter(tasks);
+        addSubTask = findViewById(R.id.add_task_add_sub_task);
+        addSubTask.setOnClickListener(this::addSubTask);
         app.getComponent().inject(this);
         token = getIntent().getStringExtra("token");
+        subTaskRecycler = findViewById(R.id.add_task_subtask_recycler);
+        subTaskRecycler.setHasFixedSize(true);
+        subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
+        subTaskRecycler.setAdapter(subTaskAdapter);
         userImg = findViewById(R.id.add_task_user_img);
         userImg.setOnClickListener(this::selectCurrentAssignee);
         userName = findViewById(R.id.add_task_user_name);
@@ -180,6 +195,11 @@ public class AddTaskActivity extends AppCompatActivity {
         epicLinks = findViewById(R.id.add_task_epic_links);
         epicLinks.setOnClickListener(this::selectEpicLinks);
         viewModel.getEpicLinksMutableLiveData().observe(this, getEpicLinks);
+    }
+
+    private void addSubTask(View view) {
+        SubTask subTask = new SubTask();
+        subTaskAdapter.addSubTask(subTask);
     }
 
     private void onBackPressed(View view) {
@@ -220,6 +240,7 @@ public class AddTaskActivity extends AppCompatActivity {
             taskName.requestFocus();
             taskName.setError("Task name is missing");
         } else {
+            List<String> subTasks = new ArrayList<>();
             PayloadTask newTask = new PayloadTask();
             newTask.setName(taskName.getText().toString());
             newTask.setProjectId(projectDi.getProjectId());
@@ -232,6 +253,10 @@ public class AddTaskActivity extends AppCompatActivity {
             newTask.setSectionId(projectDi.getProjectId());
             newTask.setPlanOrder("1");
             newTask.setEpicLinks(epicLinksId);
+            for (int i = 0; i < subTaskAdapter.getTaskList().size(); i++) {
+                subTasks.add(subTaskAdapter.getTaskList().get(i).getName());
+            }
+            newTask.setSubTaskList(subTasks);
             viewModel.getMutableLiveData(newTask).observe(this, taskObserver);
         }
     }

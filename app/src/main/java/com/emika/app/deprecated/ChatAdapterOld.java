@@ -17,8 +17,8 @@ import java.util.List;
 
 public class ChatAdapterOld extends RecyclerView.Adapter<ChatAdapterOld.ViewHolder> {
 
-    private List<Message> mMessages;
     private static final String TAG = "ChatAdapter";
+    private List<Message> mMessages;
 
     public ChatAdapterOld(Context context, List<Message> messages) {
         mMessages = messages;
@@ -49,8 +49,10 @@ public class ChatAdapterOld extends RecyclerView.Adapter<ChatAdapterOld.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         Message message = mMessages.get(position);
-        viewHolder.mMessageView.setText(String.valueOf(Html.fromHtml(message.getText())));
-        viewHolder.messageTime.setText(DateHelper.getDate(message.getCreatedAt()));
+        if (message != null) {
+            viewHolder.mMessageView.setText(String.valueOf(Html.fromHtml(message.getText())));
+//            viewHolder.messageTime.setText(DateHelper.getDate(message.getCreatedAt()));
+        }
     }
 
     @Override
@@ -60,10 +62,16 @@ public class ChatAdapterOld extends RecyclerView.Adapter<ChatAdapterOld.ViewHold
 
     @Override
     public int getItemViewType(int position) {
-            if (mMessages.get(position).getIsEmika())
-                return Message.OTHER_MSG;
-            else
-                return Message.USER_MSG;
+        if (mMessages.get(position).getIsEmika())
+            return Message.OTHER_MSG;
+        else
+            return Message.USER_MSG;
+    }
+
+    public void update(Message message) {
+        if (mMessages != null && message != null)
+            mMessages.add(0, message);
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -81,11 +89,5 @@ public class ChatAdapterOld extends RecyclerView.Adapter<ChatAdapterOld.ViewHold
             mMessageView.setText(message);
         }
 
-    }
-
-    public void update(Message message){
-        if (mMessages != null && message != null)
-        mMessages.add(0,message);
-        notifyDataSetChanged();
     }
 }

@@ -12,6 +12,7 @@ public class Model {
     @SerializedName("payload")
     @Expose
     private List<PayloadTask> payloadTask = null;
+
     public Boolean getOk() {
         return ok;
     }
@@ -27,4 +28,6 @@ public class Model {
     public void setPayloadTask(List<PayloadTask> payloadTask) {
         this.payloadTask = payloadTask;
     }
+
+
 }

@@ -32,6 +32,7 @@ public class UserEntity {
     private String context;
     private String updatedAt;
     private String pictureUrl;
+    private String unreadCount;
     public UserEntity(){}
 
 
@@ -193,5 +194,13 @@ public class UserEntity {
 
     public void setPictureUrl(String pictureUrl) {
         this.pictureUrl = pictureUrl;
+    }
+
+    public String getUnreadCount() {
+        return unreadCount;
+    }
+
+    public void setUnreadCount(String unreadCount) {
+        this.unreadCount = unreadCount;
     }
 }

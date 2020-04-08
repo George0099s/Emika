@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 @Entity
-public class PayloadTask implements Parcelable {
+public class PayloadTask implements Parcelable{
     @PrimaryKey
     @NonNull
     @SerializedName("_id")
@@ -107,6 +107,30 @@ public class PayloadTask implements Parcelable {
     @Expose
     private String durationLogged;
 
+    public static final Creator<PayloadTask> CREATOR = new Creator<PayloadTask>() {
+        @Override
+        public PayloadTask createFromParcel(Parcel in) {
+            return new PayloadTask(in);
+        }
+
+        @Override
+        public PayloadTask[] newArray(int size) {
+            return new PayloadTask[size];
+        }
+    };
+
+    public List<String> getSubTaskList() {
+        return subTaskList;
+    }
+
+    public void setSubTaskList(List<String> subTaskList) {
+        this.subTaskList = subTaskList;
+    }
+
+    @SerializedName("sub_task")
+    @Expose
+    private List<String> subTaskList;
+
     public PayloadTask(Parcel in) {
         id = in.readString();
         name = in.readString();
@@ -151,17 +175,7 @@ public class PayloadTask implements Parcelable {
         durationLogged = in.readString();
     }
 
-    public static final Creator<PayloadTask> CREATOR = new Creator<PayloadTask>() {
-        @Override
-        public PayloadTask createFromParcel(Parcel in) {
-            return new PayloadTask(in);
-        }
 
-        @Override
-        public PayloadTask[] newArray(int size) {
-            return new PayloadTask[size];
-        }
-    };
 
     public PayloadTask() {
     }
@@ -409,6 +423,7 @@ public class PayloadTask implements Parcelable {
         this.durationLogged = durationLogged;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -456,5 +471,6 @@ public class PayloadTask implements Parcelable {
         dest.writeString(parentTaskId);
         dest.writeString(sectionId);
         dest.writeString(durationLogged);
+        dest.writeStringList(subTaskList);
     }
 }

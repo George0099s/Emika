@@ -1,6 +1,7 @@
 package com.emika.app.data.network.api;
 
 import com.emika.app.data.network.pojo.durationActualLog.ModelDurationActual;
+import com.emika.app.data.network.pojo.subTask.ModelSubTask;
 import com.emika.app.data.network.pojo.task.Model;
 import com.emika.app.data.network.pojo.task.ModelTask;
 
@@ -22,6 +23,11 @@ public interface CalendarApi {
 
     @GET("public_api/projects/duration_actual_logs/fetch")
     Call<ModelDurationActual> fetchDurationLogs(@Query("token") String token);
+
+
+    @GET("public_api/tasks/{task_id}/info")
+    Call<ModelSubTask> getSubTask(@Path("task_id") String taskId,
+                                  @Query("token") String token);
 
     @FormUrlEncoded
     @POST("public_api/tasks/{task_id}/update")
@@ -50,10 +56,14 @@ public interface CalendarApi {
                             @Field("description") String description,
                             @Field("priority") String priority,
                             @Field("section_id") String sectionId,
-                            @Field("epic_links") JSONArray epicLinks);
+                            @Field("epic_links") JSONArray epicLinks,
+                            @Field("sub_tasks") JSONArray subTasks);
+
+
+
 
     @FormUrlEncoded
     @POST("public_api/account/update")
     Call<ModelDurationActual> sendRegistrationKey(@Query("token") String token,
-                                                  @Field("registration_key") String key);
+                                                  @Field("android_registration_key") String key);
 }

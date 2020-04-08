@@ -13,4 +13,5 @@
     <color name="green">#00a86b</color>
     <color name="task_name_done">#6F85A2</color>
     <color name="chat_bg">#F0F2F5</color>
+    <color name="light_blue">#96ABC8</color>
 </resources>

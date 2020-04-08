@@ -87,7 +87,7 @@ public class AddTaskListViewModel extends ViewModel implements TaskCallback, Par
     }
 
     public MutableLiveData<PayloadTask> getMutableLiveData(PayloadTask task) {
-        repository.addTask(this, task, converter.fromListToJSONArray(task.getEpicLinks()));
+        repository.addTask(this, task, converter.fromListToJSONArray(task.getEpicLinks()), converter.formListSubTaskToJsonArray(task.getSubTaskList()));
         return mutableLiveData;
     }
 

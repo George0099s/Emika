@@ -23,8 +23,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class EpicLinksDbManager {
-    private AppDatabase db;
     private static final String TAG = "EpicLinksDbManager";
+    private AppDatabase db;
     private EpicLinksDao epicLinksDao;
     public EpicLinksDbManager() {
         db = EmikaApplication.getInstance().getDatabase();

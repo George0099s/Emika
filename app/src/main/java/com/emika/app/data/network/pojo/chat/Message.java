@@ -37,8 +37,28 @@ public class Message {
     @SerializedName("created_at")
     @Expose
     private String createdAt;
+
+    public Message(String id, String type, Boolean isEmika, String accountId, String text, Integer chainPosition, Integer delay, Boolean isPassword, Boolean isSeen, String updatedAt, String createdAt) {
+        this.id = id;
+        this.type = type;
+        this.isEmika = isEmika;
+        this.accountId = accountId;
+        this.text = text;
+        this.chainPosition = chainPosition;
+        this.delay = delay;
+        this.isPassword = isPassword;
+        this.isSeen = isSeen;
+        this.updatedAt = updatedAt;
+        this.createdAt = createdAt;
+    }
+
     public static final int USER_MSG = 0;
     public static final int OTHER_MSG = 1;
+
+    public Message() {
+
+    }
+
     public String getId() {
         return id;
     }

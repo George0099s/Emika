@@ -16,13 +16,18 @@ import androidx.paging.AsyncPagedListDiffer;
 import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.network.pojo.chat.Message;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChatAdapter extends PagedListAdapter<Message, ChatAdapter.ItemViewHolder> {
     private static final String TAG = "ChatAdapter";
+    private List<Message> customList = new ArrayList<>();
     private static DiffUtil.ItemCallback<Message> DIFF_CALLBACK =
             new DiffUtil.ItemCallback<Message>() {
                 @Nullable
@@ -41,6 +46,30 @@ public class ChatAdapter extends PagedListAdapter<Message, ChatAdapter.ItemViewH
                     return oldItem.getId().equals(newItem.getId());
                 }
             };
+
+
+
+    private ListUpdateCallback listUpdateCallback = new ListUpdateCallback() {
+        @Override
+        public void onInserted(int position, int count) {
+            notifyItemInserted(position);
+        }
+
+        @Override
+        public void onRemoved(int position, int count) {
+        notifyItemRemoved(position);
+        }
+
+        @Override
+        public void onMoved(int fromPosition, int toPosition) {
+            notifyItemMoved(fromPosition, toPosition);
+        }
+
+        @Override
+        public void onChanged(int position, int count, @Nullable Object payload) {
+            notifyItemChanged(position, payload);
+        }
+    };
     private Context mCtx;
     private final AsyncPagedListDiffer<Message> mDiffer;
     public ChatAdapter(Context mCtx) {
@@ -83,26 +112,17 @@ public class ChatAdapter extends PagedListAdapter<Message, ChatAdapter.ItemViewH
             return Message.USER_MSG;
     }
 
-//    @Override
-//    public void submitList(PagedList<Message> pagedList) {
-//        pagedList.addWeakCallback(pagedList.snapshot(), new PagedList.Callback() {
-//            @Override
-//            public void onChanged(int position, int count) {
-//                mDiffer.submitList(pagedList);
-//            }
-//
-//            @Override
-//            public void onInserted(int position, int count) {
-//                mDiffer.submitList(pagedList);
-//            }
-//
-//            @Override
-//            public void onRemoved(int position, int count) {
-//                mDiffer.submitList(pagedList);
-//            }
-//        });
-//
-//    }
+    @Override
+    public int getItemCount() {
+        return getCurrentList().size() + customList.size();
+    }
+
+    public void update(Message message){
+        customList.add(0, message);
+        notifyItemRangeInserted(0, getCurrentList().size());
+//        notifyItemInserted(0);
+    }
+
 
     @Nullable
     @Override
@@ -112,7 +132,6 @@ public class ChatAdapter extends PagedListAdapter<Message, ChatAdapter.ItemViewH
 
     @Override
     public void onCurrentListChanged(@Nullable PagedList<Message> currentList) {
-        Toast.makeText(mCtx, String.valueOf(currentList.size()), Toast.LENGTH_SHORT).show();
         super.onCurrentListChanged(currentList);
     }
 
@@ -129,4 +148,5 @@ public class ChatAdapter extends PagedListAdapter<Message, ChatAdapter.ItemViewH
             textView = (TextView) itemView.findViewById(R.id.message_body);
         }
     }
+
 }

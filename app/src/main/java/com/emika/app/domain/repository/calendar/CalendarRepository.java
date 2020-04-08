@@ -6,6 +6,7 @@ import android.util.Log;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
+import com.emika.app.data.db.callback.calendar.SubTaskCallback;
 import com.emika.app.data.db.dbmanager.EpicLinksDbManager;
 import com.emika.app.data.db.dbmanager.MemberDbManager;
 import com.emika.app.data.db.dbmanager.ProjectDbManager;
@@ -28,6 +29,7 @@ import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.User;
 import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
+import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
 import org.json.JSONArray;
 
@@ -79,8 +81,8 @@ public class CalendarRepository {
         taskDbManager.insertDbAllTask(converter.fromPayloadTaskToTaskEntityList(taskList));
     }
 
-    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks){
-        calendarNetworkManager.addTask(callback, task, epicLinks);
+    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks, JSONArray subTasks){
+        calendarNetworkManager.addTask(callback, task, epicLinks, subTasks);
     }
 
     public void downloadAllMembers(ShortMemberCallback callback){
@@ -138,5 +140,9 @@ public class CalendarRepository {
 
     public void sendRegistrationKey(String key) {
         calendarNetworkManager.sendRegistrationKey(key);
+    }
+
+    public void getSubTask(String taskId, SubTaskCallback callback) {
+        calendarNetworkManager.getSubTaskList(taskId, callback);
     }
 }

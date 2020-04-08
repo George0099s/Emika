@@ -2,17 +2,30 @@ package com.emika.app.presentation.ui.profile;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -23,6 +36,7 @@ import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.User;
+import com.emika.app.presentation.adapter.profile.ProfileContactAdapter;
 import com.emika.app.presentation.ui.auth.AuthActivity;
 import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
@@ -44,6 +58,8 @@ public class ProfileFragment extends Fragment implements TokenCallback {
     private ProfileViewModel viewModel;
     private String token;
     private ImageView userImg;
+    private RecyclerView contactsRecycler;
+    private ProfileContactAdapter contactAdapter;
     private EmikaApplication app = EmikaApplication.getInstance();
     private Observer<Payload> getUserInfo = user -> {
         this.user.setId(user.getId());
@@ -51,12 +67,15 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         this.user.setLastName(user.getLastName());
         this.user.setBio(user.getBio());
         this.user.setPictureUrl(user.getPictureUrl());
-//        this.user.setFirstName(user.getFirstName());
+        this.user.setContacts(user.getContacts());
+        //        this.user.setFirstName(user.getFirstName());
 //        this.user.setFirstName(user.getFirstName());
 //        this.user.setFirstName(user.getFirstName());
 //        this.user.setFirstName(user.getFirstName());
         userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
         jobTitle.setText(user.getJobTitle());
+        contactAdapter = new ProfileContactAdapter(user.getContacts(), getContext());
+        contactsRecycler.setAdapter(contactAdapter);
         if (user.getPictureUrl() != null)
             Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
         else
@@ -74,10 +93,49 @@ public class ProfileFragment extends Fragment implements TokenCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+//        getActivity().setActionBar(view.findViewById(R.id.profile_toolbar));
         initView(view);
         return view;
     }
 
+
+    @Override
+    public void onCreate(@NonNull Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        super.onCreate(savedInstanceState);
+    }
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.add(0, 1, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_rename_task), getResources().getString(R.string.edit_account), false));
+        menu.add(0, 2, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_log_ou), getResources().getString(R.string.log_out), true));
+        // TODO Add your menu entries here
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1:
+              Intent intent = new Intent(getContext(), EditProfileActivity.class);
+              startActivity(intent);
+                break;
+            case 2:
+                logOut(getView());
+                break;
+
+        }
+        return true;
+    }
+
+    private CharSequence menuIconWithText(Drawable r, String title, Boolean red) {
+        r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
+        SpannableString sb = new SpannableString("    " + title);
+        if (red)
+        sb.setSpan(new ForegroundColorSpan(getContext().getResources().getColor(R.color.red)), 0, sb.length(), 0);
+        ImageSpan imageSpan = new ImageSpan(r, ImageSpan.ALIGN_BOTTOM);
+        sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sb;
+    }
     private void initView(View view) {
         token = getActivity().getIntent().getStringExtra("token");
         sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
@@ -94,6 +152,9 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         viewModel.setContext(getContext());
         viewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), getUserInfo);
         app.getComponent().inject(this);
+        contactsRecycler = view.findViewById(R.id.profile_contacts_recycler);
+        contactsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        contactsRecycler.setHasFixedSize(true);
     }
 
     private void logOut(View view) {

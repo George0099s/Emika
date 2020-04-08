@@ -24,11 +24,11 @@ public class QuickAnswerAdapter extends RecyclerView.Adapter<QuickAnswerAdapter.
     private static final String TAG = "QuickAnswerAdapter";
     private List<Suggestion> suggestions;
     private  ChatViewModel viewModel;
-    private ChatAdapter adapter;
+    private ChatAdapterOld adapter;
     @Inject
     User userDi;
 
-    public QuickAnswerAdapter(List<Suggestion> suggestions, ChatViewModel viewModel, ChatAdapter adapter) {
+    public QuickAnswerAdapter(List<Suggestion> suggestions, ChatViewModel viewModel, ChatAdapterOld adapter) {
         this.suggestions = suggestions;
         this.viewModel = viewModel;
         this.adapter = adapter;
