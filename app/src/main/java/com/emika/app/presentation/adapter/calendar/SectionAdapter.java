@@ -1,6 +1,6 @@
 package com.emika.app.presentation.adapter.calendar;
 
-import android.util.Log;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +22,12 @@ import javax.inject.Inject;
 
 public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionViewHolder> {
     private static final String TAG = "SectionAdapter";
+    @Inject
+    Project projectDi;
     private List<PayloadSection> sections;
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
-    @Inject
-    Project projectDi;
+
     public SectionAdapter(List<PayloadSection> sections, BottomSheetAddTaskSelectProjectViewModel viewModel) {
         this.sections = sections;
         this.viewModel = viewModel;
@@ -44,9 +45,17 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     public void onBindViewHolder(@NonNull SectionViewHolder holder, int position) {
         PayloadSection section = sections.get(position);
         holder.sectionName.setText(section.getName());
+        if (projectDi.getProjectSectionId() != null)
+        if (projectDi.getProjectSectionId().equals(section.getId()))
+            holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
+        else
+            holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
+
         holder.item.setOnClickListener(v -> {
+            holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
             projectDi.setProjectSectionId(section.getId());
             projectDi.setProjectSectionName(section.getName());
+            notifyDataSetChanged();
         });
     }
 
@@ -58,6 +67,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     public class SectionViewHolder extends RecyclerView.ViewHolder {
         TextView sectionName;
         ConstraintLayout item;
+
         public SectionViewHolder(@NonNull View itemView) {
             super(itemView);
             item = itemView.findViewById(R.id.section);

@@ -2,6 +2,7 @@ package com.emika.app.di;
 
 import com.emika.app.data.network.pojo.user.Contact;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,9 +23,9 @@ public class User {
     private String jobTitle;
     private Boolean isLeader;
     private Boolean isRemote;
-    private List<Object> extraCoworkers = null;
-    private List<Object> extraLeaders = null;
-    private List<Contact> contacts = null;
+    private List<String> coworkers = new ArrayList<>();
+    private List<String> leaders = new ArrayList<>();
+    private List<Contact> contacts = new ArrayList<>();
     private String context;
     private String updatedAt;
     private String pictureUrl;
@@ -32,7 +33,7 @@ public class User {
     public User(String id, String status, Boolean isAdmin, String inviteCode, String activationEmailRequestedAt, String activationCode,
                 Boolean emailConfirmed, String email, String firstName, String lastName, String lang, String gender, String bio, String jobTitle,
                 Boolean isLeader, Boolean isRemote,
-                List<Object> extraCoworkers, List<Object> extraLeaders, String context, String updatedAt, String createdAt) {
+                List<String> coworkers, List<String> leaders, String context, String updatedAt, String createdAt) {
         this.id = id;
         this.status = status;
         this.isAdmin = isAdmin;
@@ -49,8 +50,8 @@ public class User {
         this.jobTitle = jobTitle;
         this.isLeader = isLeader;
         this.isRemote = isRemote;
-        this.extraCoworkers = extraCoworkers;
-        this.extraLeaders = extraLeaders;
+        this.coworkers = coworkers;
+        this.leaders = leaders;
         this.context = context;
         this.updatedAt = updatedAt;
         this.createdAt = createdAt;
@@ -188,20 +189,20 @@ public class User {
         isRemote = remote;
     }
 
-    public List<Object> getExtraCoworkers() {
-        return extraCoworkers;
+    public List<String> getExtraCoworkers() {
+        return coworkers;
     }
 
-    public void setExtraCoworkers(List<Object> extraCoworkers) {
-        this.extraCoworkers = extraCoworkers;
+    public void setExtraCoworkers(List<String> coworkers) {
+        this.coworkers = coworkers;
     }
 
-    public List<Object> getExtraLeaders() {
-        return extraLeaders;
+    public List<String> getExtraLeaders() {
+        return leaders;
     }
 
-    public void setExtraLeaders(List<Object> extraLeaders) {
-        this.extraLeaders = extraLeaders;
+    public void setExtraLeaders(List<String> leaders) {
+        this.leaders = leaders;
     }
 
     public String getContext() {

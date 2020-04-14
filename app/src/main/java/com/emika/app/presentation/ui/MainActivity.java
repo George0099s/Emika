@@ -35,6 +35,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.inject.Inject;
 
 public class MainActivity extends AppCompatActivity {
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout main;
     private UserNetworkManager networkManager;
     private Socket socket;
+    private String token;
+    private JSONObject tokenJson;
     Fragment active = boardFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +66,14 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         app.getComponent().inject(this);
         socket = app.getSocket();
-        networkManager = new UserNetworkManager(getIntent().getStringExtra("token"));
+        token = getIntent().getStringExtra("token");
+        tokenJson = new JSONObject();
+        try {
+            tokenJson.put("token", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        networkManager = new UserNetworkManager(token);
         main = findViewById(R.id.main);
         fragmentManager = getSupportFragmentManager();
         navigationView = findViewById(R.id.bottom_navigation);
@@ -113,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
                     fragmentManager.beginTransaction().hide(active).show(chatFragment).commit();
                     getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
-                    socket.emit("server_read_messages");
+                    socket.emit("server_read_messages", tokenJson);
                     active = chatFragment;
 
                 }

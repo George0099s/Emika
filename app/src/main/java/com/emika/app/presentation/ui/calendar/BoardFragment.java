@@ -21,19 +21,20 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -238,7 +239,6 @@ public class BoardFragment extends Fragment {
             jsonObject = jsonArray.getJSONObject(0);
             id = jsonObject.getString("_id");
             value = jsonObject.getString("value");
-            Log.d(TAG, ":update " + value);
             status = jsonObject.getString("status");
             taskId = jsonObject.getString("task_id");
             projectId = jsonObject.getString("project_id");
@@ -271,6 +271,79 @@ public class BoardFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    });
+    private long mLastClickTime = 0;
+    private Emitter.Listener onTaskUpdate = args -> Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+        Boolean hasTask = false;
+        int row;
+        JSONObject jsonObject = null;
+        String name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, parentId;
+        JSONArray epicLinks = new JSONArray();
+        List<String> epicLinkList = new ArrayList<>();
+        if (getActivity() != null)
+            try {
+                JSONArray jsonArray = new JSONArray(Arrays.toString(args));
+                jsonObject = jsonArray.getJSONObject(0);
+                id = jsonObject.getString("_id");
+                status = jsonObject.getString("status");
+                name = jsonObject.getString("name");
+                priority = jsonObject.getString("priority");
+                planDate = jsonObject.getString("plan_date");
+                assignee = jsonObject.getString("assignee");
+                row = jsonObject.getInt("plan_order");
+                if (epicLinks != null && epicLinks.length() != 0)
+                    for (int i = 0; i < epicLinks.length(); i++) {
+                        epicLinkList.add((String) epicLinks.get(i));
+                    }
+                deadlineDate = jsonObject.getString("deadline_date");
+                estimatedTime = jsonObject.getString("duration");
+                spentTime = jsonObject.getString("duration_actual");
+                for (int i = 0; i < mBoardView.getColumnCount(); i++) {
+                    for (int j = 0; j < mBoardView.getAdapter(i).getItemCount(); j++) {
+                        Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(j);
+                        if (taskNewPos.second.getId().equals(id)) {
+                            hasTask = true;
+                            taskNewPos.second.setName(name);
+                            taskNewPos.second.setDurationActual(Integer.valueOf(spentTime));
+                            taskNewPos.second.setDuration(Integer.valueOf(estimatedTime));
+                            taskNewPos.second.setDeadlineDate(deadlineDate);
+                            taskNewPos.second.setPlanOrder(String.valueOf(row));
+                            taskNewPos.second.setAssignee(assignee);
+                            taskNewPos.second.setEpicLinks(epicLinkList);
+                            taskNewPos.second.setPriority(priority);
+                            taskNewPos.second.setStatus(status);
+                            if (status.equals("deleted"))
+                                mBoardView.removeItem(i, j);
+                            else if (taskNewPos.second.getPlanDate().equals(planDate)) {
+                                mBoardView.getAdapter(i).swapItems(j, row - 1);
+                                mBoardView.invalidate();
+                            } else {
+                                for (int k = 0; k < mBoardView.getColumnCount(); k++) {
+                                    if (planDate.equals(Constants.dateColumnMap.get(k))) {
+                                        taskNewPos.second.setPlanDate(planDate);
+                                        mBoardView.moveItem(i, j, k, row - 1, false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (assignee.equals(this.assignee.getId()) && !hasTask) {
+                    PayloadTask task = new PayloadTask();
+                    task.setName(name);
+                    task.setId(id);
+                    task.setDurationActual(Integer.valueOf(spentTime));
+                    task.setDuration(Integer.valueOf(estimatedTime));
+                    task.setDeadlineDate(deadlineDate);
+                    task.setPlanDate(planDate);
+                    task.setAssignee(assignee);
+                    task.setPriority(priority);
+                    task.setStatus(status);
+                    addTask(task);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
     });
 
     @Override
@@ -327,6 +400,8 @@ public class BoardFragment extends Fragment {
         mBoardView.setSnapToColumnInLandscape(false);
         mBoardView.setColumnSnapPosition(BoardView.ColumnSnapPosition.CENTER);
         mBoardView.setVisibility(View.VISIBLE);
+
+//        mBoardView.setCustomDragItem(new MyDragItem(getContext(), R.layout.column_item));
         firstRun = true;
         mBoardView.setBoardListener(new BoardView.BoardListener() {
             @Override
@@ -339,7 +414,6 @@ public class BoardFragment extends Fragment {
 
             @Override
             public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
-                Toast.makeText(app, oldRow + " " + newRow, Toast.LENGTH_SHORT).show();
                 Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(newColumn).getItemList().get(newRow);
                 taskNewPos.second.setPlanDate(Constants.dateColumnMap.get(newColumn));
                 taskNewPos.second.setPlanOrder(String.valueOf(newRow + 1));
@@ -365,16 +439,28 @@ public class BoardFragment extends Fragment {
 
             @Override
             public void onFocusedColumnChanged(int oldColumn, int newColumn) {
+                Animation animRight = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right_anim);
+                Animation animLeft = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left_anim);
+                Animation animOutLeft = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_left_anim);
+                Animation animOutRight = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_right_anim);
                 if (firstRun)
                     if (mBoardView.getFocusedColumn() == 15) {
+                        if (newColumn < oldColumn)
+                            leftScroll.startAnimation(animOutLeft);
+                        if (newColumn > oldColumn)
+                            rightScroll.startAnimation(animOutRight);
                         leftScroll.setVisibility(View.GONE);
                         rightScroll.setVisibility(View.GONE);
                     } else if (mBoardView.getFocusedColumn() < 15) {
                         leftScroll.setVisibility(View.GONE);
                         rightScroll.setVisibility(View.VISIBLE);
+                        if (mBoardView.getFocusedColumn() == 14 && oldColumn > newColumn)
+                            rightScroll.startAnimation(animRight);
                     } else if (mBoardView.getFocusedColumn() > 15) {
                         rightScroll.setVisibility(View.GONE);
                         leftScroll.setVisibility(View.VISIBLE);
+                        if (mBoardView.getFocusedColumn() == 16 && oldColumn < newColumn)
+                            leftScroll.startAnimation(animLeft);
                     }
             }
 
@@ -413,83 +499,7 @@ public class BoardFragment extends Fragment {
         viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
         viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
     }
-    private Emitter.Listener onTaskUpdate = args -> Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
-        Boolean hasTask = false;
-        int row;
-        JSONObject jsonObject = null;
-        String name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status;
-        JSONArray epicLinks = new JSONArray();
-        List<String> epicLinkList = new ArrayList<>();
-        if (getActivity() != null)
-            try {
-                JSONArray jsonArray = new JSONArray(Arrays.toString(args));
-                jsonObject = jsonArray.getJSONObject(0);
-                id = jsonObject.getString("_id");
-                status = jsonObject.getString("status");
-                name = jsonObject.getString("name");
-                priority = jsonObject.getString("priority");
-                planDate = jsonObject.getString("plan_date");
-                assignee = jsonObject.getString("assignee");
-                row = jsonObject.getInt("plan_order");
-                epicLinks = jsonObject.getJSONArray("epic_links");
-                if (epicLinks != null && epicLinks.length() != 0)
-                    for (int i = 0; i < epicLinks.length(); i++) {
-                        epicLinkList.add((String) epicLinks.get(i));
-                    }
-                deadlineDate = jsonObject.getString("deadline_date");
-                estimatedTime = jsonObject.getString("duration");
-                spentTime = jsonObject.getString("duration_actual");
-                for (int i = 0; i < mBoardView.getColumnCount(); i++) {
-                    for (int j = 0; j < mBoardView.getAdapter(i).getItemCount(); j++) {
-                        Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(j);
-                        if (taskNewPos.second.getId().equals(id)) {
-                            hasTask = true;
-                            taskNewPos.second.setName(name);
-                            taskNewPos.second.setDurationActual(Integer.valueOf(spentTime));
-                            taskNewPos.second.setDuration(Integer.valueOf(estimatedTime));
-                            taskNewPos.second.setDeadlineDate(deadlineDate);
-                            taskNewPos.second.setPlanOrder(String.valueOf(row));
-                            taskNewPos.second.setAssignee(assignee);
-                            taskNewPos.second.setEpicLinks(epicLinkList);
-                            taskNewPos.second.setPriority(priority);
-                            taskNewPos.second.setStatus(status);
-                            if (taskNewPos.second.getPlanDate().equals(planDate)) {
-//                                mBoardView.removeItem(i, j);
-//                                mBoardView.addItem(i, row-1, taskNewPos, false);
-                                mBoardView.getAdapter(i).swapItems(j, row-1);
-                                mBoardView.invalidate();
-                            } else {
-                                for (int k = 0; k < mBoardView.getColumnCount(); k++) {
-                                    if (planDate.equals(Constants.dateColumnMap.get(k))) {
-                                        taskNewPos.second.setPlanDate(planDate);
-//                                        mBoardView.removeItem(i, j);
-                                        mBoardView.moveItem(i, j, k, row -1, false);
-                                    }
-                                }
-                            }
-//
 
-                        }
-                    }
-                }
-                if (assignee.equals(this.assignee.getId()) && !hasTask) {
-                    PayloadTask task = new PayloadTask();
-                    task.setName(name);
-                    task.setId(id);
-                    task.setDurationActual(Integer.valueOf(spentTime));
-                    task.setDuration(Integer.valueOf(estimatedTime));
-                    task.setDeadlineDate(deadlineDate);
-                    task.setPlanDate(planDate);
-                    task.setAssignee(assignee);
-                    task.setPriority(priority);
-                    task.setStatus(status);
-                    addTask(task);
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-    });
     private void selectCurrentAssignee(View view) {
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
@@ -505,6 +515,7 @@ public class BoardFragment extends Fragment {
     }
 
     private void resetBoard() {
+        mBoardView.setLastColumn(mBoardView.getFocusedColumn());
         mBoardView.clearBoard();
     }
 
@@ -534,7 +545,6 @@ public class BoardFragment extends Fragment {
         listAdapter.setmDragOnLongPress(true);
         listAdapter.setmLayoutId(R.layout.column_item);
         listAdapter.setmGrabHandleId(R.id.item_layout);
-
         final View header = View.inflate(getActivity(), R.layout.column_header, null);
 
         ((TextView) header.findViewById(R.id.header_date)).setText(month);
@@ -554,15 +564,19 @@ public class BoardFragment extends Fragment {
                 .build();
 
         mBoardView.addColumn(columnProperties);
-        mBoardView.scrollToColumn(mBoardView.getFocusedColumn() + 1, true);
     }
 
     private void goToAddTask(View v) {
-        Intent intent = new Intent(getContext(), AddTaskActivity.class);
-        intent.putExtra("token", token);
-        intent.putExtra("members", (Serializable) memberList);
-        intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()));
-        startActivityForResult(intent, 42, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Intent intent = new Intent(getContext(), AddTaskActivity.class);
+            intent.putExtra("token", token);
+            intent.putExtra("members", (Serializable) memberList);
+            intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()));
+            startActivityForResult(intent, 42, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     @Override
@@ -604,7 +618,7 @@ public class BoardFragment extends Fragment {
 
             dragCard.setMaxCardElevation(40);
             dragCard.setCardElevation(clickedCard.getCardElevation());
-            dragCard.setForeground(clickedView.getResources().getDrawable(R.drawable.card_view_drag_foreground));
+//            dragCard.setForeground(clickedView.getResources().getDrawable(R.drawable.card_view_drag_foreground));
         }
 
         @Override
@@ -670,6 +684,7 @@ public class BoardFragment extends Fragment {
         @Override
         protected void onPostExecute(List<ArrayList<PayloadTask>> taskList) {
             super.onPostExecute(taskList);
+
             resetBoard();
             for (int i = 0; i < tasks.size(); i++) {
                 Constants.dateColumnMap.put(i, DateHelper.compareDate(i));

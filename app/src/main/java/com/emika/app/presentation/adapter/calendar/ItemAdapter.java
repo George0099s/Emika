@@ -19,14 +19,13 @@ package com.emika.app.presentation.adapter.calendar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
-import android.util.Log;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -43,7 +42,6 @@ import com.emika.app.features.calendar.DragItemAdapter;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.DateHelper;
-import com.google.android.gms.common.api.internal.GoogleApiManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +50,8 @@ import javax.inject.Inject;
 
 public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter.ViewHolder> {
     private static final String TAG = "ItemAdapter";
+    @Inject
+    EpicLinks epicLinksDi;
     private int mLayoutId;
     private int mGrabHandleId;
     private boolean mDragOnLongPress;
@@ -60,8 +60,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     private CalendarNetworkManager calendarNetworkManager;
     private List<EpicLinksEntity> epicLinksEntities;
     private List<ProjectEntity> projectEntities;
-    @Inject
-    EpicLinks epicLinksDi;
+    private long mLastClickTime = 0;
 
     public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities) {
         EmikaApplication.getInstance().getComponent().inject(this);
@@ -108,7 +107,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         PayloadTask task = mItemList.get(position).second;
-        if (!task.getStatus().equals("archived")) {
+        if (!task.getStatus().equals("deleted")) {
             holder.mText.setText(task.getName());
             holder.itemView.setTag(mItemList.get(position));
             holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
@@ -164,12 +163,12 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                 holder.mText.setTextColor(context.getResources().getColor(R.color.black));
                 holder.isDone.setChecked(false);
             }
-            holder.mText.setOnClickListener(v -> {
-                Intent intent = new Intent(context, TaskInfoActivity.class);
-                intent.putExtra("task", mItemList.get(position).second);
-                intent.putExtra("token", token);
-                context.startActivity(intent);
-            });
+//            holder.mText.setOnClickListener(v -> {
+//                Intent intent = new Intent(context, TaskInfoActivity.class);
+//                intent.putExtra("task", mItemList.get(position).second);
+//                intent.putExtra("token", token);
+//                context.startActivity(intent);
+//            });
             if (task.getPriority() != null)
                 switch (task.getPriority()) {
                     case "low":
@@ -276,9 +275,15 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
 
         @Override
         public void onItemClicked(View view) {
-
-
-
+            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                return;
+            } else {
+                Intent intent = new Intent(context, TaskInfoActivity.class);
+                intent.putExtra("task", mItemList.get(getAdapterPosition()).second);
+                intent.putExtra("token", token);
+                context.startActivity(intent);
+            }
+            mLastClickTime = SystemClock.elapsedRealtime();
         }
 
         @Override

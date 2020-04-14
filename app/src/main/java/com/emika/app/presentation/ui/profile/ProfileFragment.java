@@ -2,14 +2,13 @@ package com.emika.app.presentation.ui.profile;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,13 +33,20 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
+import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
+import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.CompanyDi;
 import com.emika.app.di.User;
+import com.emika.app.presentation.adapter.profile.AllMembersAdapter;
 import com.emika.app.presentation.adapter.profile.ProfileContactAdapter;
 import com.emika.app.presentation.ui.auth.AuthActivity;
 import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -51,16 +57,27 @@ public class ProfileFragment extends Fragment implements TokenCallback {
     private static final String TAG = "ProfileFragment";
     @Inject
     User user;
+    @Inject
+    CompanyDi companyDi;
+
     private UserDbManager userDbManager;
     private AuthNetworkManager networkManager;
     private SharedPreferences sharedPreferences;
-    private TextView userName, jobTitle, editProfile, logOut;
-    private ProfileViewModel viewModel;
+    private TextView userName, jobTitle, editProfile, logOut, listAllMembers, companyName, companyMemberCount, manageInvites;
     private String token;
-    private ImageView userImg;
-    private RecyclerView contactsRecycler;
+    private ImageView userImg, companyImg;
+    private RecyclerView contactsRecycler, leadRecycler, coWorkersRecycler;
     private ProfileContactAdapter contactAdapter;
+    private AllMembersAdapter leadAdapter, coWorkersAdapter;
+    private ProfileViewModel viewModel;
+    private List<PayloadShortMember> memberList = new ArrayList<>();
     private EmikaApplication app = EmikaApplication.getInstance();
+    private Observer<List<PayloadShortMember>> getMembers = members -> {
+        memberList = members;
+        companyMemberCount.setText(String.format("%s %s", memberList.size(), getResources().getString(R.string.members_string)));
+        setCoworkers();
+        setLeaders();
+    };
     private Observer<Payload> getUserInfo = user -> {
         this.user.setId(user.getId());
         this.user.setFirstName(user.getFirstName());
@@ -68,10 +85,10 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         this.user.setBio(user.getBio());
         this.user.setPictureUrl(user.getPictureUrl());
         this.user.setContacts(user.getContacts());
-        //        this.user.setFirstName(user.getFirstName());
-//        this.user.setFirstName(user.getFirstName());
-//        this.user.setFirstName(user.getFirstName());
-//        this.user.setFirstName(user.getFirstName());
+        this.user.setExtraCoworkers(user.getCoworkers());
+        this.user.setExtraLeaders(user.getLeaders());
+        this.user.setAdmin(user.getIsAdmin());
+        this.user.setLeader(user.getIsLeader());
         userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
         jobTitle.setText(user.getJobTitle());
         contactAdapter = new ProfileContactAdapter(user.getContacts(), getContext());
@@ -80,7 +97,7 @@ public class ProfileFragment extends Fragment implements TokenCallback {
             Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
         else
             Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
-
+        viewModel.getMemberMutableLiveData().observe(getViewLifecycleOwner(), getMembers);
     };
 
 
@@ -98,12 +115,12 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         return view;
     }
 
-
     @Override
     public void onCreate(@NonNull Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         menu.add(0, 1, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_rename_task), getResources().getString(R.string.edit_account), false));
@@ -116,8 +133,9 @@ public class ProfileFragment extends Fragment implements TokenCallback {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case 1:
-              Intent intent = new Intent(getContext(), EditProfileActivity.class);
-              startActivity(intent);
+                Intent intent = new Intent(getContext(), EditProfileActivity.class);
+                intent.putExtra("viewModel", viewModel);
+                startActivity(intent);
                 break;
             case 2:
                 logOut(getView());
@@ -131,30 +149,94 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         r.setBounds(0, 0, r.getIntrinsicWidth(), r.getIntrinsicHeight());
         SpannableString sb = new SpannableString("    " + title);
         if (red)
-        sb.setSpan(new ForegroundColorSpan(getContext().getResources().getColor(R.color.red)), 0, sb.length(), 0);
+            sb.setSpan(new ForegroundColorSpan(getContext().getResources().getColor(R.color.red)), 0, sb.length(), 0);
         ImageSpan imageSpan = new ImageSpan(r, ImageSpan.ALIGN_BOTTOM);
         sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return sb;
     }
+
     private void initView(View view) {
+        app.getComponent().inject(this);
+        Log.d(TAG, "initView: " + companyDi.getName());
         token = getActivity().getIntent().getStringExtra("token");
         sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
         userDbManager = new UserDbManager();
         networkManager = new AuthNetworkManager(token);
         userName = view.findViewById(R.id.profile_user_name);
         jobTitle = view.findViewById(R.id.profile_user_job_title);
-        editProfile = view.findViewById(R.id.profile_edit);
         userImg = view.findViewById(R.id.profile_user_img);
-        logOut = view.findViewById(R.id.log_out);
-        logOut.setOnClickListener(this::logOut);
-        editProfile.setOnClickListener(this::editProfile);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         viewModel.setContext(getContext());
         viewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), getUserInfo);
-        app.getComponent().inject(this);
+        viewModel.getCompanyInfoMutableLiveData().observe(getViewLifecycleOwner(), getCompanyInfo);
         contactsRecycler = view.findViewById(R.id.profile_contacts_recycler);
         contactsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         contactsRecycler.setHasFixedSize(true);
+        listAllMembers = view.findViewById(R.id.profile_see_all_members);
+        listAllMembers.setOnClickListener(this::seeAllMembers);
+        companyName = view.findViewById(R.id.profile_company_name);
+        companyMemberCount = view.findViewById(R.id.profile_company_members);
+        companyImg = view.findViewById(R.id.profile_company_img);
+        leadRecycler = view.findViewById(R.id.profile_leader_recycler);
+        leadRecycler.setHasFixedSize(true);
+        leadRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        coWorkersRecycler = view.findViewById(R.id.profile_coworkers_recycler);
+        coWorkersRecycler.setHasFixedSize(true);
+        coWorkersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        manageInvites = view.findViewById(R.id.profile_manage_invites);
+        manageInvites.setOnClickListener(this::goToManageInvites);
+
+
+    }
+
+    private Observer<PayloadCompanyInfo> getCompanyInfo = companyInfo -> {
+        companyDi.setBalance(companyInfo.getBalance());
+        companyDi.setManagers(companyInfo.getManagers());
+        companyDi.setCreatedAt(companyInfo.getCreatedAt());
+        companyDi.setCreatedBy(companyInfo.getCreatedBy());
+        companyDi.setId(companyInfo.getId());
+        companyDi.setName(companyInfo.getName());
+        companyDi.setPictureUrl(companyInfo.getPictureUrl());
+        companyDi.setStatus(companyInfo.getStatus());
+        companyDi.setSize(companyInfo.getSize());
+        companyName.setText(companyDi.getName());
+        Glide.with(getContext()).load(companyDi.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(companyImg);
+        if (companyDi.getManagers().contains(this.user.getId()))
+            manageInvites.setVisibility(View.VISIBLE);
+        else
+            manageInvites.setVisibility(View.GONE);
+    };
+    private void goToManageInvites(View view) {
+        Intent intent = new Intent(getContext(), ManageInvites.class);
+        startActivity(intent);
+    }
+
+    private void setLeaders() {
+        List<PayloadShortMember> leaders = new ArrayList<>();
+        for (PayloadShortMember leader : memberList) {
+            if (user.getExtraLeaders().contains(leader.getId()))
+                leaders.add(leader);
+        }
+        leadAdapter = new AllMembersAdapter(leaders, getContext());
+        leadRecycler.setAdapter(leadAdapter);
+    }
+
+    private void setCoworkers() {
+        List<PayloadShortMember> coWorkers = new ArrayList<>();
+        for (PayloadShortMember coWorker : memberList) {
+            if (user.getExtraCoworkers().contains(coWorker.getId()))
+                coWorkers.add(coWorker);
+        }
+
+        coWorkersAdapter = new AllMembersAdapter(coWorkers, getContext());
+        coWorkersRecycler.setAdapter(coWorkersAdapter);
+    }
+
+    private void seeAllMembers(View view) {
+        Intent intent = new Intent(getContext(), AllMembersActivity.class);
+        startActivity(intent);
     }
 
     private void logOut(View view) {
@@ -163,7 +245,6 @@ public class ProfileFragment extends Fragment implements TokenCallback {
             networkManager.logOut();
             sharedPreferences.edit().remove("token").apply();
             networkManager.createToken(this);
-
         } else {
             Toast.makeText(getContext(), "Lost internet connection", Toast.LENGTH_SHORT).show();
         }
@@ -173,12 +254,6 @@ public class ProfileFragment extends Fragment implements TokenCallback {
     public void onResume() {
         super.onResume();
         viewModel.getUserMutableLiveData();
-    }
-
-    private void editProfile(View view) {
-        Intent intent = new Intent(getContext(), EditProfileActivity.class);
-        intent.putExtra("token", token);
-        startActivity(intent);
     }
 
     @Override

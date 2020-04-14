@@ -5,8 +5,11 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.SystemClock;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -134,6 +137,7 @@ public class AddTaskActivity extends AppCompatActivity {
         project.setText(project1.getProjectName());
         section.setText(project1.getProjectSectionName());
     };
+    private long mLastClickTime = 0;
 
     @Override
     public void onBackPressed() {
@@ -152,15 +156,12 @@ public class AddTaskActivity extends AppCompatActivity {
         mySheetDialog = new BottomSheetSelectEpicLinks();
         List<SubTask> tasks = new ArrayList<>();
 
-        subTaskAdapter = new SubTaskAdapter(tasks);
         addSubTask = findViewById(R.id.add_task_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
         app.getComponent().inject(this);
         token = getIntent().getStringExtra("token");
         subTaskRecycler = findViewById(R.id.add_task_subtask_recycler);
-        subTaskRecycler.setHasFixedSize(true);
-        subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
-        subTaskRecycler.setAdapter(subTaskAdapter);
+
         userImg = findViewById(R.id.add_task_user_img);
         userImg.setOnClickListener(this::selectCurrentAssignee);
         userName = findViewById(R.id.add_task_user_name);
@@ -172,6 +173,8 @@ public class AddTaskActivity extends AppCompatActivity {
         profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         profileViewModel.getUserMutableLiveData().observe(this, userInfo);
         taskName = findViewById(R.id.add_task_name);
+        taskName.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        taskName.setRawInputType(InputType.TYPE_CLASS_TEXT);
         addTask = findViewById(R.id.add_task_img);
         addTask.setOnClickListener(this::addTask);
         back = findViewById(R.id.add_task_back);
@@ -195,10 +198,16 @@ public class AddTaskActivity extends AppCompatActivity {
         epicLinks = findViewById(R.id.add_task_epic_links);
         epicLinks.setOnClickListener(this::selectEpicLinks);
         viewModel.getEpicLinksMutableLiveData().observe(this, getEpicLinks);
+        subTaskRecycler.setHasFixedSize(true);
+        subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
+        subTaskAdapter = new SubTaskAdapter(tasks, calendarViewModel, null);
+        subTaskRecycler.setAdapter(subTaskAdapter);
+
     }
 
     private void addSubTask(View view) {
         SubTask subTask = new SubTask();
+        subTask.setStatus("wip");
         subTaskAdapter.addSubTask(subTask);
     }
 
@@ -207,32 +216,48 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     private void selectProject(View view) {
-        Bundle bundle = new Bundle();
-        BottomSheetAddTaskSelectProject mySheetDialog = new BottomSheetAddTaskSelectProject();
-        bundle.putParcelable("addTaskViewModel", viewModel);
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            BottomSheetAddTaskSelectProject mySheetDialog = new BottomSheetAddTaskSelectProject();
+            bundle.putParcelable("addTaskViewModel", viewModel);
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     private void selectCurrentAssignee(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
-        bundle.putParcelable("viewModel", calendarViewModel);
-        bundle.putParcelable("addTaskViewModel", viewModel);
-        bundle.putString("from", "add task");
-        BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
+            bundle.putParcelable("viewModel", calendarViewModel);
+            bundle.putParcelable("addTaskViewModel", viewModel);
+            bundle.putString("from", "add task");
+            BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     private void selectEpicLinks(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("addTaskViewModel", viewModel);
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("addTaskViewModel", viewModel);
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     private void addTask(View view) {
@@ -262,60 +287,83 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     private void showPopupMenu(View v) {
-        PopupMenu popupMenu = new PopupMenu(this, v);
-        popupMenu.inflate(R.menu.priority_popup_menu);
-        popupMenu
-                .setOnMenuItemClickListener(item -> {
-                    switch (item.getItemId()) {
-                        case R.id.low:
-                            priority.setText("Low");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
-                            return true;
-                        case R.id.normal:
-                            priority.setText("Normal");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
-                            return true;
-                        case R.id.high:
-                            priority.setText("High");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
-                            return true;
-                        case R.id.urgent:
-                            priority.setText("Urgent");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
-                            return true;
-                        default:
-                            return false;
-                    }
-                });
-
-        popupMenu.setOnDismissListener(menu -> Toast.makeText(getApplicationContext(), "onDismiss",
-                Toast.LENGTH_SHORT).show());
-        popupMenu.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            BottomSheetAddTaskSelectProject mySheetDialog = new BottomSheetAddTaskSelectProject();
+            bundle.putParcelable("addTaskViewModel", viewModel);
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+            PopupMenu popupMenu = new PopupMenu(this, v);
+            popupMenu.inflate(R.menu.priority_popup_menu);
+            popupMenu
+                    .setOnMenuItemClickListener(item -> {
+                        switch (item.getItemId()) {
+                            case R.id.low:
+                                priority.setText("Low");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
+                                return true;
+                            case R.id.normal:
+                                priority.setText("Normal");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
+                                return true;
+                            case R.id.high:
+                                priority.setText("High");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
+                                return true;
+                            case R.id.urgent:
+                                priority.setText("Urgent");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    });
+            popupMenu.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     public void setPlanDate(View v) {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(AddTaskActivity.this, planDateListener,
-                dateAndTime.get(Calendar.YEAR),
-                dateAndTime.get(Calendar.MONTH),
-                dateAndTime.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.setTitle("Set plan date");
-        datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
-        datePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(AddTaskActivity.this, planDateListener,
+                    dateAndTime.get(Calendar.YEAR),
+                    dateAndTime.get(Calendar.MONTH),
+                    dateAndTime.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.setTitle("Set plan date");
+            datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     public void setDeadlineDate(View v) {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(AddTaskActivity.this, deadlineDateListener,
-                dateAndTime.get(Calendar.YEAR),
-                dateAndTime.get(Calendar.MONTH),
-                dateAndTime.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.setTitle("Set deadline date");
-        datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
-        datePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(AddTaskActivity.this, deadlineDateListener,
+                    dateAndTime.get(Calendar.YEAR),
+                    dateAndTime.get(Calendar.MONTH),
+                    dateAndTime.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.setTitle("Set deadline date");
+            datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     public void setTime(View v) {
-        CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, 1, 0, true);
-        timePickerDialog.setIcon(R.drawable.ic_estimated_time);
-        timePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, 1, 0, true);
+            timePickerDialog.setIcon(R.drawable.ic_estimated_time);
+            timePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 }

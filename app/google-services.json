@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "944917822324",
+    "firebase_url": "https://emika-4bbfd.firebaseio.com",
+    "project_id": "emika-4bbfd",
+    "storage_bucket": "emika-4bbfd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:944917822324:android:f2bac80939cadf65deca21",
+        "android_client_info": {
+          "package_name": "com.emika.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "944917822324-t09tbhrcvk2sbdv5p4upigbcljm3j7fa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.emika.app",
+            "certificate_hash": "963e5372c7746475adf187401b2e6d2b8db44a86"
+          }
+        },
+        {
+          "client_id": "944917822324-ejffqu3icg9t178lbfaasif0s4n6a459.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAi0GbP26pg0YzO6NKCaMpN4A_etv3ea2g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "944917822324-ejffqu3icg9t178lbfaasif0s4n6a459.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "944917822324-8lq3ce10608kh3jr6hvfr2bic0kqhcv7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.SocialNetworking.taskApp.Emika"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

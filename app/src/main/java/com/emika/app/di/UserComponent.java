@@ -15,6 +15,8 @@ import com.emika.app.presentation.ui.calendar.BottomSheetCalendarSelectUser;
 import com.emika.app.presentation.ui.calendar.BottomSheetSelectEpicLinks;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.ui.chat.ChatFragment;
+import com.emika.app.presentation.ui.profile.EditProfileActivity;
+import com.emika.app.presentation.ui.profile.MemberActivity;
 import com.emika.app.presentation.ui.profile.ProfileFragment;
 import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
@@ -50,6 +52,7 @@ public interface UserComponent {
     void inject(ItemAdapter adapter);
     void inject(StartActivityViewModel startActivityViewModel);
     void inject(QuickAnswerAdapter quickAnswerAdapter);
-
+    void inject(MemberActivity memberActivity);
+    void inject(EditProfileActivity editProfileActivity);
 
 }

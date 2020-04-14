@@ -142,7 +142,6 @@ public class Converter {
         for (int i = 0; i < projectEntities.size(); i++) {
             PayloadProject project = new PayloadProject();
             project.setId(projectEntities.get(i).getId());
-            Log.d(TAG, "fromProjectEntityToPayloadProjectList: " + project.getId());
             project.setName(projectEntities.get(i).getName());
             project.setColor(projectEntities.get(i).getColor());
             project.setCompanyId(projectEntities.get(i).getCompanyId());

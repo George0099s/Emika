@@ -6,15 +6,19 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
 import com.emika.app.data.network.NetworkService;
 import com.emika.app.data.network.api.CalendarApi;
+import com.emika.app.data.network.api.CompanyApi;
 import com.emika.app.data.network.api.EpicLinksApi;
 import com.emika.app.data.network.api.MemberApi;
 import com.emika.app.data.network.api.ProjectApi;
+import com.emika.app.data.network.callback.CompanyInfoCallback;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
+import com.emika.app.data.network.pojo.companyInfo.ModelCompanyInfo;
+import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
 import com.emika.app.data.network.pojo.durationActualLog.ModelDurationActual;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.epiclinks.ModelEpicLinks;
@@ -166,6 +170,7 @@ public class CalendarNetworkManager {
             taskJSON.put("deadline_date", task.getDeadlineDate());
             taskJSON.put("description", task.getDescription());
             taskJSON.put("status", task.getStatus());
+            Log.d(TAG, "updateTask: " + task.getStatus());
             taskJSON.put("project_id", task.getProjectId());
             taskJSON.put("section_id", task.getSectionId());
             taskJSON.put("epic_links", converter.fromListToJSONArray(task.getEpicLinks()));
@@ -178,7 +183,7 @@ public class CalendarNetworkManager {
         socket.emit("server_update_task", taskJSON);
     }
 
-    public void getAllMembers(ShortMemberCallback callback) {
+    public void getAllShortMembers(ShortMemberCallback callback) {
         Retrofit retrofit = networkService.getRetrofit();
         MemberApi service = retrofit.create(MemberApi.class);
         Call<ModelShortMember> call = service.getAllMembers(token);
@@ -190,10 +195,10 @@ public class CalendarNetworkManager {
                     List<PayloadShortMember> members = model.getPayload();
                     if (members != null)
                         callback.allMembers(members);
-                    else callback.allMembers(new ArrayList<>());
+                    else
+                        callback.allMembers(new ArrayList<>());
                 }
             }
-
             @Override
             public void onFailure(retrofit2.Call<ModelShortMember> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
@@ -297,6 +302,30 @@ public class CalendarNetworkManager {
             }
         });
     }
+    public void downLoadCompanyInfo(CompanyInfoCallback callback) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
+
+        CompanyApi service = retrofit.create(CompanyApi.class);
+        Call<ModelCompanyInfo> call = service.getCompanyInfo(token);
+        Log.d(TAG, "downLoadCompanyInfo: " + call.request().url());
+        call.enqueue(new Callback<ModelCompanyInfo>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelCompanyInfo> call, Response<ModelCompanyInfo> response) {
+                if (response.body() != null) {
+                    ModelCompanyInfo model = response.body();
+                    PayloadCompanyInfo company = model.getPayload();
+                    if (company != null)
+                        callback.onCompanyInfoDownloaded(company);
+                    else callback.onCompanyInfoDownloaded(new PayloadCompanyInfo());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelCompanyInfo> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
 
     public void sendRegistrationKey(String key) {
         Retrofit retrofit = NetworkService.getInstance().getRetrofit();
@@ -339,5 +368,28 @@ public class CalendarNetworkManager {
                 Log.d(TAG, t.getMessage().toString());
             }
         });
+    }
+
+    public void updateSubTask(SubTask task) {
+        JSONObject taskJSON = new JSONObject();
+        Log.d(TAG, "updateTask: order" + task.getPlanOrder());
+        try {
+            taskJSON.put("token", token);
+            taskJSON.put("_id", task.getId());
+            taskJSON.put("name", task.getName());
+            taskJSON.put("duration_actual", task.getDurationActual());
+            taskJSON.put("duration", task.getDuration());
+            taskJSON.put("parent_id", task.getParentTaskId());
+            taskJSON.put("deadline_date", task.getDeadlineDate());
+            taskJSON.put("status", task.getStatus());
+            taskJSON.put("project_id", task.getProjectId());
+            taskJSON.put("section_id", task.getSectionId());
+            taskJSON.put("priority", task.getPriority());
+            taskJSON.put("assignee", task.getAssignee());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        socket.emit("server_update_task", taskJSON);
     }
 }

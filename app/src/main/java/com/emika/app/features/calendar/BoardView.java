@@ -53,7 +53,7 @@ import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 public class BoardView extends HorizontalScrollView implements AutoScroller.AutoScrollListener {
     private static final String TAG = "BoardView";
-    private static final int SCROLL_ANIMATION_DURATION = 325;
+    private static final int SCROLL_ANIMATION_DURATION = 300;
     private Scroller mScroller;
     private AutoScroller mAutoScroller;
     private GestureDetector mGestureDetector;
@@ -85,13 +85,23 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     private int mLastDragRow = NO_POSITION;
     private SavedState mSavedState;
     private Boolean firstRun = true;
+    private Boolean reload = false;
+
+    public void setLastColumn(int lastColumn) {
+        this.lastColumn = lastColumn;
+    }
+
+    private int lastColumn = 0 ;
+
     public BoardView(Context context) {
         super(context);
     }
+
     public BoardView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
     }
+
     public BoardView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(attrs);
@@ -142,24 +152,35 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     }
 
 
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         updateBoardSpaces();
-
         // Snap to closes column after first layout.
         // This is needed so correct column is scrolled to after a rotation.
         if (!mHasLaidOut && mSavedState != null) {
             mCurrentColumn = mSavedState.currentColumn;
             mSavedState = null;
+            setStartColumn(mCurrentColumn);
             post(() -> {
 
             });
 
         }
-        if (getFocusedColumn() != 15)
-            setStartColumn(15);
+        if (firstRun) {
+            if (getColumnCount() > 15) {
+                setStartColumn(15);
+            }
+        }
+        if (reload) {
+            if (getColumnCount() > getFocusedColumn()) {
+                setStartColumn(lastColumn);
+            }
+        }
+//        else {
+//            Log.d(TAG, "onLayout: " + lastColumn + " " + getFocusedColumn());
+//            setStartColumn(lastColumn );
+//        }
         mHasLaidOut = true;
     }
 
@@ -542,7 +563,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
 
     public void scrollToColumn(int column, boolean animate) {
         if (mLists.size() <= column) {
-
             return;
         }
 
@@ -589,8 +609,13 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
             mHeaders.remove(i);
             mLists.remove(i);
         }
+        reload = true;
     }
-
+    public void removeAllColumn(){
+        for (int i = 0; i < getColumnCount(); i++) {
+            removeColumn(i);
+        }
+    }
     public void removeColumn(int column) {
         if (column >= 0 && mLists.size() > column) {
             mColumnLayout.removeViewAt(column);
@@ -749,10 +774,14 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
 
     public void setStartColumn(int column) {
         if (firstRun) {
-            mCurrentColumn = column;
-            if (getColumnCount()>column) {
+            if (getColumnCount() > column && mCurrentColumn != column) {
                 scrollToColumn(column, true);
                 firstRun = false;
+            }
+        } if (reload){
+            if (getColumnCount() > column && mCurrentColumn != column) {
+                scrollToColumn(column, true);
+                reload = false;
             }
         }
     }

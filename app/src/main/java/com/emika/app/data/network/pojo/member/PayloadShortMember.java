@@ -3,8 +3,12 @@ package com.emika.app.data.network.pojo.member;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.emika.app.data.network.pojo.user.Contact;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PayloadShortMember implements Parcelable {
     @SerializedName("first_name")
@@ -22,7 +26,9 @@ public class PayloadShortMember implements Parcelable {
     @SerializedName("_id")
     @Expose
     private String id;
-
+    @SerializedName("contacts")
+    @Expose
+    private List<Contact> contacts = new ArrayList<>();
     public PayloadShortMember() {
     }
 
@@ -98,5 +104,13 @@ public class PayloadShortMember implements Parcelable {
         dest.writeString(jobTitle);
         dest.writeString(pictureUrl);
         dest.writeString(id);
+    }
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
     }
 }

@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.emika.app.presentation.ui.calendar.BottomSheetAddTaskSelectProject;
 import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
@@ -12,6 +11,10 @@ import com.emika.app.presentation.viewmodel.calendar.BottomSheetSelectEpicLinksV
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.emika.app.presentation.viewmodel.chat.ChatViewModel;
+import com.emika.app.presentation.viewmodel.profile.AllMembersViewModel;
+import com.emika.app.presentation.viewmodel.profile.EditProfileViewModel;
+import com.emika.app.presentation.viewmodel.profile.ManageInviteViewModel;
+import com.emika.app.presentation.viewmodel.profile.MemberViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
 public class TokenViewModelFactory extends ViewModelProvider.NewInstanceFactory {
@@ -49,6 +52,18 @@ public class TokenViewModelFactory extends ViewModelProvider.NewInstanceFactory 
         }
         else if (modelClass == ChatViewModel.class){
             return (T) new ChatViewModel(token);
+        }
+        else if (modelClass == AllMembersViewModel.class){
+            return (T) new AllMembersViewModel(token);
+        }
+        else if (modelClass == MemberViewModel.class){
+            return (T) new MemberViewModel(token);
+        }
+        else if (modelClass == EditProfileViewModel.class){
+            return (T) new EditProfileViewModel(token);
+        }
+        else if (modelClass == ManageInviteViewModel.class){
+            return (T) new ManageInviteViewModel(token);
         }
         return null;
     }

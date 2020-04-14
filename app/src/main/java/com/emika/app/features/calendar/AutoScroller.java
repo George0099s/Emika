@@ -34,8 +34,8 @@ class AutoScroller {
         void onAutoScrollColumnBy(int columns);
     }
 
-    private static final int SCROLL_SPEED_DP = 8;
-    private static final int AUTO_SCROLL_UPDATE_DELAY = 12;
+    private static final int SCROLL_SPEED_DP = 10;
+    private static final int AUTO_SCROLL_UPDATE_DELAY = 10;
     private static final int COLUMN_SCROLL_UPDATE_DELAY = 1000;
 
     private Handler mHandler = new Handler();

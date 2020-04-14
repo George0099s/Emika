@@ -16,6 +16,7 @@
 
 package com.emika.app.features.calendar;
 
+import android.graphics.Color;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -24,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.emika.app.R;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 
 import java.util.ArrayList;
@@ -164,22 +166,19 @@ public abstract class DragItemAdapter<T, VH extends com.emika.app.features.calen
             mGrabView = itemView.findViewById(handleResId);
 
             if (dragOnLongPress) {
-                mGrabView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        if (mDragStartCallback == null) {
-                            return false;
-                        }
-
-                        if (mDragStartCallback.startDrag(itemView, mItemId)) {
-                            return true;
-                        }
-
-                        if (itemView == mGrabView) {
-                            return onItemLongClicked(view);
-                        }
+                mGrabView.setOnLongClickListener(view -> {
+                    if (mDragStartCallback == null) {
                         return false;
                     }
+
+                    if (mDragStartCallback.startDrag(itemView, mItemId)) {
+                        return true;
+                    }
+
+                    if (itemView == mGrabView) {
+                        return onItemLongClicked(view);
+                    }
+                    return false;
                 });
             } else {
                 mGrabView.setOnTouchListener(new View.OnTouchListener() {

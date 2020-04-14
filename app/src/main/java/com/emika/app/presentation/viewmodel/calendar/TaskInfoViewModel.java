@@ -152,5 +152,10 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     public void onSubTaskLoaded(List<SubTask> subTasks) {
         subTaskMutableLiveData.postValue(subTasks);
     }
+
+
+    public void updateSubTask(SubTask subTask) {
+        repository.updateSubTask(subTask);
+    }
 }
 

@@ -59,12 +59,13 @@ public class Payload {
     @SerializedName("is_remote")
     @Expose
     private Boolean isRemote;
-    @SerializedName("extra_coworkers")
+
+    @SerializedName("coworkers")
     @Expose
-    private List<Object> extraCoworkers = null;
-    @SerializedName("extra_leaders")
+    private List<String> coworkers = new ArrayList<>();
+    @SerializedName("managers")
     @Expose
-    private List<Object> extraLeaders = null;
+    private List<String> leaders = new ArrayList<>();
     @SerializedName("context")
     @Expose
     private String context;
@@ -220,22 +221,6 @@ public class Payload {
         this.isRemote = isRemote;
     }
 
-    public List<Object> getExtraCoworkers() {
-        return extraCoworkers;
-    }
-
-    public void setExtraCoworkers(List<Object> extraCoworkers) {
-        this.extraCoworkers = extraCoworkers;
-    }
-
-    public List<Object> getExtraLeaders() {
-        return extraLeaders;
-    }
-
-    public void setExtraLeaders(List<Object> extraLeaders) {
-        this.extraLeaders = extraLeaders;
-    }
-
     public String getContext() {
         return context;
     }
@@ -282,5 +267,21 @@ public class Payload {
 
     public void setUnreadCount(int unreadCount) {
         this.unreadCount = unreadCount;
+    }
+
+    public List<String> getCoworkers() {
+        return coworkers;
+    }
+
+    public void setCoworkers(List<String> coworkers) {
+        this.coworkers = coworkers;
+    }
+
+    public List<String> getLeaders() {
+        return leaders;
+    }
+
+    public void setLeaders(List<String> leaders) {
+        this.leaders = leaders;
     }
 }

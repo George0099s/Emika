@@ -31,4 +31,9 @@ public class UserModule {
     static EpicLinks getEpicLinks() {
         return new EpicLinks();
     }
+    @Provides
+    @Singleton
+    static CompanyDi getCompany() {
+        return new CompanyDi();
+    }
 }

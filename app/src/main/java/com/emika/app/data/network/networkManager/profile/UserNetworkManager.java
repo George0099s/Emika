@@ -3,12 +3,22 @@ package com.emika.app.data.network.networkManager.profile;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.emika.app.data.network.NetworkService;
+import com.emika.app.data.network.api.CompanyApi;
+import com.emika.app.data.network.api.MemberApi;
+import com.emika.app.data.network.callback.profile.CallbackSendInvite;
+import com.emika.app.data.network.callback.user.MemberCallback;
 import com.emika.app.data.network.callback.user.UserInfoCallback;
 import com.emika.app.data.network.api.UserApi;
+import com.emika.app.data.network.pojo.invites.InviteModel;
+import com.emika.app.data.network.pojo.member.ModelMember;
+import com.emika.app.data.network.pojo.member.PayloadMember;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Model;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.presentation.utils.Constants;
+
+import org.json.JSONArray;
 
 import java.io.File;
 
@@ -39,10 +49,7 @@ public class UserNetworkManager {
 
 
     public void updateUserInfo(UserInfoCallback callback) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL) // Адрес сервера
-                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
-                .build();
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
 
         UserApi service = retrofit.create(UserApi.class);
         Call<UpdateUserModel> call = service.updateAccountInfo(token, firstName, lastName, jobTitle, bio);
@@ -62,12 +69,29 @@ public class UserNetworkManager {
         });
     }
 
-    public void getUserInfo(UserInfoCallback callback) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL) // Адрес сервера
-                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
-                .build();
+    public void getMemberInfo(String memberId, MemberCallback callback) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
+        MemberApi service = retrofit.create(MemberApi.class);
+        Call<ModelMember> call = service.getMember(memberId, token);
+        call.enqueue(new Callback<ModelMember>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelMember> call, Response<ModelMember> response) {
+                if (response.body() != null) {
+                    ModelMember model = response.body();
+                    PayloadMember member = model.getPayload();
+                    callback.onMemberInfoLoaded(member);
+                }
+            }
 
+            @Override
+            public void onFailure(retrofit2.Call<ModelMember> call, Throwable t) {
+                Log.d(TAG, "Something went wrong :c");
+            }
+        });
+    }
+
+    public void getUserInfo(UserInfoCallback callback) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
         UserApi service = retrofit.create(UserApi.class);
         Call<Model> call = service.getUserInfo(token);
         call.enqueue(new Callback<Model>() {
@@ -87,11 +111,32 @@ public class UserNetworkManager {
             }
         });
     }
+
+    public void sendInvite(JSONArray invites, CallbackSendInvite callback) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
+        CompanyApi service = retrofit.create(CompanyApi.class);
+        Call<InviteModel> call = service.sendInvite(token, invites);
+        Log.d(TAG, "sendInvite: " + call.request().url());
+        call.enqueue(new Callback<InviteModel>() {
+            @Override
+            public void onResponse(retrofit2.Call<InviteModel> call, Response<InviteModel> response) {
+                if (response.body() != null) {
+                    InviteModel model = response.body();
+                    Log.d(TAG, "onResponse: " + model.getPayload());
+                    callback.onInviteSend(model);
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<InviteModel> call, Throwable t) {
+                callback.onInviteSend(null);
+                Log.d(TAG, "Something went wrong :c");
+            }
+        });
+    }
+
     public void uploadPhoto(UserInfoCallback callback, File userImageFile){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpg"), userImageFile);
         MultipartBody.Part requestImg = MultipartBody.Part.createFormData("file", userImageFile.getName(), requestBody);

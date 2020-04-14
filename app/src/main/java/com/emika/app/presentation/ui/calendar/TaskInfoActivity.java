@@ -1,14 +1,13 @@
 package com.emika.app.presentation.ui.calendar;
 
 import android.app.DatePickerDialog;
-import android.app.TaskInfo;
 import android.app.TimePickerDialog;
-import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -18,7 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -47,13 +46,10 @@ import com.emika.app.di.Project;
 import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
-import com.emika.app.presentation.ui.MainActivity;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
-
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -91,7 +87,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             deadlineDateString = DateHelper.getDatePicker(year + "-" + (month + 1) + "-" + dayOfMonth);
             deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
-            deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null );
+            deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
             deadlineDate.setTextColor(getResources().getColor(R.color.black));
             task.setDeadlineDate(deadlineDate.getText().toString());
             calendarViewModel.updateTask(task);
@@ -174,13 +170,19 @@ public class TaskInfoActivity extends AppCompatActivity {
     };
     private Observer<List<EpicLinksEntity>> setTaskEpicLinks = epicLinksEntities -> {
         if (epicLinksEntities.size() != 0)
-        for (int i = 0; i < epicLinksEntities.size(); i++) {
-                    if (task.getEpicLinks().size() > 1)
-                        epicLink.setText(String.format("%s +%s", epicLinksEntities.get(i).getName(), String.valueOf(task.getEpicLinks().size() - 1)));
-                    else
-                        epicLink.setText(epicLinksEntities.get(i).getName());
-        }
+            for (int i = 0; i < epicLinksEntities.size(); i++) {
+                if (task.getEpicLinks().size() > 1)
+                    epicLink.setText(String.format("%s +%s", epicLinksEntities.get(i).getName(), String.valueOf(task.getEpicLinks().size() - 1)));
+                else
+                    epicLink.setText(epicLinksEntities.get(i).getName());
+            }
         else epicLink.setText("Epic link");
+    };
+    private long mLastClickTime = 0;
+    private Observer<List<SubTask>> getSubTask = subTask -> {
+        Log.d("123", ": " + subTask.size());
+        adapter = new SubTaskAdapter(subTask, null, taskInfoViewModel);
+        subTaskRecycler.setAdapter(adapter);
     };
 
     @Override
@@ -211,6 +213,8 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskDescription = findViewById(R.id.task_info_description);
         taskDescription.addTextChangedListener(taskDescriptionTextWatcher);
         taskName = findViewById(R.id.task_info_name);
+        taskName.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        taskName.setRawInputType(InputType.TYPE_CLASS_TEXT);
         taskName.addTextChangedListener(taskNameTextWatcher);
         priority = findViewById(R.id.task_info_priority);
         priority.setOnClickListener(this::showPopupMenu);
@@ -245,6 +249,7 @@ public class TaskInfoActivity extends AppCompatActivity {
 
     private void addSubTask(View view) {
         SubTask subTask = new SubTask();
+        subTask.setStatus("wip");
         adapter.addSubTask(subTask);
     }
 
@@ -259,30 +264,36 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private void selectProject(View view) {
-        Bundle bundle = new Bundle();
-        BottomSheetAddTaskSelectProject mySheetDialog = new BottomSheetAddTaskSelectProject();
-        bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
-        bundle.putParcelable("task", task);
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            BottomSheetAddTaskSelectProject mySheetDialog = new BottomSheetAddTaskSelectProject();
+            bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
+            bundle.putParcelable("task", task);
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     private void selectEpicLinks(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("task", task);
-        bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
-        BottomSheetSelectEpicLinks mySheetDialog = new BottomSheetSelectEpicLinks();
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
-    }
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("task", task);
+            bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
+            BottomSheetSelectEpicLinks mySheetDialog = new BottomSheetSelectEpicLinks();
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
 
-    private Observer<List<SubTask>> getSubTask = subTask -> {
-        Log.d("123", ": " + subTask.size());
-            adapter = new SubTaskAdapter(subTask);
-            subTaskRecycler.setAdapter(adapter);
-    };
+    }
 
     private void taskDone(View view) {
         if (task.getStatus().equals("done")) {
@@ -318,7 +329,7 @@ public class TaskInfoActivity extends AppCompatActivity {
                 taskDone.setVisibility(View.GONE);
                 calendarViewModel.updateTask(task);
                 taskName.setTextColor(getResources().getColor(R.color.task_name_done));
-                taskName.setPaintFlags(taskName.getPaintFlags()| Paint.STRIKE_THRU_TEXT_FLAG);
+                taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 break;
             case 2:
                 taskName.requestFocus();
@@ -327,7 +338,7 @@ public class TaskInfoActivity extends AppCompatActivity {
                 planDate.callOnClick();
                 break;
             case 4:
-                task.setStatus("archived");
+                task.setStatus("deleted");
                 calendarViewModel.updateTask(task);
                 break;
             default:
@@ -350,17 +361,17 @@ public class TaskInfoActivity extends AppCompatActivity {
             planDate.setText(DateHelper.getDate(task.getPlanDate()));
             if (task.getDeadlineDate() != null) {
                 deadlineDate.setText(task.getDeadlineDate());
-                deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null );
+                deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
                 deadlineDate.setTextColor(getResources().getColor(R.color.black));
             }
 //            project.setText(task.get);
-            if (task.getStatus().equals("canceled")){
+            if (task.getStatus().equals("canceled")) {
                 taskCanceled.setVisibility(View.VISIBLE);
                 taskCanceled.setChecked(true);
                 taskDone.setVisibility(View.GONE);
                 calendarViewModel.updateTask(task);
                 taskName.setTextColor(getResources().getColor(R.color.task_name_done));
-                taskName.setPaintFlags(taskName.getPaintFlags()| Paint.STRIKE_THRU_TEXT_FLAG);
+                taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
             switch (task.getPriority()) {
                 case "low":
@@ -393,86 +404,122 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private void showPopupMenu(View v) {
-        PopupMenu popupMenu = new PopupMenu(this, v);
-        popupMenu.inflate(R.menu.priority_popup_menu);
-        popupMenu
-                .setOnMenuItemClickListener(item -> {
-                    switch (item.getItemId()) {
-                        case R.id.low:
-                            priority.setText("Low");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
-                            task.setPriority("low");
-                            calendarViewModel.updateTask(task);
-                            return true;
-                        case R.id.normal:
-                            priority.setText("Normal");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
-                            task.setPriority("normal");
-                            calendarViewModel.updateTask(task);
-                            return true;
-                        case R.id.high:
-                            priority.setText("High");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
-                            task.setPriority("high");
-                            calendarViewModel.updateTask(task);
-                            return true;
-                        case R.id.urgent:
-                            priority.setText("Urgent");
-                            priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
-                            task.setPriority("urgent");
-                            calendarViewModel.updateTask(task);
-                            return true;
-                        default:
-                            return false;
-                    }
-                });
-        popupMenu.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            mLastClickTime = SystemClock.elapsedRealtime();
+            PopupMenu popupMenu = new PopupMenu(this, v);
+            popupMenu.inflate(R.menu.priority_popup_menu);
+            popupMenu
+                    .setOnMenuItemClickListener(item -> {
+                        switch (item.getItemId()) {
+                            case R.id.low:
+                                priority.setText("Low");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
+                                task.setPriority("low");
+                                calendarViewModel.updateTask(task);
+                                return true;
+                            case R.id.normal:
+                                priority.setText("Normal");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
+                                task.setPriority("normal");
+                                calendarViewModel.updateTask(task);
+                                return true;
+                            case R.id.high:
+                                priority.setText("High");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
+                                task.setPriority("high");
+                                calendarViewModel.updateTask(task);
+                                return true;
+                            case R.id.urgent:
+                                priority.setText("Urgent");
+                                priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
+                                task.setPriority("urgent");
+                                calendarViewModel.updateTask(task);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    });
+            popupMenu.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
     }
 
     public void setPlanDate(View v) {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, planDateListener,
-                dateAndTime.get(Calendar.YEAR),
-                dateAndTime.get(Calendar.MONTH),
-                dateAndTime.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.setTitle("Set plan date");
-        datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
-        datePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, planDateListener,
+                    dateAndTime.get(Calendar.YEAR),
+                    dateAndTime.get(Calendar.MONTH),
+                    dateAndTime.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.setTitle("Set plan date");
+            datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     public void setDeadlineDate(View v) {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, deadlineDateListener,
-                dateAndTime.get(Calendar.YEAR),
-                dateAndTime.get(Calendar.MONTH),
-                dateAndTime.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.setTitle("Set deadline date");
-        datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
-        datePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(TaskInfoActivity.this, deadlineDateListener,
+                    dateAndTime.get(Calendar.YEAR),
+                    dateAndTime.get(Calendar.MONTH),
+                    dateAndTime.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.setTitle("Set deadline date");
+            datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     public void setTime(View v) {
-        int hourOfDay = task.getDuration() / 60;
-        CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, hourOfDay, 0, true);
-        timePickerDialog.setIcon(R.drawable.ic_estimated_time);
-        timePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            int hourOfDay = task.getDuration() / 60;
+            CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, estimatedTimeListener, hourOfDay, 0, true);
+            timePickerDialog.setIcon(R.drawable.ic_estimated_time);
+            timePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     public void setSpentTime(View v) {
-        int hourOfDay = task.getDurationActual() / 60;
-        CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, spentTimeListener, hourOfDay, 0, true);
-        timePickerDialog.setIcon(R.drawable.ic_estimated_time);
-        timePickerDialog.show();
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            int hourOfDay = task.getDurationActual() / 60;
+            CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, spentTimeListener, hourOfDay, 0, true);
+            timePickerDialog.setIcon(R.drawable.ic_estimated_time);
+            timePickerDialog.show();
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     private void selectCurrentAssignee(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("viewModel", calendarViewModel);
-        bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
-        bundle.putParcelable("task", task);
-        bundle.putString("from", "task info");
-        BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("viewModel", calendarViewModel);
+            bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
+            bundle.putParcelable("task", task);
+            bundle.putString("from", "task info");
+            BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 }
 

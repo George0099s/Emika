@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.project.PayloadProject;
+import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 
@@ -23,11 +24,12 @@ import javax.inject.Inject;
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectViewHolder> {
     private static final String TAG = "ProjectAdapter";
+    @Inject
+    Project projectDi;
     private List<PayloadProject> projects;
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
-    @Inject
-    Project projectDi;
+
     public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel) {
         this.projects = projects;
         this.viewModel = viewModel;
@@ -45,19 +47,24 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     @Override
     public void onBindViewHolder(@NonNull ProjectViewHolder holder, int position) {
         PayloadProject project = projects.get(position);
-//        if (projectDi.getProjectId().equals(project.getId()))
-//            holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
-//        else holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        for (int i = 0; i < projects.size(); i++) {
+            if (project.getId().equals(projectDi.getProjectId()))
+                holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
+            else
+                holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        }
         if (project.getIsPersonal())
             holder.memberCount.setText("Private");
         else
             holder.memberCount.setText(String.format("%d members", project.getMembers().size()));
         holder.projectName.setText(project.getName());
         holder.item.setOnClickListener(v -> {
+            holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
             viewModel.setProjectId(project.getId());
             viewModel.getSectionListMutableLiveData();
             projectDi.setProjectId(project.getId());
             projectDi.setProjectName(project.getName());
+            notifyDataSetChanged();
         });
     }
 
@@ -69,6 +76,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     public class ProjectViewHolder extends RecyclerView.ViewHolder {
         TextView memberCount, projectName;
         ConstraintLayout item;
+
         public ProjectViewHolder(@NonNull View itemView) {
             super(itemView);
             item = itemView.findViewById(R.id.project);

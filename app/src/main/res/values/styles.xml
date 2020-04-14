@@ -6,6 +6,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="statusBarBackground">#FFF</item>
+        <item name="android:fontFamily">@font/sfuidisplay</item>
         <item name="android:navigationBarColor">@color/black</item>
     </style>
     <style name="MyTimePickerWidgetStyle" parent="Theme.AppCompat.Light.Dialog">

@@ -65,4 +65,12 @@
     <string name="email_string">email</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="team">Team</string>
+    <string name="company">Company</string>
+    <string name="list_of_all_members">List of All Members</string>
+    <string name="all_members">All members</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="managers">Managers</string>
+    <string name="co_workers">Co-Workers</string>
+    <string name="members_string">members</string>
 </resources>

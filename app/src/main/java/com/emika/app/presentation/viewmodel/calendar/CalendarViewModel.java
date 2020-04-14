@@ -26,6 +26,7 @@ import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.network.pojo.chat.Message;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
@@ -204,5 +205,9 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     public MutableLiveData<List<PayloadDurationActual>> getDurationMutableLiveData() {
         repository.downloadDurationActualLog(this);
         return durationMutableLiveData;
+    }
+
+    public void updateSubTask(SubTask subTask) {
+        repository.updateSubTask(subTask);
     }
 }

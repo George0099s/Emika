@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
@@ -30,8 +33,12 @@ import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
+import com.emika.app.presentation.adapter.profile.ItemTouchHelper.SimpleItemTouchHelperCallback;
+import com.emika.app.presentation.adapter.profile.ProfileContactAdapter;
 import com.emika.app.presentation.ui.auth.AuthActivity;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
+import com.emika.app.presentation.viewmodel.profile.EditProfileViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -47,17 +54,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class EditProfileActivity extends AppCompatActivity implements TokenCallback{
-    private ProfileViewModel mViewModel;
+    private ProfileViewModel profileViewModel;
+    private EditProfileViewModel mViewModel;
     private EditText firstName, lastName, jobTitle, biography;
     private String token;
     private TextView cancel, saveChanges;
+    private RecyclerView contactRecycler;
+    private ProfileContactAdapter adapter;
     private ImageView userImg;
     private static final String TAG = "EditProfileActivity";
     private static final int IMAGE_REQUEST = 1;
     private  UserDbManager userDbManager;
     private AuthNetworkManager networkManager;
     private SharedPreferences sharedPreferences;
+    @Inject
+    User userDi;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +81,10 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
     }
 
     private void initView() {
+        EmikaApplication.getInstance().getComponent().inject(this);
         sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
         token = sharedPreferences.getString("token", "");
+
         userDbManager = new UserDbManager();
         networkManager = new AuthNetworkManager(token);
         cancel  = findViewById(R.id.edit_cancel);
@@ -80,10 +97,20 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
         userImg.setOnClickListener(this::updatePhoto);
         saveChanges = findViewById(R.id.edit_save_changes);
         saveChanges.setOnClickListener(this::updateInfo);
-        mViewModel = ViewModelProviders.of(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
+        contactRecycler = findViewById(R.id.edit_contacts);
+        contactRecycler.setHasFixedSize(true);
+        contactRecycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ProfileContactAdapter(userDi.getContacts(), this);
+        ItemTouchHelper.Callback callback =
+                new SimpleItemTouchHelperCallback(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(contactRecycler);
+        contactRecycler.setAdapter(adapter);
+        profileViewModel = getIntent().getParcelableExtra("viewModel");
+        mViewModel = ViewModelProviders.of(this, new TokenViewModelFactory(token)).get(EditProfileViewModel.class);
         mViewModel.getUserMutableLiveData().observe(this, getUserLiveData);
     }
-
+ 
     private void cancel(View view) {
        finish();
     }

@@ -23,17 +23,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:backgroundTint="#35A666"
-        android:backgroundTintMode="add"
-        android:clickable="false"
         android:overScrollMode="ifContentScrolls"
+        android:backgroundTint="#35A666"
         android:src="@drawable/custom_fab_add_task"
         android:translationZ="4dp"
         app:fabSize="auto"
         app:layout_constraintBottom_toBottomOf="@+id/select_current_user"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/select_current_user"
-        app:maxImageSize="48dp" />
+        />
 
     <Button
         android:id="@+id/left_scroll_to_current_date"
@@ -41,6 +39,7 @@
         android:layout_height="40dp"
         android:background="@drawable/ic_scroll_left"
         android:visibility="gone"
+
         android:animateLayoutChanges="true"
         android:layout_marginBottom="140dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -62,7 +61,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:background="@drawable/shape_fab"
+        android:paddingEnd="8dp"
+        android:background="@drawable/custom_fab"
         android:elevation="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">

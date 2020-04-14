@@ -3,6 +3,7 @@ package com.emika.app.data.network.pojo.company;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Invitation {
@@ -42,7 +43,7 @@ public class Invitation {
     private String companyId;
     @SerializedName("projects")
     @Expose
-    private List<Object> projects = null;
+    private List<String> projects = new ArrayList<>();
     @SerializedName("invite_sent_at")
     @Expose
     private String inviteSentAt;
@@ -141,11 +142,11 @@ public class Invitation {
         this.companyId = companyId;
     }
 
-    public List<Object> getProjects() {
+    public List<String> getProjects() {
         return projects;
     }
 
-    public void setProjects(List<Object> projects) {
+    public void setProjects(List<String> projects) {
         this.projects = projects;
     }
 

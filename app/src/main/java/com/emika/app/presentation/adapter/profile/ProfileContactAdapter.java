@@ -12,10 +12,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.network.pojo.user.Contact;
+import com.emika.app.presentation.adapter.profile.ItemTouchHelper.ItemTouchHelperAdapter;
 
+import java.util.Collections;
 import java.util.List;
 
-public class ProfileContactAdapter extends RecyclerView.Adapter<ProfileContactAdapter.ViewHolder> {
+public class ProfileContactAdapter extends RecyclerView.Adapter<ProfileContactAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
     List<Contact> contacts;
     private Context context;
@@ -68,6 +70,26 @@ public class ProfileContactAdapter extends RecyclerView.Adapter<ProfileContactAd
     @Override
     public int getItemCount() {
         return contacts.size();
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(contacts, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(contacts, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        contacts.remove(position);
+        notifyItemRemoved(position);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

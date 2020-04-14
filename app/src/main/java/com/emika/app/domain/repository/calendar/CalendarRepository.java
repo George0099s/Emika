@@ -1,7 +1,6 @@
 package com.emika.app.domain.repository.calendar;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
@@ -14,6 +13,8 @@ import com.emika.app.data.db.dbmanager.TaskDbManager;
 import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.network.callback.CompanyCallback;
+import com.emika.app.data.network.callback.CompanyInfoCallback;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
@@ -22,14 +23,12 @@ import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
-import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
-import com.emika.app.di.User;
 import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
-import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
 import org.json.JSONArray;
 
@@ -86,7 +85,7 @@ public class CalendarRepository {
     }
 
     public void downloadAllMembers(ShortMemberCallback callback){
-        calendarNetworkManager.getAllMembers(callback);
+        calendarNetworkManager.getAllShortMembers(callback);
     }
 
     public void getAllDbMembers(MemberDbCallback callback){
@@ -144,5 +143,13 @@ public class CalendarRepository {
 
     public void getSubTask(String taskId, SubTaskCallback callback) {
         calendarNetworkManager.getSubTaskList(taskId, callback);
+    }
+
+    public void updateSubTask(SubTask subTask) {
+        calendarNetworkManager.updateSubTask(subTask);
+    }
+
+    public void downloadCompanyInfo(CompanyInfoCallback callback) {
+        calendarNetworkManager.downLoadCompanyInfo(callback);
     }
 }
