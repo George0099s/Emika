@@ -12,4 +12,7 @@
     </declare-styleable>
 
     <attr name="hourCounter" format="reference"/>
+
+
+
 </resources>

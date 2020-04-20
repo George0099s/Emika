@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
+import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.dbmanager.ProjectDbManager;
+import com.emika.app.data.db.dbmanager.SectionDbManager;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadSection;
@@ -21,7 +24,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implements ProjectsCallback, ProjectDbCallback {
+public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implements ProjectsCallback, ProjectDbCallback, SectionDbCallback {
     private static final String TAG = "BottomSheetAddTaskSelec";
     private String token;
     private MutableLiveData<List<PayloadProject>> projectListMutableLiveData;
@@ -73,6 +76,11 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
 
     @Override
     public void onProjectLoaded(List<ProjectEntity> projectEntities) {
-    projectListMutableLiveData.postValue(converter.fromProjectEntityToPayloadProjectList(projectEntities));
+        projectListMutableLiveData.postValue(converter.fromProjectEntityToPayloadProjectList(projectEntities));
+    }
+
+    @Override
+    public void onSectionLoaded(List<SectionEntity> sections) {
+        sectionListMutableLiveData.postValue(converter.fromListEntitySectionToPayloadSection(sections));
     }
 }

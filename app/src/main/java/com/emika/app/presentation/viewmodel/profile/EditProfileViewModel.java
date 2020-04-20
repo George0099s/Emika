@@ -15,6 +15,7 @@ import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.domain.repository.profile.UserRepository;
 import com.emika.app.presentation.utils.Converter;
@@ -49,8 +50,8 @@ public class EditProfileViewModel extends ViewModel implements UserInfoCallback,
         return userMutableLiveData;
     }
 
-    public void updateUser(String firstName, String lastName, String bio, String jobTitle){
-        repository.updateUser(firstName, lastName, bio, jobTitle, this);
+    public void  updateUser(User userDi){
+        repository.updateUser(userDi, this);
     }
 
     public void updateImage(File userPhoto){

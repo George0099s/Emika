@@ -8,6 +8,7 @@ import com.emika.app.presentation.adapter.profile.ProfileContactAdapter;
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     private final ProfileContactAdapter mAdapter;
 
+
     public SimpleItemTouchHelperCallback(ProfileContactAdapter adapter) {
         mAdapter = adapter;
     }

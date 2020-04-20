@@ -29,12 +29,30 @@ public class PayloadDurationActual {
     @SerializedName("value")
     @Expose
     private Integer value;
+
+    public PayloadDurationActual(String id, String status, String taskId, String projectId, String companyId, String date, String person, Integer value, String createdAt, String createdBy) {
+        this.id = id;
+        this.status = status;
+        this.taskId = taskId;
+        this.projectId = projectId;
+        this.companyId = companyId;
+        this.date = date;
+        this.person = person;
+        this.value = value;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
+    }
+
     @SerializedName("created_at")
     @Expose
     private String createdAt;
     @SerializedName("created_by")
     @Expose
     private String createdBy;
+
+    public PayloadDurationActual() {
+
+    }
 
     public String getId() {
         return id;

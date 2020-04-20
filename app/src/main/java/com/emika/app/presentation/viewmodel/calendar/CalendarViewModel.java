@@ -10,10 +10,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
+import com.emika.app.data.db.dbmanager.ActualDurationDbManager;
+import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
@@ -47,7 +50,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback, TaskCallback, MemberDbCallback, Parcelable, EpicLinksDbCallback, ProjectDbCallback, DurationActualCallback {
+public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback,
+        TaskCallback, MemberDbCallback, Parcelable, EpicLinksDbCallback, ProjectDbCallback, ActualDurationDbCallback, DurationActualCallback {
     private static final String TAG = "CalendarViewModel";
     @Inject
     Assignee assignee;
@@ -62,6 +66,7 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     private String token;
     private Context context;
     private Converter converter;
+    private Boolean firstRun = true;
     EmikaApplication emikaApplication = EmikaApplication.getInstance();
 
 
@@ -100,6 +105,10 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
             repository.getPayloadTaskList(this, this, context);
             return taskListMutableLiveData;
     }
+    public MutableLiveData<List<PayloadTask>> geTasks() {
+        repository.getDbTaskList(this);
+        return taskListMutableLiveData;
+    }
 
     public void updateTask(PayloadTask task) {
         repository.updateTask(task);
@@ -110,9 +119,7 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         repository.sedDbData(taskList);
         ArrayList<PayloadTask> plannedTask = new ArrayList<>();
         for (int j = 0; j < taskList.size(); j++) {
-            if (taskList.get(j).getPlanDate() != null) {
                 plannedTask.add(taskList.get(j));
-            }
         }
         taskListMutableLiveData.postValue(plannedTask);
     }
@@ -196,18 +203,25 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         projectMutableLiveData.postValue(projectEntities);
     }
 
-    @Override
-    public void onDurationLogDownloaded(List<PayloadDurationActual> durationActualList) {
-        Log.d(TAG, "onDurationLogDownloaded: " + durationActualList.size());
-        durationMutableLiveData.postValue(durationActualList);
-    }
-
     public MutableLiveData<List<PayloadDurationActual>> getDurationMutableLiveData() {
-        repository.downloadDurationActualLog(this);
+        if (firstRun) {
+            repository.downloadDurationActualLog(this);
+        } else
+        repository.getAllDbDurations(this);
         return durationMutableLiveData;
     }
 
     public void updateSubTask(SubTask subTask) {
         repository.updateSubTask(subTask);
+    }
+
+    @Override
+    public void onActualDurationLoaded(List<ActualDurationEntity> actualDurationEntities) {
+        durationMutableLiveData.postValue(converter.fromEntityListDurationToPayloadListDuration(actualDurationEntities));
+    }
+
+    @Override
+    public void onDurationLogDownloaded(List<PayloadDurationActual> durationActualList) {
+        durationMutableLiveData.postValue(durationActualList);
     }
 }

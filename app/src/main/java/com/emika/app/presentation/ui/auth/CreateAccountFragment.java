@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +24,13 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
 import com.emika.app.domain.repository.auth.CreateUserRepository;
 import com.emika.app.presentation.utils.viewModelFactory.auth.CreateAccountViewModelFactory;
 import com.emika.app.presentation.viewmodel.auth.CreateAccountViewModel;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
+
+import javax.inject.Inject;
 
 public class CreateAccountFragment extends Fragment{
     private static final String TAG = "CreateAccountFragment";
@@ -43,6 +47,9 @@ public class CreateAccountFragment extends Fragment{
     private FragmentManager fm;
     private TextView logout;
     private SharedPreferences sharedPreferences;
+    @Inject
+    User userDi;
+
     public static CreateAccountFragment newInstance() {
         return new CreateAccountFragment();
     }
@@ -56,9 +63,12 @@ public class CreateAccountFragment extends Fragment{
     }
 
     private void initViews(View view) {
-        emikaApplication = EmikaApplication.getInstance();
         sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
         token = sharedPreferences.getString("token", "");
+        Log.d(TAG, "initViews: " + token);
+        viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token)).get(CreateAccountViewModel.class);
+        emikaApplication = EmikaApplication.getInstance();
+        emikaApplication.getComponent().inject(this);
         db = emikaApplication.getDatabase();
         fm = getParentFragmentManager();
         logout = view.findViewById(R.id.create_account_log_out);
@@ -69,7 +79,6 @@ public class CreateAccountFragment extends Fragment{
         back.setOnClickListener(this::onclick);
         next = view.findViewById(R.id.create_next_btn);
         next.setOnClickListener(this::onclick);
-        viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token, firstName.getText().toString(), lastName.getText().toString(), jobTitle, bio)).get(CreateAccountViewModel.class);
     }
 
     private void logOut(View view) {
@@ -91,9 +100,9 @@ public class CreateAccountFragment extends Fragment{
                     lastName.setError("Missing last name");
                 }
                 if (!firstName.getText().toString().isEmpty() && !lastName.getText().toString().isEmpty()) {
-                    viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token, firstName.getText().toString(), lastName.getText().toString(), jobTitle, bio)).get(CreateAccountViewModel.class);
-                    viewModel.setFirstName(firstName.getText().toString());
-                    viewModel.setLastName(lastName.getText().toString());
+                    viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token)).get(CreateAccountViewModel.class);
+                    userDi.setFirstName(firstName.getText().toString());
+                    userDi.setLastName(lastName.getText().toString());
                     viewModel.getUpdatedUserLiveData().observe(this, updateUserInfo);
                 }
                 break;

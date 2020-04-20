@@ -85,6 +85,19 @@ public class SubTask implements Parcelable {
     @Expose
     private String parentTaskId;
 
+    public Boolean getNewTask() {
+        return newTask;
+    }
+
+    public void setNewTask(Boolean newTask) {
+        this.newTask = newTask;
+    }
+
+    public static Creator<SubTask> getCREATOR() {
+        return CREATOR;
+    }
+
+    private Boolean newTask = false;
     public SubTask(Parcel in) {
         id = in.readString();
         name = in.readString();

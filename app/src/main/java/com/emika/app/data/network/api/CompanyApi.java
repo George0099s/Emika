@@ -3,6 +3,7 @@ package com.emika.app.data.network.api;
 import com.emika.app.data.network.pojo.company.Model;
 import com.emika.app.data.network.pojo.companyInfo.ModelCompanyInfo;
 import com.emika.app.data.network.pojo.invites.InviteModel;
+import com.emika.app.data.network.pojo.invites.PendingInviteModel;
 import com.emika.app.data.network.pojo.singIn.ModelAuth;
 
 import org.json.JSONArray;
@@ -31,12 +32,17 @@ public interface CompanyApi {
     Call<Model> checkInvitation(@Query("token") String token);
 
     @GET("public_api/company/invitations/fetch")
-    Call<Model> fetchInvitation(@Query("token") String token);
+    Call<PendingInviteModel> fetchInvitation(@Query("token") String token);
 
     @FormUrlEncoded
     @POST("public_api/company/send_invites")
     Call<InviteModel> sendInvite(@Query("token") String token,
                                  @Field("invites")JSONArray invites);
+
+    @FormUrlEncoded
+    @POST("public_api/company/invitations/{invitation_id}/revoke")
+    Call<InviteModel> revokeInvite(@Path("invitation_id") String id,
+                                   @Query("token") String token);
 
 
     @GET("public_api/company/fetch")

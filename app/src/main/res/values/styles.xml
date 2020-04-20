@@ -5,7 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="statusBarBackground">#FFF</item>
+<!--        <item name="statusBarBackground">#FFF</item>-->
         <item name="android:fontFamily">@font/sfuidisplay</item>
         <item name="android:navigationBarColor">@color/black</item>
     </style>
@@ -117,5 +117,11 @@
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">@font/sfuitext_regular</item>
     </style>
-
+    <style name="InvitesInput">
+        <item name="textSize">16sp</item>
+        <item name="hintTextColor">#96ABC8</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:background">@drawable/shape_input_invites</item>
+        <item name="fontFamily">@font/sfuidisplay</item>
+    </style>
 </resources>

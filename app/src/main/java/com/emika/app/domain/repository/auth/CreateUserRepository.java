@@ -8,6 +8,9 @@ import com.emika.app.data.network.networkManager.auth.AuthNetworkManager;
 import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
+
+import javax.inject.Inject;
 
 public class CreateUserRepository {
 
@@ -18,7 +21,11 @@ public class CreateUserRepository {
     private UserNetworkManager userNetworkManager;
     private AuthNetworkManager authNetworkManager;
     private TokenDbManager tokenDbManager;
+    @Inject
+    User userDi;
+
     public CreateUserRepository(String token, String firstName, String lastName, String jobTitle, String bio){
+        EmikaApplication.getInstance().getComponent().inject(this);
         this.token = token;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -34,7 +41,7 @@ public class CreateUserRepository {
     }
 
     public UpdateUserModel getUpdateUserModel(UserInfoCallback callback) {
-        userNetworkManager.updateUserInfo(callback);
+        userNetworkManager.updateUserInfo(userDi, callback);
         return updateUserModel;
     }
 

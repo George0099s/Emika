@@ -1,31 +1,23 @@
 package com.emika.app.presentation.ui.calendar;
 
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
-import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
-import com.emika.app.data.db.dbmanager.ProjectDbManager;
-import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.task.PayloadTask;
-import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Project;
 import com.emika.app.presentation.adapter.calendar.ProjectAdapter;
 import com.emika.app.presentation.adapter.calendar.SectionAdapter;
@@ -36,13 +28,16 @@ import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectPro
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
+public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment {
 
     private static final String TAG = "BottomSheetAddTaskSelec";
+    @Inject
+    Project projectDi;
     private BottomSheetAddTaskSelectProjectViewModel mViewModel;
     private RecyclerView projectRecycler, sectionRecycler;
     private ProjectAdapter projectAdapter;
@@ -54,8 +49,25 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
     private EmikaApplication app = EmikaApplication.getInstance();
     private Converter converter;
     private PayloadTask task;
-    @Inject
-    Project projectDi;
+    private Observer<List<PayloadProject>> setProjects = projects -> {
+        projectAdapter = new ProjectAdapter(projects, mViewModel);
+        projectRecycler.setAdapter(projectAdapter);
+    };
+
+    private Observer<List<PayloadSection>> setSection = sections -> {
+        List<PayloadSection> sectionList = new ArrayList<>();
+        if (sections.size() == 0) {
+            projectDi.setProjectSectionId(null);
+            projectDi.setProjectSectionName(null);
+        }
+        for (int i = 0; i < sections.size(); i++) {
+            if (projectDi.getProjectId().equals(sections.get(i).getProjectId()))
+                sectionList.add(sections.get(i));
+        }
+        sectionAdapter = new SectionAdapter(sectionList, mViewModel);
+        sectionRecycler.setAdapter(sectionAdapter);
+    };
+
     public static BottomSheetAddTaskSelectProject newInstance() {
         return new BottomSheetAddTaskSelectProject();
     }
@@ -66,7 +78,6 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
         View view = inflater.inflate(R.layout.bottom_sheet_add_task_select_project_fragment, container, false);
         initView(view);
         return view;
-
     }
 
     private void initView(View view) {
@@ -88,7 +99,7 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
 
     private void addProject(View view) {
         if (addTaskListViewModel != null)
-        addTaskListViewModel.getProjectMutableLiveData();
+            addTaskListViewModel.getProjectMutableLiveData();
         if (taskInfoViewModel != null) {
             taskInfoViewModel.getProjectMutableLiveData();
             taskInfoViewModel.updateTask(task);
@@ -103,18 +114,4 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment{
         mViewModel.getProjectListMutableLiveData().observe(getViewLifecycleOwner(), setProjects);
         mViewModel.getSectionListMutableLiveData().observe(getViewLifecycleOwner(), setSection);
     }
-
-    private Observer<List<PayloadProject>> setProjects = projects -> {
-        projectAdapter = new ProjectAdapter(projects, mViewModel);
-        projectRecycler.setAdapter(projectAdapter);
-    };
-
-    private Observer<List<PayloadSection>> setSection = sections -> {
-        if (sections.size() == 0) {
-            projectDi.setProjectSectionId(null);
-            projectDi.setProjectSectionName(null);
-        }
-        sectionAdapter = new SectionAdapter(sections, mViewModel);
-        sectionRecycler.setAdapter(sectionAdapter);
-    };
 }

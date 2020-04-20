@@ -12,25 +12,41 @@
         android:allowBackup="true"
         android:icon="@mipmap/id_emika_foreground"
         android:label="@string/app_name"
+
         android:roundIcon="@mipmap/id_emika_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".presentation.ui.profile.MemberActivity" />
-        <activity android:name=".presentation.ui.profile.AllMembersActivity" />
-        <activity android:name=".presentation.ui.profile.ManageInvites" />
-        <activity android:name=".presentation.ui.calendar.AddTaskActivity" />
+        <activity
+            android:name=".presentation.ui.calendar.Inbox"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.profile.MemberActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.profile.AllMembersActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.profile.ManageInvites"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.calendar.AddTaskActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.ui.profile.EditProfileActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".presentation.ui.calendar.TaskInfoActivity"
-            android:windowSoftInputMode="stateVisible" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.ui.auth.AuthActivity"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.ui.StartActivity"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,6 +55,7 @@
         </activity>
         <activity
             android:name=".presentation.ui.MainActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <meta-data

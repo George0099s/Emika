@@ -1,5 +1,7 @@
 package com.emika.app.data.network.pojo;
 
+import android.opengl.Visibility;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -24,7 +26,6 @@ public class ModelToken {
     public TokenPayload getTokenPayload() {
         return tokenPayload;
     }
-
     public void setTokenPayload(TokenPayload tokenPayload) {
         this.tokenPayload = tokenPayload;
     }

@@ -33,6 +33,9 @@ import com.emika.app.presentation.viewmodel.chat.ChatViewModel;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +73,8 @@ public class ChatFragment extends Fragment {
             }
         }
     };
+
+
     private Emitter.Listener onUpdateSuggestion = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -164,6 +169,13 @@ public class ChatFragment extends Fragment {
         layoutManager.setStackFromEnd(true);
         chatRecycler.setLayoutManager(layoutManager);
         chatRecycler.setHasFixedSize(true);
+
+        KeyboardVisibilityEvent.setEventListener(getActivity(), isOpen -> {
+            if (isOpen)
+                chatRecycler.scrollToPosition(0);
+            if (!isOpen)
+                chatRecycler.scrollToPosition(0);
+        });
 //        viewModel.getItemPagedList().observe(getViewLifecycleOwner(), items -> {
 //            adapter.submitList(items);
 //            chatRecycler.scrollToPosition(0);

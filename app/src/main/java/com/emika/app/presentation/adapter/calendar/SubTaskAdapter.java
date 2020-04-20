@@ -1,12 +1,14 @@
 package com.emika.app.presentation.adapter.calendar;
 
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
-import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -43,57 +45,64 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         SubTask subTask = taskList.get(position);
-        if (subTask != null) {
+        holder.body.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        holder.body.setRawInputType(InputType.TYPE_CLASS_TEXT);
+
+        if (subTask.getName() != null)
+            holder.body.setText(subTask.getName());
+
+        if (subTask.getStatus().equals("done"))
+            holder.checkBox.setChecked(true);
+        else
+            holder.checkBox.setChecked(false);
+
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (taskInfoViewModel != null)
-                holder.body.setText(subTask.getName());
-            if (subTask.getStatus().equals("done"))
-                holder.checkBox.setChecked(true);
-            else
-                holder.checkBox.setChecked(false);
-            holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (taskInfoViewModel != null)
-                    if (isChecked) {
-                        subTask.setStatus("done");
-                        taskInfoViewModel.updateSubTask(subTask);
-                    } else {
-                        subTask.setStatus("wip");
-                        taskInfoViewModel.updateSubTask(subTask);
-                    }
-                else if (calendarViewModel != null) {
-                    if (isChecked) {
-                        subTask.setStatus("done");
-                    } else {
-                        subTask.setStatus("wip");
-                    }
+                if (isChecked) {
+                    subTask.setStatus("done");
+                    taskInfoViewModel.updateSubTask(subTask);
+                } else {
+                    subTask.setStatus("wip");
+                    taskInfoViewModel.updateSubTask(subTask);
                 }
-            });
-            holder.body.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            else if (calendarViewModel != null) {
+                if (isChecked) {
+                    subTask.setStatus("done");
+                } else {
+                    subTask.setStatus("wip");
                 }
+            }
+        });
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
+        holder.body.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                subTask.setName(holder.body.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (taskInfoViewModel != null) {
+                    subTask.setName(holder.body.getText().toString());
+                    taskInfoViewModel.updateSubTask(subTask);
                 }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    if (taskInfoViewModel != null) {
-                        subTask.setName(holder.body.getText().toString());
-                        taskInfoViewModel.updateSubTask(subTask);
-                    } else if (calendarViewModel != null)
-                        subTask.setName(holder.body.getText().toString());
-
+                if (calendarViewModel != null) {
+                    subTask.setName(holder.body.getText().toString());
                 }
-            });
-        }
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {
@@ -101,14 +110,16 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
     }
 
     public void addSubTask(SubTask subTask) {
-        taskList.add(subTask);
-        notifyDataSetChanged();
+//        this.taskList = subTasks;
+        taskList.add(0, subTask);
+//        if (taskInfoViewModel != null)
+//            taskInfoViewModel.updateSubTask();
+//        notifyDataSetChanged();
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         ConstraintLayout item;
-        EditText body;
+        TextView body;
         CheckBox checkBox;
 
         public ViewHolder(@NonNull View itemView) {

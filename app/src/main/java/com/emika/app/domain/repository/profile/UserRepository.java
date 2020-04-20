@@ -10,6 +10,7 @@ import com.emika.app.data.network.callback.user.MemberCallback;
 import com.emika.app.data.network.callback.user.UserInfoCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
 import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
+import com.emika.app.di.User;
 import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
@@ -37,12 +38,8 @@ public class UserRepository {
         userDbManager.getUser(callback);
     }
 
-    public void updateUser(String firstName, String lastName, String bio, String jobTitle, UserInfoCallback callback) {
-        networkManager.setFirstName(firstName);
-        networkManager.setLastName(lastName);
-        networkManager.setBio(bio);
-        networkManager.setJobTitle(jobTitle);
-        networkManager.updateUserInfo(callback);
+    public void updateUser(User userDi, UserInfoCallback callback) {
+        networkManager.updateUserInfo(userDi, callback);
     }
 
     public void updateUserImage(UserInfoCallback callback, File photo){

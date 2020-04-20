@@ -19,6 +19,10 @@ import java.util.List;
 
 public class ProfileContactAdapter extends RecyclerView.Adapter<ProfileContactAdapter.ViewHolder> implements ItemTouchHelperAdapter {
 
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
     List<Contact> contacts;
     private Context context;
 

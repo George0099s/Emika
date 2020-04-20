@@ -43,6 +43,7 @@ import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.DateHelper;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +62,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     private List<EpicLinksEntity> epicLinksEntities;
     private List<ProjectEntity> projectEntities;
     private long mLastClickTime = 0;
+    private DecimalFormat df;
 
     public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities) {
         EmikaApplication.getInstance().getComponent().inject(this);
@@ -73,7 +75,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         this.epicLinksEntities = epicLinksEntities;
         calendarNetworkManager = new CalendarNetworkManager(token);
         setItemList(list);
-
+        df = new DecimalFormat("#.#");
     }
 
     public void setmLayoutId(int mLayoutId) {
@@ -110,8 +112,15 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         if (!task.getStatus().equals("deleted")) {
             holder.mText.setText(task.getName());
             holder.itemView.setTag(mItemList.get(position));
-            holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
-            holder.spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+            if (task.getDuration() % 60 == 0)
+                holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
+            else {
+                holder.estimatedTime.setText(String.format("%sh", df.format(task.getDuration() / 60.0f)));
+            }
+            if (task.getDurationActual() % 60 == 0)
+                holder.spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+            else
+                holder.spentTime.setText(String.format("%sh", df.format(task.getDurationActual() / 60.0f)));
             holder.project.setText("Emika");
             holder.isDone.setOnClickListener(v -> {
                 if (holder.isDone.isChecked()) {
@@ -213,9 +222,10 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
 
 
             holder.priority.setText(Constants.priority.get(task.getPriority()));
-            if (task.getDeadlineDate() != null)
+            if (task.getDeadlineDate() != null && !task.getDeadlineDate().equals("null"))
                 holder.deadLine.setText(DateHelper.getDate(task.getDeadlineDate()));
-            else holder.deadLine.setVisibility(View.GONE);
+            else
+                holder.deadLine.setVisibility(View.GONE);
         }
     }
 

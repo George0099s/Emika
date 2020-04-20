@@ -18,13 +18,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.user.Contact;
+import com.emika.app.di.User;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.ui.profile.MemberActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.ViewHolder> {
 
@@ -34,9 +38,12 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
     private Context context;
     private MembersContactAdapter adapter;
     private long mLastClickTime = 0;
+    @Inject
+    User userDi;
 
     public AllMembersAdapter(List<PayloadShortMember> members, Context context) {
         this.members = members;
+        EmikaApplication.getInstance().getComponent().inject(this);
         for (int i = 0; i < this.members.size(); i++) {
             if (this.members.get(i).getId().equals("emika"))
                 this.members.remove(i);
@@ -79,9 +86,11 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
                     if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                         return;
                     } else {
-                        Intent intent = new Intent(context, MemberActivity.class);
-                        intent.putExtra("memberId", member.getId());
-                        context.startActivity(intent);
+                        if (!member.getId().equals(userDi.getId())) {
+                            Intent intent = new Intent(context, MemberActivity.class);
+                            intent.putExtra("memberId", member.getId());
+                            context.startActivity(intent);
+                        }
                     }
                     mLastClickTime = SystemClock.elapsedRealtime();
 

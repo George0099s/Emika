@@ -4,6 +4,8 @@ import com.emika.app.data.network.pojo.singIn.ModelAuth;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Model;
 
+import org.json.JSONArray;
+
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -24,7 +26,8 @@ public interface UserApi {
                                             @Field("first_name") String firstName,
                                             @Field("last_name") String lastName,
                                             @Field("job_title") String jobTitle,
-                                            @Field("bio") String bio);
+                                            @Field("bio") String bio,
+                                            @Field("contacts")JSONArray contacts);
 
 
     @GET("public_api/account/info")

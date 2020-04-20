@@ -62,6 +62,7 @@ public class CalendarNetworkManager {
     private JSONObject tokenJson;
     private Emitter.Listener onConnectSuccess = args -> Log.d(TAG, "call: succes" + args.length);
     private Emitter.Listener onConnectfailed = args -> Log.d(TAG, "call: faild" + args.length);
+
     public CalendarNetworkManager(String token) {
         this.token = token;
         tokenJson = new JSONObject();
@@ -117,6 +118,7 @@ public class CalendarNetworkManager {
                         callback.getAddedTask(new PayloadTask());
                 }
             }
+
             @Override
             public void onFailure(retrofit2.Call<ModelTask> call, Throwable t) {
                 Log.d(TAG, t.getMessage());
@@ -153,21 +155,23 @@ public class CalendarNetworkManager {
 //    }
     public void updateTask(PayloadTask task) {
         JSONObject taskJSON = new JSONObject();
-        Log.d(TAG, "updateTask: order" + task.getPlanOrder());
         try {
             taskJSON.put("token", token);
             taskJSON.put("_id", task.getId());
             taskJSON.put("name", task.getName());
             taskJSON.put("duration_actual", task.getDurationActual());
             taskJSON.put("duration", task.getDuration());
-            if (task.getDeadlineDate() == null || task.getDeadlineDate().length() != 10 || task.getDeadlineDate().isEmpty())
-                task.setDeadlineDate(null);
-            if (task.getPlanDate() == null || task.getPlanDate().length() != 10 || task.getPlanDate().isEmpty())
-                task.setPlanDate(null);
-            taskJSON.put("plan_date", task.getPlanDate());
+            if (task.getPlanDate() == null)
+                taskJSON.put("plan_date", JSONObject.NULL);
+            else
+                taskJSON.put("plan_date", task.getPlanDate());
+            if (task.getDeadlineDate() == null)
+                taskJSON.put("deadline_date", JSONObject.NULL);
+            else
+                taskJSON.put("deadline_date", task.getDeadlineDate());
+
             if (task.getPlanOrder() != null)
-            taskJSON.put("plan_order", Integer.parseInt(task.getPlanOrder()));
-            taskJSON.put("deadline_date", task.getDeadlineDate());
+                taskJSON.put("plan_order", Integer.parseInt(task.getPlanOrder()));
             taskJSON.put("description", task.getDescription());
             taskJSON.put("status", task.getStatus());
             Log.d(TAG, "updateTask: " + task.getStatus());
@@ -176,11 +180,11 @@ public class CalendarNetworkManager {
             taskJSON.put("epic_links", converter.fromListToJSONArray(task.getEpicLinks()));
             taskJSON.put("priority", task.getPriority());
             taskJSON.put("assignee", task.getAssignee());
+            socket.emit("server_update_task", taskJSON);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        socket.emit("server_update_task", taskJSON);
     }
 
     public void getAllShortMembers(ShortMemberCallback callback) {
@@ -199,6 +203,7 @@ public class CalendarNetworkManager {
                         callback.allMembers(new ArrayList<>());
                 }
             }
+
             @Override
             public void onFailure(retrofit2.Call<ModelShortMember> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
@@ -268,6 +273,7 @@ public class CalendarNetworkManager {
                     else callback.onEpicLinksDownloaded(new ArrayList<>());
                 }
             }
+
             @Override
             public void onFailure(retrofit2.Call<ModelEpicLinks> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
@@ -292,7 +298,8 @@ public class CalendarNetworkManager {
                     List<PayloadDurationActual> durationActualList = model.getPayload();
                     if (durationActualList != null)
                         callback.onDurationLogDownloaded(durationActualList);
-                    else callback.onDurationLogDownloaded(new ArrayList<>());
+                    else
+                        callback.onDurationLogDownloaded(new ArrayList<>());
                 }
             }
 
@@ -302,6 +309,7 @@ public class CalendarNetworkManager {
             }
         });
     }
+
     public void downLoadCompanyInfo(CompanyInfoCallback callback) {
         Retrofit retrofit = NetworkService.getInstance().getRetrofit();
 
@@ -372,7 +380,6 @@ public class CalendarNetworkManager {
 
     public void updateSubTask(SubTask task) {
         JSONObject taskJSON = new JSONObject();
-        Log.d(TAG, "updateTask: order" + task.getPlanOrder());
         try {
             taskJSON.put("token", token);
             taskJSON.put("_id", task.getId());
@@ -386,7 +393,6 @@ public class CalendarNetworkManager {
             taskJSON.put("section_id", task.getSectionId());
             taskJSON.put("priority", task.getPriority());
             taskJSON.put("assignee", task.getAssignee());
-
         } catch (JSONException e) {
             e.printStackTrace();
         }

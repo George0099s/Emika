@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrentUserAdapter.MemberViewHolder> {
+public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurrentUserAdapter.MemberViewHolder> {
     @Inject
     Assignee assignee;
 

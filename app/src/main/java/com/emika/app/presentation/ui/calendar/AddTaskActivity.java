@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -16,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -35,9 +36,9 @@ import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
-import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
+
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
@@ -77,7 +78,8 @@ public class AddTaskActivity extends AppCompatActivity {
     private ImageView addTask, userImg;
     private AddTaskListViewModel viewModel;
     private ProfileViewModel profileViewModel;
-    private Button back;
+    private Button back, inbox;
+
     private SubTaskAdapter subTaskAdapter;
     private RecyclerView subTaskRecycler;
     private CalendarViewModel calendarViewModel;
@@ -88,6 +90,8 @@ public class AddTaskActivity extends AppCompatActivity {
     private String token, deadlineDateString;
     private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section, epicLinks;
     private BottomSheetSelectEpicLinks mySheetDialog;
+    private String DATE;
+    private EditText subTaskName;
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -156,12 +160,14 @@ public class AddTaskActivity extends AppCompatActivity {
         mySheetDialog = new BottomSheetSelectEpicLinks();
         List<SubTask> tasks = new ArrayList<>();
 
+//        subTaskName = findViewById(R.id.add_task_subtask_name);
         addSubTask = findViewById(R.id.add_task_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
         app.getComponent().inject(this);
         token = getIntent().getStringExtra("token");
         subTaskRecycler = findViewById(R.id.add_task_subtask_recycler);
-
+        inbox = findViewById(R.id.add_task_inbox);
+        inbox.setOnClickListener(this::goToInBox);
         userImg = findViewById(R.id.add_task_user_img);
         userImg.setOnClickListener(this::selectCurrentAssignee);
         userName = findViewById(R.id.add_task_user_name);
@@ -175,6 +181,7 @@ public class AddTaskActivity extends AppCompatActivity {
         taskName = findViewById(R.id.add_task_name);
         taskName.setImeOptions(EditorInfo.IME_ACTION_DONE);
         taskName.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        taskName.addTextChangedListener(textWatcher);
         addTask = findViewById(R.id.add_task_img);
         addTask.setOnClickListener(this::addTask);
         back = findViewById(R.id.add_task_back);
@@ -185,6 +192,7 @@ public class AddTaskActivity extends AppCompatActivity {
         deadlineDate = findViewById(R.id.add_task_deadline_date);
         deadlineDate.setOnClickListener(this::setDeadlineDate);
         currentDate = getIntent().getStringExtra("date");
+        DATE = getIntent().getStringExtra("date");
         priority = findViewById(R.id.add_task_priority);
         priority.setOnClickListener(this::showPopupMenu);
         planDate.setOnClickListener(this::setPlanDate);
@@ -205,10 +213,32 @@ public class AddTaskActivity extends AppCompatActivity {
 
     }
 
+    private void goToInBox(View view) {
+        Intent intent = new Intent(this, Inbox.class);
+        intent.putExtra("date", currentDate);
+        Log.d(TAG, "goToInBox: " + currentDate);
+        startActivity(intent);
+    }
+
     private void addSubTask(View view) {
+        List<SubTask> subTasks = new ArrayList<>();
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
+//        subTask.setName(subTaskName.getText().toString());
+//        subTasks = subTaskAdapter.getTaskList();
+//        subTasks.add(0, subTask);
+
         subTaskAdapter.addSubTask(subTask);
+        subTaskAdapter.notifyItemInserted(0);
+        subTaskRecycler.scrollToPosition(0);
+
+//        if (subTaskName.getText().toString().isEmpty()){
+//            subTaskName.requestFocus();
+//            subTaskName.setError("Missing sub-task name");
+//        } else {
+//            subTaskAdapter.addSubTask(subTask);
+//            subTaskName.setText("");
+//        }
     }
 
     private void onBackPressed(View view) {
@@ -286,6 +316,23 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            inbox.setVisibility(View.GONE);
+        }
+    };
+
     private void showPopupMenu(View v) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
@@ -336,6 +383,10 @@ public class AddTaskActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set plan date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
+                    planDate.setText("To inbox");
+                    currentDate = null;
+            });
             datePickerDialog.show();
         }
         mLastClickTime = SystemClock.elapsedRealtime();
@@ -351,6 +402,10 @@ public class AddTaskActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set deadline date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
+                deadlineDate.setText("No deadline");
+                deadlineDateString = null;
+            });
             datePickerDialog.show();
         }
         mLastClickTime = SystemClock.elapsedRealtime();

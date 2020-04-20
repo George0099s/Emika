@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingLeft="14dp"
+            android:paddingTop="10dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/dayInfoDate"
+                style="@style/TaskDateTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textStyle="bold"
+                tools:text="Test" />
+
+            <TextView
+                android:id="@+id/dayInfoUser"
+                style="@style/TaskDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="for George Ter" />
+
+        </LinearLayout>
+
+        <com.emika.app.features.hourcounter.HourCounterView
+            android:id="@+id/dayInfoEstimatedTime"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="12dp"
+            card_view:color="@color/blue"
+            card_view:inactiveColor="@color/white"
+            card_view:progress="12"
+            card_view:strokeWidth="2dp"
+            card_view:textSize="12sp" />
+
+        <com.emika.app.features.hourcounter.HourCounterView
+            android:id="@+id/dayInfoSpentTime"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="12dp"
+            card_view:color="@color/green"
+            card_view:inactiveColor="@color/white"
+            card_view:progress="0"
+            card_view:strokeWidth="2dp"
+            card_view:textSize="12sp" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/dayInfoRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="100dp"
+        card_view:layout_constraintEnd_toEndOf="parent"
+        card_view:layout_constraintHorizontal_bias="0.0"
+        card_view:layout_constraintStart_toStartOf="parent"
+        card_view:layout_constraintTop_toBottomOf="@+id/linearLayout10" />
+</androidx.constraintlayout.widget.ConstraintLayout>

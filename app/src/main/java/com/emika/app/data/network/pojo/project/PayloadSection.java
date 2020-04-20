@@ -25,6 +25,18 @@ public class PayloadSection {
     @SerializedName("updated_at")
     @Expose
     private String updatedAt;
+
+    public PayloadSection(String id, String name, String status, Integer order, String projectId, String companyId, String updatedAt, String createdAt) {
+        this.id = id;
+        this.name = name;
+        this.status = status;
+        this.order = order;
+        this.projectId = projectId;
+        this.companyId = companyId;
+        this.updatedAt = updatedAt;
+        this.createdAt = createdAt;
+    }
+
     @SerializedName("created_at")
     @Expose
     private String createdAt;

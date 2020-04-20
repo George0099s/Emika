@@ -62,7 +62,6 @@ public class TaskDbManager {
         payloadTaskList = taskDao.getAllTask();
         if (payloadTaskList != null && !payloadTaskList.isEmpty()) {
             taskCallbackCallback.setDbTask(payloadTaskList);
-            Log.d(TAG, "getDBTask: " + payloadTaskList.size());
         }
         return true;
     }

@@ -66,7 +66,24 @@ public class Migration {
             database.execSQL("ALTER TABLE user  ADD COLUMN `unreadCount` TEXT");
         }
     };
-
+    public static final androidx.room.migration.Migration MIGRATION_9_10 = new androidx.room.migration.Migration(9, 10) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `Section`  (`id` TEXT NOT NULL, `name` TEXT, `status` TEXT, `order` INTEGER," +
+                    " `projectId` TEXT,`companyId` TEXT, `updatedAt` TEXT," +
+                    "`createdAt` TEXT, PRIMARY KEY (`id`))");
+        }
+    };
+    public static final androidx.room.migration.Migration MIGRATION_10_11 = new androidx.room.migration.Migration(10, 11) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `Actual Duration`  (`id` TEXT NOT NULL, `status` TEXT, `taskId` TEXT," +
+                    " `projectId` TEXT,`companyId` TEXT, `date` TEXT, `person` TEXT,`value` INTEGER, `createdAt` TEXT," +
+                    "`createdBy` TEXT, PRIMARY KEY (`id`))");
+        }
+    };
 }
+
+
 
 

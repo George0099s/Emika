@@ -2,4 +2,15 @@
 <resources>
     <color name="chat_bg">#F0F2F5</color>
     <color name="light_blue">#96ABC8</color>
+    <color name="picker_background">#3F51B5</color>
+    <color name="picker_button_background_selected">#3F51B5</color>
+    <color name="picker_button_background">@android:color/white</color>
+    <color name="picker_button_background_innactive">#BDBDBD</color>
+    <color name="picker_default_text_color">#999</color>
+    <color name="picker_default_selected_text_color">@android:color/black</color>
+    <color name="picker_default_selector_color">#646464</color>
+    <color name="picker_default_divider_color">@android:color/transparent</color>
+    <color name="light_green">#35A666</color>
+    <dimen name="picker_default_divider_height">1dp</dimen>
+
 </resources>

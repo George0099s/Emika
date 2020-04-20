@@ -10,19 +10,25 @@ import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
+import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
+import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.dbmanager.UserDbManager;
+import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
+import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.user.UserInfoCallback;
 import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
+import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.PayloadProject;
@@ -47,7 +53,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class StartActivityViewModel extends ViewModel implements ShortMemberCallback, ProjectsCallback, EpicLinksCallback, MemberDbCallback,
-        ProjectDbCallback, EpicLinksDbCallback, UserInfoCallback, CompanyInfoCallback {
+        ProjectDbCallback, EpicLinksDbCallback, UserInfoCallback, CompanyInfoCallback, SectionDbCallback, DurationActualCallback, ActualDurationDbCallback {
     private static final String TAG = "StartActivityViewModel";
     private String token;
     private CalendarRepository repository;
@@ -81,15 +87,15 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
                });
         userDbManager.dropAllTable();
         repository.downloadAllMembers(this);
-        repository.getAllSections(this);
+        repository.downloadSections(this);
         repository.downloadAllProject(this);
         repository.downloadEpicLinks(this);
         repository.downloadCompanyInfo(this);
+        repository.downloadDurationActualLog(this);
     }
 
     @Override
     public void getProjects(List<PayloadProject> projects) {
-        Log.d(TAG, "getProjects: " + projects.size());
         repository.insertDbProject(converter.fromPayloadProjectToProjectEntityList(projects), this);
         projectDi.setProjectId(projects.get(0).getId());
         projectDi.setProjectName(projects.get(0).getName());
@@ -98,7 +104,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
 
     @Override
     public void getSections(List<PayloadSection> sections) {
-//        repository.insertDbSections(sections);
+        repository.insertDbSections(converter.fromListPayloadSectionToSectionEntity(sections), this);
     }
 
     @Override
@@ -131,8 +137,6 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         if (projectEntities == null) {
             repository.downloadAllProject(this);
         }
-
-
     }
 
     @Override
@@ -175,6 +179,21 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         companyDi.setPictureUrl(companyInfo.getPictureUrl());
         companyDi.setStatus(companyInfo.getStatus());
         companyDi.setSize(companyInfo.getSize());
-        Log.d("123", "onCompanyInfoDownloaded: " +companyDi.getName());
+    }
+
+    @Override
+    public void onSectionLoaded(List<SectionEntity> sections) {
+        repository.insertDbSections(sections, this);
+    }
+
+    @Override
+    public void onDurationLogDownloaded(List<PayloadDurationActual> durationActualList) {
+        Log.d(TAG, "onDurationLogDownloaded: " + durationActualList.size());
+        repository.insertDbDurations(converter.fromPayloadListDurationToListDurationEntity(durationActualList), this);
+    }
+
+    @Override
+    public void onActualDurationLoaded(List<ActualDurationEntity> actualDurationEntities) {
+
     }
 }

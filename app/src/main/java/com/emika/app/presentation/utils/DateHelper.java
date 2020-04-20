@@ -27,21 +27,23 @@ public class DateHelper {
     }
 
     public static String getDate(String date){
+        if (date != null && !date.equals("null")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatted = new SimpleDateFormat("d MMM");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat formatted = new SimpleDateFormat("d MMM");
+            Calendar c = Calendar.getInstance();
+            try {
+                c.setTime(sdf.parse(date));
 
-        Calendar c = Calendar.getInstance();
-        try {
-            c.setTime(sdf.parse(date));
-
-        } catch (ParseException e) {
-            e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            // number of days to add
+            if (date != null)
+                date = formatted.format(c.getTime());
         }
-         // number of days to add
-        if (date != null)
-        date = formatted.format(c.getTime());
         return date;
+
     }
     public static String getDatePicker(String date){
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d");

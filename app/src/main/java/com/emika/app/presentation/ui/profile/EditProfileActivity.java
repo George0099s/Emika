@@ -46,6 +46,10 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -174,7 +178,12 @@ public class EditProfileActivity extends AppCompatActivity implements TokenCallb
     }
 
     private void updateInfo(View view) {
-        mViewModel.updateUser(firstName.getText().toString(), lastName.getText().toString(), biography.getText().toString(), jobTitle.getText().toString());
+        userDi.setContacts(adapter.getContacts());
+        userDi.setFirstName(firstName.getText().toString());
+        userDi.setLastName(lastName.getText().toString());
+        userDi.setBio( biography.getText().toString());
+        userDi.setJobTitle(jobTitle.getText().toString());
+        mViewModel.updateUser(userDi);
         Toast.makeText(this, "All changes are saved", Toast.LENGTH_SHORT).show();
     }
 

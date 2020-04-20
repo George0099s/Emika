@@ -3,7 +3,9 @@
     <string name="calendar">Calendar</string>
     <string name="profile">Profile</string>
     <string name="chat">Chat</string>
-
+    <string name="picker_today">Today</string>
+    <string name="picker_am">AM</string>
+    <string name="picker_pm">PM</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="welcome_stranger">Welcome, Stranger!</string>
@@ -73,4 +75,14 @@
     <string name="managers">Managers</string>
     <string name="co_workers">Co-Workers</string>
     <string name="members_string">members</string>
+    <string name="add_contact">Add Contact</string>
+    <string name="unplanned_tasks">Unplanned tasks assigned to George and tasks created by George with no assignee</string>
+    <string name="add">add</string>
+    <string name="invite_members">Invite Members</string>
+    <string name="invitation">Invitation</string>
+    <string name="send_invitation_s">Send invitation(s)</string>
+    <string name="revoke">Revoke</string>
+    <string name="manage_invites">Manage Invites</string>
+    <string name="sub_task_name">Sub-task name</string>
+    <string name="select_assignee">Select assignee</string>
 </resources>

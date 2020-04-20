@@ -9,6 +9,8 @@ import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetSelectEpicLinksViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+import com.emika.app.presentation.viewmodel.calendar.DayInfoViewModel;
+import com.emika.app.presentation.viewmodel.calendar.InboxViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.emika.app.presentation.viewmodel.chat.ChatViewModel;
 import com.emika.app.presentation.viewmodel.profile.AllMembersViewModel;
@@ -64,6 +66,12 @@ public class TokenViewModelFactory extends ViewModelProvider.NewInstanceFactory 
         }
         else if (modelClass == ManageInviteViewModel.class){
             return (T) new ManageInviteViewModel(token);
+        }
+        else if (modelClass == InboxViewModel.class){
+            return (T) new InboxViewModel(token);
+        }
+        else if (modelClass == DayInfoViewModel.class){
+            return (T) new DayInfoViewModel(token);
         }
         return null;
     }

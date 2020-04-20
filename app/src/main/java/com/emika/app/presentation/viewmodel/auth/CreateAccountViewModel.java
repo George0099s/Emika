@@ -1,5 +1,7 @@
 package com.emika.app.presentation.viewmodel.auth;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -40,7 +42,16 @@ public class CreateAccountViewModel extends ViewModel implements UserInfoCallbac
         tokenDbManager = new TokenDbManager();
     }
 
-    public CreateAccountViewModel() {
+    public CreateAccountViewModel(String token) {
+        this.token = token;
+        Log.d(TAG, "CreateAccountViewModel: " + this.token);
+        callback = this;
+        modelTokenMutableLiveData = new MutableLiveData<>();
+        updatedUserLiveData = new MutableLiveData<>();
+        userLiveData = new MutableLiveData<>();
+        repository = new CreateUserRepository(this.token, this.firstName, this.lastName, this.jobTitle, this.bio);
+        tokenDbManager = new TokenDbManager();
+
     }
 
     public void setToken(String token) {

@@ -31,6 +31,7 @@ import com.emika.app.presentation.ui.chat.ChatFragment;
 import com.emika.app.presentation.ui.profile.ProfileFragment;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private Socket socket;
     private String token;
     private JSONObject tokenJson;
+    private FirebaseAnalytics mFirebaseAnalytics;
     Fragment active = boardFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         app.getComponent().inject(this);
         socket = app.getSocket();
         token = getIntent().getStringExtra("token");

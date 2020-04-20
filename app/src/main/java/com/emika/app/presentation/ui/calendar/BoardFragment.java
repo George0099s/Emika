@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -123,6 +124,7 @@ public class BoardFragment extends Fragment {
     };
     private Observer<List<PayloadTask>> getTask = taskList -> {
         payloadTaskList = taskList;
+        viewModel.getDurationMutableLiveData();
         AsyncTask asyncTask = new AsyncTask();
         asyncTask.execute(taskList);
     };
@@ -248,7 +250,6 @@ public class BoardFragment extends Fragment {
             createdBy = jsonObject.getString("created_by");
             person = jsonObject.getString("person");
 
-
             for (int i = 0; i < durationActualList.size(); i++) {
                 if (durationActualList.get(i).getId().equals(id)) {
                     durationActualList.get(i).setValue(Integer.valueOf(value));
@@ -277,7 +278,8 @@ public class BoardFragment extends Fragment {
         Boolean hasTask = false;
         int row;
         JSONObject jsonObject = null;
-        String name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, parentId;
+        String date, name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, parentId;
+
         JSONArray epicLinks = new JSONArray();
         List<String> epicLinkList = new ArrayList<>();
         if (getActivity() != null)
@@ -289,6 +291,7 @@ public class BoardFragment extends Fragment {
                 name = jsonObject.getString("name");
                 priority = jsonObject.getString("priority");
                 planDate = jsonObject.getString("plan_date");
+                date = planDate;
                 assignee = jsonObject.getString("assignee");
                 row = jsonObject.getInt("plan_order");
                 if (epicLinks != null && epicLinks.length() != 0)
@@ -302,32 +305,39 @@ public class BoardFragment extends Fragment {
                     for (int j = 0; j < mBoardView.getAdapter(i).getItemCount(); j++) {
                         Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(j);
                         if (taskNewPos.second.getId().equals(id)) {
-                            hasTask = true;
-                            taskNewPos.second.setName(name);
-                            taskNewPos.second.setDurationActual(Integer.valueOf(spentTime));
-                            taskNewPos.second.setDuration(Integer.valueOf(estimatedTime));
-                            taskNewPos.second.setDeadlineDate(deadlineDate);
-                            taskNewPos.second.setPlanOrder(String.valueOf(row));
-                            taskNewPos.second.setAssignee(assignee);
-                            taskNewPos.second.setEpicLinks(epicLinkList);
-                            taskNewPos.second.setPriority(priority);
-                            taskNewPos.second.setStatus(status);
-                            if (status.equals("deleted"))
+                            if (date.equals("null")) {
+                                taskNewPos.second.setPlanDate(null);
                                 mBoardView.removeItem(i, j);
-                            else if (taskNewPos.second.getPlanDate().equals(planDate)) {
-                                mBoardView.getAdapter(i).swapItems(j, row - 1);
-                                mBoardView.invalidate();
                             } else {
-                                for (int k = 0; k < mBoardView.getColumnCount(); k++) {
-                                    if (planDate.equals(Constants.dateColumnMap.get(k))) {
-                                        taskNewPos.second.setPlanDate(planDate);
-                                        mBoardView.moveItem(i, j, k, row - 1, false);
+                                hasTask = true;
+                                taskNewPos.second.setName(name);
+                                taskNewPos.second.setDurationActual(Integer.valueOf(spentTime));
+                                taskNewPos.second.setDuration(Integer.valueOf(estimatedTime));
+                                taskNewPos.second.setPlanDate(planDate);
+                                taskNewPos.second.setDeadlineDate(deadlineDate);
+                                taskNewPos.second.setPlanOrder(String.valueOf(row));
+                                taskNewPos.second.setAssignee(assignee);
+                                taskNewPos.second.setEpicLinks(epicLinkList);
+                                taskNewPos.second.setPriority(priority);
+                                taskNewPos.second.setStatus(status);
+                                if (taskNewPos.second.getStatus().equals("deleted"))
+                                    mBoardView.removeItem(i, j);
+                                else if (taskNewPos.second.getPlanDate().equals(planDate)) {
+                                    mBoardView.getAdapter(i).swapItems(j, row - 1);
+                                    mBoardView.invalidate();
+                                } else {
+                                    for (int k = 0; k < mBoardView.getColumnCount(); k++) {
+                                        if (planDate.equals(Constants.dateColumnMap.get(k))) {
+                                            taskNewPos.second.setPlanDate(planDate);
+                                            mBoardView.moveItem(i, j, k, row - 1, false);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                if (!date.equals("null"))
                 if (assignee.equals(this.assignee.getId()) && !hasTask) {
                     PayloadTask task = new PayloadTask();
                     task.setName(name);
@@ -391,7 +401,6 @@ public class BoardFragment extends Fragment {
         addTask.setOnClickListener(this::goToAddTask);
         mBoardView = view.findViewById(R.id.board_view);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
-        viewModel.getDurationMutableLiveData().observe(getViewLifecycleOwner(), getDuration);
         viewModel.getEpicLinksMutableLiveData().observe(getViewLifecycleOwner(), getEpicLinks);
         viewModel.getProjectMutableLiveData().observe(getViewLifecycleOwner(), getProjectEntity);
         mBoardView.setSnapToColumnsWhenScrolling(true);
@@ -496,18 +505,25 @@ public class BoardFragment extends Fragment {
             }
         });
         viewModel.setContext(getContext());
-        viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
+        viewModel.getDurationMutableLiveData().observe(getViewLifecycleOwner(), getDuration);
         viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
+        viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
     }
 
     private void selectCurrentAssignee(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
-        bundle.putParcelable("viewModel", viewModel);
-        BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
-        mySheetDialog.setArguments(bundle);
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        mySheetDialog.show(fm, "modalSheetDialog");
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
+            bundle.putParcelable("viewModel", viewModel);
+            BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            mySheetDialog.show(fm, "modalSheetDialog");
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+
     }
 
     private void scrollToCurrentDate(View view) {
@@ -523,6 +539,7 @@ public class BoardFragment extends Fragment {
         final ArrayList<Pair<Long, PayloadTask>> mItemArray = new ArrayList<>();
         int estimatedTime = 0;
         int spentTime = 0;
+        String date = Constants.dateColumnMap.get(columnNumber);
         for (int i = 0; i < payloadTaskList.size(); i++) {
             estimatedTime += payloadTaskList.get(i).getDuration() / 60;
         }
@@ -546,10 +563,22 @@ public class BoardFragment extends Fragment {
         listAdapter.setmLayoutId(R.layout.column_item);
         listAdapter.setmGrabHandleId(R.id.item_layout);
         final View header = View.inflate(getActivity(), R.layout.column_header, null);
-
+        int finalEstimatedTime = estimatedTime;
+        int finalSpentTime = spentTime;
+        header.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("date", date);
+            bundle.putInt("estimatedTime", finalEstimatedTime);
+            bundle.putInt("spentTime", finalSpentTime);
+            Log.d(TAG, "addColumn: " + finalEstimatedTime + " " + finalSpentTime);
+            bundle.putString("id", assignee.getId());
+            BottomSheetDayInfo mySheetDialog = new BottomSheetDayInfo();
+            mySheetDialog.setArguments(bundle);
+            FragmentManager fm = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+            mySheetDialog.show(fm, "dayInfo");
+        });
         ((TextView) header.findViewById(R.id.header_date)).setText(month);
         ((TextView) header.findViewById(R.id.header_day)).setText(day);
-
 
         ((HourCounterView) header.findViewById(R.id.hour_counter_spent)).setProgress(spentTime);
         ((HourCounterView) header.findViewById(R.id.hour_counter_estimated)).setProgress(estimatedTime);
@@ -582,10 +611,10 @@ public class BoardFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data != null && requestCode == 42) {
-            PayloadTask task = data.getParcelableExtra("task");
-            addTask(task);
-        }
+//        if (data != null && requestCode == 42) {
+//            PayloadTask task = data.getParcelableExtra("task");
+//            addTask(task);
+//        }
     }
 
     private void addTask(PayloadTask task) {

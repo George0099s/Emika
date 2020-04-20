@@ -41,8 +41,6 @@ public class ProjectDbManager {
         projectDao = db.projectDao();
     }
 
-
-
     @SuppressLint("CheckResult")
     public void getAllDbProjects(ProjectDbCallback callback) {
         db.projectDao().getAllProjects()

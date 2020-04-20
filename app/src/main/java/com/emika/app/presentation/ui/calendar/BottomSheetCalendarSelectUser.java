@@ -3,7 +3,6 @@ package com.emika.app.presentation.ui.calendar;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,9 +48,9 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.bottom_sheet_dialog_fragment, container, false);
+        View view = inflater.inflate(R.layout.bottom_sheet_select_assignee, container, false);
         setStyle(BottomSheetCalendarSelectUser.STYLE_NORMAL, R.style.BottomSheetStyleDialogTheme);
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+//        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         initView(view);
         return view;
     }
@@ -89,10 +88,10 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     @Override
     public void setupDialog(@NonNull Dialog dialog, int style) {
         super.setupDialog(dialog, style);
-        View contentView = View.inflate(getContext(), R.layout.bottom_sheet_dialog_fragment, null);
+        View contentView = View.inflate(getContext(), R.layout.bottom_sheet_select_assignee, null);
         setStyle(BottomSheetCalendarSelectUser.STYLE_NO_INPUT, R.style.BottomSheetStyleDialogTheme);
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+//        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.setContentView(contentView);
     }
 

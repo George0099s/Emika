@@ -1,24 +1,27 @@
 package com.emika.app.presentation.utils;
 
-import android.hardware.ConsumerIrManager;
 import android.util.Log;
 
+import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
-import com.emika.app.data.db.entity.MessageEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.pojo.chat.Message;
+import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
-import com.emika.app.data.network.pojo.member.PayloadMember;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.PayloadProject;
+import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.emika.app.data.network.pojo.user.Contact;
 import com.emika.app.data.network.pojo.user.Payload;
-import com.emika.app.di.User;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,7 +141,7 @@ public class Converter {
         return taskEntity;
     }
 
-    public List<PayloadProject> fromProjectEntityToPayloadProjectList(List<ProjectEntity> projectEntities){
+    public List<PayloadProject> fromProjectEntityToPayloadProjectList(List<ProjectEntity> projectEntities) {
         for (int i = 0; i < projectEntities.size(); i++) {
             PayloadProject project = new PayloadProject();
             project.setId(projectEntities.get(i).getId());
@@ -158,7 +161,7 @@ public class Converter {
         return payloadProjects;
     }
 
-    public List<ProjectEntity> fromPayloadProjectToProjectEntityList(List<PayloadProject> projects){
+    public List<ProjectEntity> fromPayloadProjectToProjectEntityList(List<PayloadProject> projects) {
         projectEntities = new ArrayList<>();
         for (int i = 0; i < projects.size(); i++) {
             ProjectEntity projectEntity = new ProjectEntity();
@@ -179,7 +182,7 @@ public class Converter {
         return projectEntities;
     }
 
-    public List<PayloadShortMember> fromMemberEntityToPayloadMember(List<MemberEntity> memberEntityList){
+    public List<PayloadShortMember> fromMemberEntityToPayloadMember(List<MemberEntity> memberEntityList) {
         payloadMembers = new ArrayList<>();
         for (int i = 0; i < memberEntityList.size(); i++) {
             PayloadShortMember member = new PayloadShortMember();
@@ -192,7 +195,8 @@ public class Converter {
         }
         return payloadMembers;
     }
-    public List<MemberEntity> fromPayloadMemberToMemberEntity(List<PayloadShortMember> payloadShortMemberList){
+
+    public List<MemberEntity> fromPayloadMemberToMemberEntity(List<PayloadShortMember> payloadShortMemberList) {
         memberEntities = new ArrayList<>();
         for (int i = 0; i < payloadShortMemberList.size(); i++) {
             MemberEntity member = new MemberEntity();
@@ -234,8 +238,8 @@ public class Converter {
         return userPayload;
     }
 
-    public List<EpicLinksEntity> fromPayloadEpicLinksToEpicLinksEntity(List<PayloadEpicLinks> payloadEpicLinks){
-       epicLinksEntities = new ArrayList<>();
+    public List<EpicLinksEntity> fromPayloadEpicLinksToEpicLinksEntity(List<PayloadEpicLinks> payloadEpicLinks) {
+        epicLinksEntities = new ArrayList<>();
         for (int i = 0; i < payloadEpicLinks.size(); i++) {
             EpicLinksEntity epicLinksEntity = new EpicLinksEntity();
             epicLinksEntity.setId(payloadEpicLinks.get(i).getId());
@@ -251,7 +255,7 @@ public class Converter {
         return epicLinksEntities;
     }
 
-    public List<PayloadEpicLinks> fromEpicLinksEntityToPayloadEpicLinks(List<EpicLinksEntity> epicLinksEntityList){
+    public List<PayloadEpicLinks> fromEpicLinksEntityToPayloadEpicLinks(List<EpicLinksEntity> epicLinksEntityList) {
 
         for (int i = 0; i < epicLinksEntityList.size(); i++) {
             PayloadEpicLinks epicLinks = new PayloadEpicLinks();
@@ -268,29 +272,87 @@ public class Converter {
         return payloadEpicLinks;
     }
 
-    public JSONArray fromListToJSONArray(List<String> epicLinks){
+    public JSONArray fromListToJSONArray(List<String> epicLinks) {
         JSONArray jsonArray = new JSONArray();
-        if (epicLinks!= null)
-        for (int i = 0; i < epicLinks.size(); i++) {
-            jsonArray.put(epicLinks.get(i));
-        }
+        if (epicLinks != null)
+            for (int i = 0; i < epicLinks.size(); i++) {
+                jsonArray.put(epicLinks.get(i));
+            }
         return jsonArray;
     }
 
     public JSONArray formListSubTaskToJsonArray(List<String> subTaskList) {
         subTasks = new JSONArray();
-        for (String subTask: subTaskList) {
+        for (String subTask : subTaskList) {
             subTasks.put(subTask);
         }
         return subTasks;
     }
 
+    public JSONArray fromListContactToJSON(List<Contact> contactList) {
 
-//    public List<Message> fromMessageEntityToMessagePayload(List<MessageEntity> messageEntities){
-//        messageEntities
-//
-//    };
+        JSONArray contacts = new JSONArray();
+        JSONObject contactJson;
+        for (int i = 0; i < contactList.size(); i++) {
+            contactJson = new JSONObject();
+            try {
+                contactJson.put("type", contactList.get(i).getType());
+                contactJson.put("value_type", contactList.get(i).getValueType());
+                contactJson.put("value", contactList.get(i).getValue());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            contacts.put(contactJson);
+        }
+        return contacts;
+    }
 
+    public List<SectionEntity> fromListPayloadSectionToSectionEntity(List<PayloadSection> sections) {
+        List<SectionEntity> sectionEntities = new ArrayList<>();
+        for (int i = 0; i < sections.size(); i++) {
+            PayloadSection section = sections.get(i);
+            SectionEntity sectionEntity = new SectionEntity(section.getId(), section.getName(), section.getStatus(),
+                    section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
+            sectionEntities.add(sectionEntity);
+        }
+        return sectionEntities;
+    }
+
+    public List<PayloadSection> fromListEntitySectionToPayloadSection(List<SectionEntity> sections) {
+        List<PayloadSection> payloadSections = new ArrayList<>();
+        for (int i = 0; i < sections.size(); i++) {
+            SectionEntity section = sections.get(i);
+            PayloadSection payloadSection = new PayloadSection(section.getId(), section.getName(), section.getStatus(),
+                    section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
+            payloadSections.add(payloadSection);
+        }
+        return payloadSections;
+    }
+
+    public List<ActualDurationEntity> fromPayloadListDurationToListDurationEntity(List<PayloadDurationActual> durationActualList) {
+        List<ActualDurationEntity> durationEntities = new ArrayList<>();
+        for (int i = 0; i <durationActualList.size() ; i++) {
+            PayloadDurationActual durationActual = durationActualList.get(i);
+            ActualDurationEntity durationEntity = new ActualDurationEntity(durationActual.getId(),durationActual.getStatus(),
+                    durationActual.getTaskId(), durationActual.getProjectId(),durationActual.getCompanyId(), durationActual.getDate(),
+                    durationActual.getPerson(), durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy());
+            durationEntities.add(durationEntity);
+        }
+        Log.d(TAG, "fromPayloadListDurationToListDurationEntity: " + durationEntities.size());
+        return durationEntities;
+    }
+    public List<PayloadDurationActual> fromEntityListDurationToPayloadListDuration(List<ActualDurationEntity> durationActualList) {
+        List<PayloadDurationActual> durationActuals = new ArrayList<>();
+        for (int i = 0; i <durationActualList.size() ; i++) {
+            ActualDurationEntity durationActual = durationActualList.get(i);
+            PayloadDurationActual payloadDurationActual = new PayloadDurationActual(durationActual.getId(),durationActual.getStatus(),
+                    durationActual.getTaskId(), durationActual.getProjectId(),durationActual.getCompanyId(), durationActual.getDate(),
+                    durationActual.getPerson(), durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy());
+                durationActuals.add(payloadDurationActual);
+        }
+        Log.d(TAG, "fromEntityListDurationToPayloadListDuration: " + durationActuals.size() + " " + durationActualList.size());
+        return durationActuals;
+    }
 }
 
 

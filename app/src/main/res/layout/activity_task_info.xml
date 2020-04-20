@@ -112,17 +112,19 @@
             app:layout_constraintStart_toStartOf="@+id/task_info_description"
             app:layout_constraintTop_toBottomOf="@+id/task_info_description" />
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/task_info_subtask_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minHeight="50dp"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="44dp"
+            android:layout_marginTop="8dp"
+            android:minHeight="50dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView16" />
+
         <TextView
             android:id="@+id/task_info_add_sub_task"
             android:layout_width="0dp"

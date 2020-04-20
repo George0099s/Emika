@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:duplicateParentState="true"
+            card_view:cardBackgroundColor="#ffffff"
+            card_view:cardCornerRadius="12dp"
+            card_view:cardElevation="2dp"
+            card_view:cardPreventCornerOverlap="true"
+            card_view:cardUseCompatPadding="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/item_inbox_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_inbox_item"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:id="@+id/linearLayout5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal"
+                    card_view:layout_constraintEnd_toEndOf="@+id/inbox_task_text"
+                    card_view:layout_constraintStart_toStartOf="@+id/inbox_task_text"
+                    card_view:layout_constraintTop_toBottomOf="@+id/inbox_task_text">
+                    <TextView
+                        android:id="@+id/calendar_task_canceled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp"
+                        android:layout_marginEnd="10dp"
+                        android:visibility="gone"
+                        android:drawableLeft="@drawable/ic_canceled"
+                        android:drawablePadding="5dp"
+                        style="@style/TaskParams"
+                        android:textColor="#506378"
+                        android:background="@drawable/shape_task_canceled"
+                        android:text="Canceled"/>
+
+                    <TextView
+                        android:id="@+id/inbox_task_priority"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/shape_priority_low"
+                        android:drawablePadding="4dp"
+                        android:padding="4dp"
+                        android:textSize="12sp"
+                        card_view:layout_constraintStart_toStartOf="@+id/text"
+                        card_view:layout_constraintTop_toBottomOf="@+id/text"
+                        tools:text="urgent" />
+
+                    <TextView
+                        android:id="@+id/inbox_task_deadline"
+                        style="@style/TaskParams"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/shape_deadline"
+                        card_view:layout_constraintStart_toStartOf="@+id/text"
+                        card_view:layout_constraintTop_toBottomOf="@+id/text"
+                        tools:text="5 days left" />
+                    <TextView
+                        android:id="@+id/inbox_task_project"
+                        style="@style/TaskParams"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:layout_marginEnd="10dp"
+                        card_view:layout_constraintStart_toStartOf="@+id/text"
+                        card_view:layout_constraintTop_toBottomOf="@+id/text"
+                        tools:text="Emika" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/checkbox_layout"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintStart_toStartOf="parent"
+                    card_view:layout_constraintTop_toTopOf="parent" >
+                    <ImageView
+                        android:id="@+id/inbox_task_add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="2dp"
+                        android:textColorHighlight="@color/grey"
+                        android:src="@drawable/ic_add_inbox"
+                        />
+                    <ImageView
+                        android:id="@+id/inbox_task_added"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxHeight="20dp"
+                        android:textColorHighlight="@color/grey"
+                        android:paddingVertical="20dp"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_added_inbox"
+                        />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/inbox_task_text"
+                    style="@style/TaskName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="normal"
+                    card_view:layout_constraintEnd_toStartOf="@+id/linearLayout6"
+                    card_view:layout_constraintStart_toEndOf="@+id/checkbox_layout"
+                    card_view:layout_constraintTop_toTopOf="parent"
+                    tools:text="test test test" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="2dp"
+                    card_view:layout_constraintEnd_toEndOf="parent"
+                    card_view:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/inbox_task_estimated_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:background="@drawable/shape_estimated_time"
+                        android:gravity="center"
+                        android:text="1h"
+                        android:textColor="@color/blue"
+                        android:textSize="10sp"
+                        card_view:layout_constraintEnd_toEndOf="parent"
+                        card_view:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/inbox_task_spent_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/shape_spent_time"
+                        android:gravity="center"
+                        android:text="1h"
+                        android:textColor="@color/green"
+                        android:textSize="10sp"
+                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        card_view:layout_constraintEnd_toEndOf="@+id/item_task_estimated_time"
+                        card_view:layout_constraintStart_toStartOf="@+id/item_task_estimated_time"
+                        card_view:layout_constraintTop_toBottomOf="@+id/item_task_estimated_time" />
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+    </FrameLayout>

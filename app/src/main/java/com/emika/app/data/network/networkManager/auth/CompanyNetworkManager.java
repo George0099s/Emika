@@ -65,4 +65,6 @@ public class CompanyNetworkManager {
     public void setSize(String size) {
         this.size = size;
     }
+
+
 }

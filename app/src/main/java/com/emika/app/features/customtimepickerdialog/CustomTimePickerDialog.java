@@ -12,7 +12,7 @@ import java.util.List;
 
 public class CustomTimePickerDialog extends TimePickerDialog {
 
-    private final static int TIME_PICKER_INTERVAL = 5;
+    private final static int TIME_PICKER_INTERVAL = 10;
     private TimePicker mTimePicker;
     private final OnTimeSetListener mTimeSetListener;
 

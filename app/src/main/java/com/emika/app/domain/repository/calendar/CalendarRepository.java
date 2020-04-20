@@ -1,18 +1,25 @@
 package com.emika.app.domain.repository.calendar;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
+import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
+import com.emika.app.data.db.dbmanager.ActualDurationDbManager;
 import com.emika.app.data.db.dbmanager.EpicLinksDbManager;
 import com.emika.app.data.db.dbmanager.MemberDbManager;
 import com.emika.app.data.db.dbmanager.ProjectDbManager;
+import com.emika.app.data.db.dbmanager.SectionDbManager;
 import com.emika.app.data.db.dbmanager.TaskDbManager;
 import com.emika.app.data.db.dbmanager.UserDbManager;
+import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.network.callback.CompanyCallback;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
@@ -29,6 +36,8 @@ import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
+import com.emika.app.presentation.viewmodel.StartActivityViewModel;
+import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 
 import org.json.JSONArray;
 
@@ -47,6 +56,8 @@ public class CalendarRepository {
     private MemberDbManager memberDbManager;
     private UserDbManager userDbManager;
     private EpicLinksDbManager epicLinksDbManager;
+    private SectionDbManager sectionDbManager;
+    private ActualDurationDbManager actualDurationDbManager;
     private static final String TAG = "CalendarRepository";
     public CalendarRepository(String token) {
         this.token = token;
@@ -58,6 +69,8 @@ public class CalendarRepository {
         userDbManager = new UserDbManager();
         payloadTaskList = new ArrayList<>();
         epicLinksDbManager = new EpicLinksDbManager();
+        sectionDbManager = new SectionDbManager();
+        actualDurationDbManager = new ActualDurationDbManager();
     }
     public List<PayloadTask> getPayloadTaskList(TaskListCallback taskListCallback, TaskDbCallback taskDbCallback, Context context) {
         if(NetworkState.getInstance(context).isOnline() && firstRun) {
@@ -68,6 +81,11 @@ public class CalendarRepository {
             taskDbManager.getAllTask(taskDbCallback);
             return payloadTaskList;
         }
+    }
+
+    public List<PayloadTask> getDbTaskList(TaskDbCallback callback){
+        taskDbManager.getAllTask(callback);
+        return new ArrayList<>();
     }
 
     public void updateTask(PayloadTask task){
@@ -98,7 +116,11 @@ public class CalendarRepository {
     public void downloadAllProject(ProjectsCallback callback){
         calendarNetworkManager.getAllProjects(callback);
     }
-    public void getAllSections(ProjectsCallback callback){
+    public void getAllSections(SectionDbCallback callback){
+        sectionDbManager.getAllSections(callback);
+    }
+
+    public void downloadSections(ProjectsCallback callback){
         calendarNetworkManager.getAllSections(callback);
     }
 
@@ -107,8 +129,8 @@ public class CalendarRepository {
         projectDbManager.addAllProjects(projectEntities, callback);
     }
 
-    public void insertDbSections(){
-
+    public void insertDbSections(List<SectionEntity> sectionEntities, SectionDbCallback callback){
+        sectionDbManager.addAllSections(sectionEntities, callback);
     }
 
     public void insertDbMembers(List<PayloadShortMember> members, MemberDbCallback callback){
@@ -151,5 +173,13 @@ public class CalendarRepository {
 
     public void downloadCompanyInfo(CompanyInfoCallback callback) {
         calendarNetworkManager.downLoadCompanyInfo(callback);
+    }
+
+    public void insertDbDurations(List<ActualDurationEntity> durationEntities, ActualDurationDbCallback callback) {
+        actualDurationDbManager.addAllDurations(durationEntities, callback);
+    }
+
+    public void getAllDbDurations(ActualDurationDbCallback callback) {
+        actualDurationDbManager.getAllDurations(callback);
     }
 }

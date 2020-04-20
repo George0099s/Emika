@@ -51,6 +51,7 @@ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModel
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -69,7 +70,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     Calendar dateAndTime = Calendar.getInstance();
     private EmikaApplication app = EmikaApplication.getInstance();
     private PayloadTask task;
-    private EditText taskName, taskDescription;
+    private EditText taskName, taskDescription, subTaskName;
     private RecyclerView subTaskRecycler;
     private SubTaskAdapter adapter;
     private ImageView userImg;
@@ -89,7 +90,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
             deadlineDate.setTextColor(getResources().getColor(R.color.black));
-            task.setDeadlineDate(deadlineDate.getText().toString());
+            task.setDeadlineDate(DateHelper.getDatePicker(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             calendarViewModel.updateTask(task);
         }
     };
@@ -114,9 +115,10 @@ public class TaskInfoActivity extends AppCompatActivity {
             dateAndTime.set(Calendar.MONTH, month);
             dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             planDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
-            task.setPlanDate(planDate.getText().toString());
+            task.setPlanDate(DateHelper.getDatePicker(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             calendarViewModel.updateTask(task);
         }
+
     };
     private ImageView menu;
     private CheckBox taskDone, taskCanceled;
@@ -128,6 +130,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         else
             Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
     };
+
     private TextWatcher taskNameTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -145,6 +148,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             taskInfoViewModel.updateTask(task);
         }
     };
+
     private TextWatcher taskDescriptionTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -180,7 +184,6 @@ public class TaskInfoActivity extends AppCompatActivity {
     };
     private long mLastClickTime = 0;
     private Observer<List<SubTask>> getSubTask = subTask -> {
-        Log.d("123", ": " + subTask.size());
         adapter = new SubTaskAdapter(subTask, null, taskInfoViewModel);
         subTaskRecycler.setAdapter(adapter);
     };
@@ -204,7 +207,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
         addSubTask = findViewById(R.id.task_info_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
-
+//        subTaskName = findViewById(R.id.task_info_subtask_name);
         taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
         taskInfoViewModel.setTask(task);
@@ -248,9 +251,17 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private void addSubTask(View view) {
+        List<String> subTasks = new ArrayList<>();
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
         adapter.addSubTask(subTask);
+        adapter.notifyItemInserted(0);
+        subTaskRecycler.scrollToPosition(0);
+        for (int i = 0; i < adapter.getTaskList().size(); i++) {
+            subTasks.add(adapter.getTaskList().get(i).getName());
+        }
+        task.setSubTaskList(subTasks);
+        taskInfoViewModel.updateTask(task);
     }
 
     private void refreshTask(View view) {
@@ -292,7 +303,6 @@ public class TaskInfoActivity extends AppCompatActivity {
             mySheetDialog.show(fm, "modalSheetDialog");
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-
     }
 
     private void taskDone(View view) {
@@ -314,8 +324,9 @@ public class TaskInfoActivity extends AppCompatActivity {
         menu.add(0, 1, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_cancel_task), getResources().getString(R.string.cancel_task)));
         menu.add(0, 2, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_rename_task), getResources().getString(R.string.rename_task)));
         menu.add(0, 3, 3, menuIconWithText(getResources().getDrawable(R.drawable.ic_move_task), getResources().getString(R.string.move_task)));
-//        menu.add(0, 4, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.duplicate_task)));
-        menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.archieve_task)));
+        menu.add(0, 4, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.duplicate_task)));
+        if (task.getStatus().equals("canceled"))
+        menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_archive), getResources().getString(R.string.archieve_task)));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -338,6 +349,10 @@ public class TaskInfoActivity extends AppCompatActivity {
                 planDate.callOnClick();
                 break;
             case 4:
+//                task.setStatus("deleted");
+//                calendarViewModel.updateTask(task);
+                break;
+            case 5:
                 task.setStatus("deleted");
                 calendarViewModel.updateTask(task);
                 break;
@@ -358,8 +373,9 @@ public class TaskInfoActivity extends AppCompatActivity {
     private void setTaskInfo(PayloadTask task) {
         if (task != null) {
             taskName.setText(task.getName());
+            if (task.getPlanDate() != null || !task.getPlanDate().equals("null"))
             planDate.setText(DateHelper.getDate(task.getPlanDate()));
-            if (task.getDeadlineDate() != null) {
+            if (task.getDeadlineDate() != null ) {
                 deadlineDate.setText(task.getDeadlineDate());
                 deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
                 deadlineDate.setTextColor(getResources().getColor(R.color.black));
@@ -456,6 +472,11 @@ public class TaskInfoActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set plan date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
+                planDate.setText("To inbox");
+                task.setPlanDate(null);
+                calendarViewModel.updateTask(task);
+            });
             datePickerDialog.show();
         }
         mLastClickTime = SystemClock.elapsedRealtime();
@@ -472,6 +493,11 @@ public class TaskInfoActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set deadline date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
+                deadlineDate.setText("No deadline");
+                task.setDeadlineDate(null);
+                calendarViewModel.updateTask(task);
+            });
             datePickerDialog.show();
         }
         mLastClickTime = SystemClock.elapsedRealtime();
