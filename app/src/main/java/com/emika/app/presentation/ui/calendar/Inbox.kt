@@ -54,6 +54,7 @@ class Inbox : AppCompatActivity() {
         add_task_back.setOnClickListener(this::onBackPressed)
         date = intent.getStringExtra("date")
         viewModel!!.setContext(this)
+        viewModel!!.getAllDbTask()
         viewModel!!.listMutableLiveData.observe(this, getTask)
 //        inboxViewModel!!.addedTaskList.observe(this, getAddedTask)
         inbox_add.setOnClickListener(this::addTasks)

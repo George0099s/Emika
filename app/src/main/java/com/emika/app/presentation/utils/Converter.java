@@ -46,9 +46,7 @@ public class Converter {
 
     public Converter() {
         taskEntities = new ArrayList<>();
-        payloadTaskList = new ArrayList<>();
         projectEntities = new ArrayList<>();
-        payloadTaskList = new ArrayList<>();
         payloadProjects = new ArrayList<>();
         memberEntities = new ArrayList<>();
         payloadMembers = new ArrayList<>();
@@ -82,6 +80,7 @@ public class Converter {
     }
 
     public List<PayloadTask> fromTaskEntityToPayloadTaskList(List<TaskEntity> taskList) {
+        payloadTaskList = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
             PayloadTask payloadTask = new PayloadTask();
             payloadTask.setId(taskList.get(i).getId());
@@ -338,7 +337,6 @@ public class Converter {
                     durationActual.getPerson(), durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy());
             durationEntities.add(durationEntity);
         }
-        Log.d(TAG, "fromPayloadListDurationToListDurationEntity: " + durationEntities.size());
         return durationEntities;
     }
     public List<PayloadDurationActual> fromEntityListDurationToPayloadListDuration(List<ActualDurationEntity> durationActualList) {

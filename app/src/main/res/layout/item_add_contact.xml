@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/ripple_btn"
+    android:id="@+id/item_add_contact"
+    android:padding="4dp"
+    xmlns:tools="http://schemas.android.com/tools">
+    <ImageView
+        android:layout_marginStart="16dp"
+
+        android:id="@+id/item_contact_img"
+        android:layout_width="39dp"
+        android:layout_height="39dp"
+        tools:src="@drawable/ic_mail"/>
+    <TextView
+        android:layout_marginEnd="16dp"
+
+        android:id="@+id/item_contact_text"
+        style="@style/ProfileContactText"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:textSize="16sp"
+        android:textColor="@color/light_black"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        tools:text="mai@mail.ru"
+        />
+</LinearLayout>

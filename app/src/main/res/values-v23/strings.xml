@@ -28,4 +28,17 @@
     <string name="manage_invites">Manage Invites</string>
     <string name="sub_task_name">Sub-task name</string>
     <string name="select_assignee">Select assignee</string>
+    <string name="add_new_contact">Add New Contact</string>
+    <string name="select_contact_type">Select Contact Type</string>
+    <string name="ok">Ok</string>
+    <string name="vk">Vk</string>
+    <string name="whats_app">What\'s app</string>
+    <string name="telegram">Telegram</string>
+    <string name="facebook">Facebook</string>
+    <string name="linkedin">LinkedIn</string>
+    <string name="wechat">Wechat</string>
+    <string name="invite_person">Invite Person</string>
+    <string name="revoked">revoked</string>
+    <string name="invitation_activated">Invitation Activated</string>
+    <string name="missing_email">Missing email</string>
 </resources>

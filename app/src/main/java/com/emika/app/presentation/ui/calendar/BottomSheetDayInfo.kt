@@ -1,7 +1,6 @@
 package com.emika.app.presentation.ui.calendar
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +13,11 @@ import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.di.User
 import com.emika.app.features.calendar.MemberItemDecoration
 import com.emika.app.presentation.adapter.calendar.DayInfoTaskAdapter
-import com.emika.app.presentation.utils.Converter
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.bottom_sheet_day_info.*
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 class BottomSheetDayInfo : BottomSheetDialogFragment(){
@@ -26,14 +25,11 @@ class BottomSheetDayInfo : BottomSheetDialogFragment(){
     lateinit var userDi: User
     private val token: String? = EmikaApplication.instance.sharedPreferences.getString("token", "")
     private val viewModel: CalendarViewModel = CalendarViewModel(token)
-    private var taskList: MutableList<PayloadTask> = arrayListOf()
-    private var durationList: MutableList<PayloadDurationActual> = arrayListOf()
-    private var firstRun: Boolean = true
     private val decor: MemberItemDecoration = MemberItemDecoration()
     private var date: String? = null
     private var estimatedTime: Int = 0
     private var spentTime: Int = 0
-
+    private val df = DecimalFormat("#.#")
     fun newInstance(): BottomSheetSelectEpicLinks? {
         return BottomSheetSelectEpicLinks()
     }
@@ -54,10 +50,10 @@ class BottomSheetDayInfo : BottomSheetDialogFragment(){
         super.onActivityCreated(savedInstanceState)
         EmikaApplication.instance.component.inject(this)
         date = arguments!!.getString("date")
-        spentTime = arguments!!.getInt("spentTime")
-        estimatedTime = arguments!!.getInt("estimatedTime")
-        if (firstRun)
-        viewModel.geTasks().observe(viewLifecycleOwner, getTask)
+
+        viewModel.getAllDbTaskByAssigneeDate(userDi.id, date)
+        viewModel.tasks.observe(viewLifecycleOwner, getTask)
+        viewModel.getDbDurationsByAssignee(userDi.id, date)
         viewModel.durationMutableLiveData.observe(viewLifecycleOwner, getDuration)
 
         dayInfoRecycler.setHasFixedSize(true)
@@ -68,27 +64,27 @@ class BottomSheetDayInfo : BottomSheetDialogFragment(){
 
     }
 
-    private val getTask = Observer { taskList: List<PayloadTask> ->
-        firstRun = false
-        for (duration in durationList) {
-            for (task in taskList) {
-                if (duration.taskId == task.id)
-                    this.taskList.add(task)
-            }
-        }
-        val adapter = DayInfoTaskAdapter(this.taskList, context!!, userDi)
+    private val getTask = Observer {
+        taskList: List<PayloadTask> ->
+        val adapter = DayInfoTaskAdapter(taskList, context!!, userDi)
         dayInfoRecycler.adapter = adapter
     }
 
     private val getDuration = Observer { durations: List<PayloadDurationActual> ->
-        val userId = arguments!!.getString("id")
         for (duration in durations) {
-            if (duration.date == date && duration.person == userId)
-                durationList.add(duration)
+            spentTime += duration.value
         }
-        if(!firstRun)
-        viewModel.geTasks()
-        dayInfoEstimatedTime.progress = estimatedTime
-        dayInfoSpentTime.progress = spentTime
+
+        if (estimatedTime % 60 == 0)
+            dayInfoEstimatedTime.progress = (estimatedTime / 60).toString()
+        else
+            dayInfoEstimatedTime.progress = df.format(estimatedTime / 60.0f)
+
+        if (spentTime % 60 == 0)
+            dayInfoSpentTime.progress = (spentTime / 60).toString()
+        else
+            dayInfoSpentTime.progress = df.format(spentTime / 60.0f)
+
+
     }
 }

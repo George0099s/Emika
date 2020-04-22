@@ -27,7 +27,7 @@ data class PayloadInvite(
     @SerializedName("projects")
     val projects: List<Any>,
     @SerializedName("status")
-    val status: String,
+    var status: String,
     @SerializedName("updated_at")
     val updatedAt: String
 )

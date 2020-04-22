@@ -39,7 +39,6 @@ public interface CompanyApi {
     Call<InviteModel> sendInvite(@Query("token") String token,
                                  @Field("invites")JSONArray invites);
 
-    @FormUrlEncoded
     @POST("public_api/company/invitations/{invitation_id}/revoke")
     Call<InviteModel> revokeInvite(@Path("invitation_id") String id,
                                    @Query("token") String token);

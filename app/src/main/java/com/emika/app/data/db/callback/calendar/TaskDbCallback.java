@@ -5,5 +5,5 @@ import com.emika.app.data.db.entity.TaskEntity;
 import java.util.List;
 
 public interface TaskDbCallback {
-    void setDbTask(List<TaskEntity> taskList);
+    void onTasksLoaded(List<TaskEntity> taskList);
 }

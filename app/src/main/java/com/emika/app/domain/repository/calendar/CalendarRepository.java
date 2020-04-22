@@ -72,34 +72,34 @@ public class CalendarRepository {
         sectionDbManager = new SectionDbManager();
         actualDurationDbManager = new ActualDurationDbManager();
     }
-    public List<PayloadTask> getPayloadTaskList(TaskListCallback taskListCallback, TaskDbCallback taskDbCallback, Context context) {
-        if(NetworkState.getInstance(context).isOnline() && firstRun) {
+    public void downloadTasks(TaskListCallback taskListCallback) {
+//        if(NetworkState.getInstance(context).isOnline() && firstRun) {
             calendarNetworkManager.getAllTask(taskListCallback);
-            firstRun = false;
-            return payloadTaskList;
-        } else {
-            taskDbManager.getAllTask(taskDbCallback);
-            return payloadTaskList;
-        }
+//        }/**/
     }
 
-    public List<PayloadTask> getDbTaskList(TaskDbCallback callback){
-        taskDbManager.getAllTask(callback);
-        return new ArrayList<>();
+    public void getDbTaskList(TaskDbCallback callback){
+        taskDbManager.getAllDbTask(callback);
     }
 
     public void updateTask(PayloadTask task){
         calendarNetworkManager.updateTask(task);
         taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
     }
+     public void updateDbTask(PayloadTask task){
+        taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
+    }
 
     public void sedDbData(List<PayloadTask> taskList) {
-        taskDbManager.deleteAll();
-        taskDbManager.insertDbAllTask(converter.fromPayloadTaskToTaskEntityList(taskList));
+        taskDbManager.addAllProjects(converter.fromPayloadTaskToTaskEntityList(taskList));
     }
 
     public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks, JSONArray subTasks){
         calendarNetworkManager.addTask(callback, task, epicLinks, subTasks);
+    }
+
+    public void addSubTask(SubTask subTask){
+        calendarNetworkManager.addSubTask(subTask);
     }
 
     public void downloadAllMembers(ShortMemberCallback callback){
@@ -181,5 +181,17 @@ public class CalendarRepository {
 
     public void getAllDbDurations(ActualDurationDbCallback callback) {
         actualDurationDbManager.getAllDurations(callback);
+    }
+
+    public void getDBTaskListById(TaskDbCallback callback,String assignee) {
+        taskDbManager.getAllDbTaskById(callback, assignee);
+    }
+
+    public void getDBTaskListByDateId(TaskDbCallback callback,String assignee, String planDate) {
+        taskDbManager.getAllDbTaskByDateId(callback, assignee, planDate);
+    }
+
+    public void getAllDbDurationsByAssignee(ActualDurationDbCallback callback, String assigneeId, String date) {
+        actualDurationDbManager.getDurationsByAssignee(callback, assigneeId, date);
     }
 }

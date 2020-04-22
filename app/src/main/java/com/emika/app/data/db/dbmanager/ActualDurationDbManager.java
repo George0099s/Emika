@@ -36,6 +36,14 @@ public class ActualDurationDbManager {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((io.reactivex.functions.Consumer<? super List<ActualDurationEntity>>) callback::onActualDurationLoaded);
     }
+    @SuppressLint("CheckResult")
+    public void getDurationsByAssignee(ActualDurationDbCallback callback, String assigneeId, String date) {
+        db.actualDurationDao().getAllDurationByAssigneeDate(assigneeId, date)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((io.reactivex.functions.Consumer<? super List<ActualDurationEntity>>) callback::onActualDurationLoaded);
+    }
+
 
     public void addAllDurations(List<ActualDurationEntity> actualDurationEntities, ActualDurationDbCallback callback) {
         Completable.fromAction(() -> db.actualDurationDao().insert(actualDurationEntities)).observeOn(AndroidSchedulers.mainThread())
@@ -45,6 +53,7 @@ public class ActualDurationDbManager {
 
             @Override
             public void onComplete() {
+                callback.onActualDurationLoaded(null);
                 Log.d(TAG, "onComplete: ");
             }
 
@@ -74,4 +83,6 @@ public class ActualDurationDbManager {
             }
         });
     }
+
+
 }

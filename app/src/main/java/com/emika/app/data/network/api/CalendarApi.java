@@ -7,8 +7,6 @@ import com.emika.app.data.network.pojo.task.ModelTask;
 
 import org.json.JSONArray;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -60,6 +58,18 @@ public interface CalendarApi {
                             @Field("sub_tasks") JSONArray subTasks);
 
 
+    @FormUrlEncoded
+    @POST("public_api/tasks/create")
+    Call<ModelTask> addSubTask(@Query("token") String token,
+                               @Field("name") String name,
+                               @Field("project_id") String projectId,
+                               @Field("plan_date") String planDate,
+                               @Field("deadline_date") String deadlineDate,
+                               @Field("assignee") String assignee,
+                               @Field("duration") String estimatedTime,
+                               @Field("priority") String priority,
+                               @Field("section_id") String sectionId,
+                               @Field("parent_id") String parentId);
 
 
     @FormUrlEncoded

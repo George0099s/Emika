@@ -43,7 +43,7 @@
     <string name="update_photo">Update photo</string>
     <string name="save_changes">Save changes</string>
     <!--    //custom view-->
-    <string name="progress_template">%dh</string>
+    <string name="progress_template">%sh</string>
     <string name="description">Description...</string>
     <string name="select_project">Select project</string>
     <string name="select_section">Select section</string>
@@ -77,7 +77,7 @@
     <string name="members_string">members</string>
     <string name="add_contact">Add Contact</string>
     <string name="unplanned_tasks">Unplanned tasks assigned to George and tasks created by George with no assignee</string>
-    <string name="add">add</string>
+    <string name="add">Add</string>
     <string name="invite_members">Invite Members</string>
     <string name="invitation">Invitation</string>
     <string name="send_invitation_s">Send invitation(s)</string>
@@ -85,4 +85,18 @@
     <string name="manage_invites">Manage Invites</string>
     <string name="sub_task_name">Sub-task name</string>
     <string name="select_assignee">Select assignee</string>
+    <string name="add_new_contact">Add New Contact</string>
+    <string name="select_contact_type">Select Contact Type</string>
+    <string name="ok">Ok</string>
+    <string name="set_contact_type">Set your %1$s contact</string>
+    <string name="vk">Vk</string>
+    <string name="whats_app">What\'s app</string>
+    <string name="telegram">Telegram</string>
+    <string name="facebook">Facebook</string>
+    <string name="linkedin">LinkedIn</string>
+    <string name="wechat">Wechat</string>
+    <string name="invite_person">Invite Person</string>
+    <string name="revoked">revoked</string>
+    <string name="invitation_activated">Invitation Activated</string>
+    <string name="missing_email">Missing email</string>
 </resources>

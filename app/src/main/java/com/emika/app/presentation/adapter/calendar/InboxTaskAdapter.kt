@@ -12,6 +12,7 @@ import com.emika.app.R
 import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.viewmodel.calendar.InboxViewModel
+import java.text.DecimalFormat
 import java.util.*
 
 class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val context: Context, private val viewModel: InboxViewModel?) : RecyclerView.Adapter<InboxTaskAdapter.ViewHolder>() {
@@ -22,7 +23,11 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
 
     private val addedTask: MutableList<PayloadTask>
 
+    private var df: DecimalFormat? = null
+    init {
+        df = DecimalFormat("#.#")
 
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_inbox_task, parent, false)
         return ViewHolder(view)
@@ -31,10 +36,22 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val inbox = taskList[position]
         holder.taskName.text = inbox.name
-        holder.estimatedTime.text = String.format("%sh", (inbox.duration / 60).toString())
-        holder.spentTime.text = String.format("%sh", (inbox.durationActual / 60).toString())
-        holder.project.text = "Emika"
 
+//        holder.estimatedTime.text = String.format("%sh", (inbox.duration / 60).toString())
+//        holder.spentTime.text = String.format("%sh", (inbox.durationActual / 60).toString())
+
+        if (inbox.getDuration() % 60 == 0)
+            holder.estimatedTime.text = String.format("%sh", (inbox.getDuration() / 60).toString())
+        else
+            holder.estimatedTime.text = String.format("%sh", df!!.format(inbox.getDuration() / 60.0f.toDouble()))
+
+        if (inbox.getDurationActual() % 60 == 0)
+            holder.spentTime.text = String.format("%sh", (inbox.getDurationActual() / 60).toString())
+        else
+            holder.spentTime.text = String.format("%sh", df!!.format(inbox.getDurationActual() / 60.0f.toDouble()))
+
+
+        holder.project.text = "Emika"
         holder.item.setOnClickListener { v: View? ->
             if (addedTask.contains(inbox)) {
                 addedTask.remove(inbox)

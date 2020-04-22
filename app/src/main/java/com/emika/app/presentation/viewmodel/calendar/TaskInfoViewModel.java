@@ -12,6 +12,7 @@ import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
+import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -39,6 +40,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     private CalendarRepository repository;
     private MutableLiveData<Assignee> assigneeMutableLiveData;
     private MutableLiveData<Project> projectMutableLiveData;
+    private MutableLiveData<List<PayloadSection>> sectionListMutableLiveData;
     private MutableLiveData<List<EpicLinksEntity>> epicLinksMutableLiveData;
     private List<String> taskEpicLinks;
 
@@ -52,7 +54,6 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
 
     @Inject
     Assignee assignee;
-
     @Inject
     Project projectDi;
     @Inject
@@ -93,6 +94,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     }
 
     public MutableLiveData<PayloadTask> getTaskMutableLiveData() {
+        taskMutableLiveData.setValue(task);
         return taskMutableLiveData;
     }
 
@@ -127,6 +129,8 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     }
 
     public MutableLiveData<Project> getProjectMutableLiveData() {
+        projectDi.setProjectId(task.getProjectId());
+        projectDi.setProjectSectionId(task.getSectionId());
         projectMutableLiveData.setValue(projectDi);
         return projectMutableLiveData;
     }
@@ -156,6 +160,10 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
 
     public void updateSubTask(SubTask subTask) {
         repository.updateSubTask(subTask);
+    }
+
+    public void addSubTask(SubTask subTask) {
+        repository.addSubTask(subTask);
     }
 }
 

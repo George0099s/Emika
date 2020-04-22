@@ -33,4 +33,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
+    <Button
+        android:id="@+id/invite_person"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_add_person"
+        android:text="@string/invite_person"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:drawablePadding="12dp"
+        android:textColor="@color/green"
+        android:textSize="16sp"
+        android:background="@drawable/ripple_btn"
+        android:textAllCaps="false"
+        android:gravity="start|center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_recycler_select_user" />
 </androidx.constraintlayout.widget.ConstraintLayout>

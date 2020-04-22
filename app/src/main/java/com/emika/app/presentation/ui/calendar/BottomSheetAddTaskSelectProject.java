@@ -50,7 +50,7 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment {
     private Converter converter;
     private PayloadTask task;
     private Observer<List<PayloadProject>> setProjects = projects -> {
-        projectAdapter = new ProjectAdapter(projects, mViewModel);
+        projectAdapter = new ProjectAdapter(projects, mViewModel, task);
         projectRecycler.setAdapter(projectAdapter);
     };
 
@@ -60,11 +60,12 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment {
             projectDi.setProjectSectionId(null);
             projectDi.setProjectSectionName(null);
         }
+
         for (int i = 0; i < sections.size(); i++) {
             if (projectDi.getProjectId().equals(sections.get(i).getProjectId()))
                 sectionList.add(sections.get(i));
         }
-        sectionAdapter = new SectionAdapter(sectionList, mViewModel);
+        sectionAdapter = new SectionAdapter(sectionList, mViewModel,  task);
         sectionRecycler.setAdapter(sectionAdapter);
     };
 
@@ -101,6 +102,10 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment {
         if (addTaskListViewModel != null)
             addTaskListViewModel.getProjectMutableLiveData();
         if (taskInfoViewModel != null) {
+            task.setProjectId(projectDi.getProjectId());
+            task.setSectionId(projectDi.getProjectSectionId());
+            taskInfoViewModel.setTask(task);
+            taskInfoViewModel.getTaskMutableLiveData();
             taskInfoViewModel.getProjectMutableLiveData();
             taskInfoViewModel.updateTask(task);
         }

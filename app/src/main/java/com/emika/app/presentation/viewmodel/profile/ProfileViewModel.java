@@ -5,9 +5,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.callback.calendar.UserDbCallback;
 import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
@@ -18,6 +20,7 @@ import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.domain.repository.profile.UserRepository;
 import com.emika.app.presentation.utils.Converter;
@@ -26,11 +29,14 @@ import com.emika.app.presentation.utils.NetworkState;
 import java.io.File;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class ProfileViewModel extends ViewModel implements UserInfoCallback, UserDbCallback, ShortMemberCallback, CompanyInfoCallback, Parcelable {
     private static final String TAG = "ProfileViewModel";
     private String token;
     private UserRepository repository;
-
+    @Inject
+    User userDi;
     private MutableLiveData<Payload> userMutableLiveData;
 
     private CalendarRepository calendarRepository;
@@ -38,7 +44,9 @@ public class ProfileViewModel extends ViewModel implements UserInfoCallback, Use
     private Context context;
     private MutableLiveData<List<PayloadShortMember>> memberMutableLiveData;
     private MutableLiveData<PayloadCompanyInfo> companyInfoMutableLiveData;
+    private MutableLiveData<User> user;
     public ProfileViewModel(String token) {
+        EmikaApplication.getInstance().getComponent().inject(this);
         this.token = token;
         repository = new UserRepository(token);
         userMutableLiveData = new MutableLiveData<>();
@@ -46,6 +54,12 @@ public class ProfileViewModel extends ViewModel implements UserInfoCallback, Use
         calendarRepository = new CalendarRepository(token);
         memberMutableLiveData = new MutableLiveData<>();
         companyInfoMutableLiveData = new MutableLiveData<>();
+        user = new MutableLiveData<>();
+        user.setValue(userDi);
+    }
+
+    public void sss(){
+        Log.d(TAG, "sss: " + 123);
     }
 
     protected ProfileViewModel(Parcel in) {
@@ -64,11 +78,19 @@ public class ProfileViewModel extends ViewModel implements UserInfoCallback, Use
         }
     };
 
-    public MutableLiveData<Payload> getUserMutableLiveData() {
+    public void downloadUserData(){
         repository.downloadUserInfo(this);
+    }
+    public void getDbUserData(){
         repository.getUser(this);
+
+    }
+    public MutableLiveData<Payload> getUserMutableLiveData() {
+
         return userMutableLiveData;
     }
+
+
 
     @Override
     public void updateInfo(UpdateUserModel model) {
@@ -107,6 +129,18 @@ public class ProfileViewModel extends ViewModel implements UserInfoCallback, Use
     @Override
     public void onCompanyInfoDownloaded(PayloadCompanyInfo companyInfo) {
         companyInfoMutableLiveData.postValue(companyInfo);
+    }
+
+    public MutableLiveData<User> getUser() {
+//        user.setValue(userDi);
+        return user;
+    }
+
+    @Override
+    protected void onCleared() {
+        Log.d(TAG, "onCleared: ");
+        super.onCleared();
+    
     }
 
     @Override

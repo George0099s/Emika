@@ -25,13 +25,11 @@ import com.emika.app.R;
 public class HourCounterView extends View {
 
     public static final double MAX_PROGRESS = 12.0;
-
     private static final String TAG = "FinanceProgressView";
-
     private static final float START_ANGLE = 90f;
     private static final int MAX_ANGLE = 360;
 
-    private int mProgress;
+    private String mProgress;
     private int mInactiveColor;
     private int mColor;
     private int mTextSize;
@@ -59,7 +57,7 @@ public class HourCounterView extends View {
         canvas.translate(mStrokeWidth / 2, mStrokeWidth / 2);
         updateProgressRect();
         canvas.drawArc(mProgressRect, START_ANGLE, MAX_ANGLE, false, mInactiveCirclePaint);
-        canvas.drawArc(mProgressRect, START_ANGLE, (float) (mProgress * MAX_ANGLE / MAX_PROGRESS), false, mCirclePaint);
+        canvas.drawArc(mProgressRect, START_ANGLE, (float) (Double.parseDouble(mProgress) * MAX_ANGLE / MAX_PROGRESS), false, mCirclePaint);
         drawText(canvas);
     }
 
@@ -67,7 +65,7 @@ public class HourCounterView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 //        Log.d(TAG, "onMeasure() called with: widthMeasureSpec = [" + MeasureSpec.toString(widthMeasureSpec) + "]," +
 //                " heightMeasureSpec = [" + MeasureSpec.toString(heightMeasureSpec) + "]");
-        getTextBounds(formatString((int) MAX_PROGRESS));
+        getTextBounds(formatString(String.valueOf((int) MAX_PROGRESS)));
         // PI не трогать!!!
         int requestedSize = (int) (Math.max(mTextBounds.width(), mTextBounds.height()) + Math.PI * mStrokeWidth);
         final int suggestedMinimumSize = Math.max(getSuggestedMinimumHeight(), getSuggestedMinimumWidth());
@@ -83,7 +81,7 @@ public class HourCounterView extends View {
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();
         final SavedState savedState = new SavedState(superState);
-        savedState.mProgress = mProgress;
+        savedState.mProgress = (int) Double.parseDouble(mProgress);
         return savedState;
     }
 
@@ -92,12 +90,12 @@ public class HourCounterView extends View {
         final SavedState savedState = (SavedState) state;
         super.onRestoreInstanceState(savedState.getSuperState());
 
-        mProgress = savedState.mProgress;
+        mProgress = String.valueOf(savedState.mProgress);
     }
 
 
     private void drawText(Canvas canvas) {
-        final String progressString = formatString(mProgress);
+        final String progressString = formatString(String.valueOf(mProgress));
         getTextBounds(progressString);
         float x = mProgressRect.width() / 2f - mTextBounds.width() / 2f - mTextBounds.left + mProgressRect.left;
         float y = mProgressRect.height() / 2f + mTextBounds.height() / 2f - mTextBounds.bottom + mProgressRect.top;
@@ -115,7 +113,7 @@ public class HourCounterView extends View {
         mTextPaint.getTextBounds(progressString, 0, progressString.length(), mTextBounds);
     }
 
-    private String formatString(int progress) {
+    private String formatString(String progress) {
         return String.format(getResources().getString(R.string.progress_template), progress);
     }
 
@@ -148,7 +146,7 @@ public class HourCounterView extends View {
         final TypedArray typedArray = theme.obtainStyledAttributes(attrs, R.styleable.hour,
                 R.attr.hourCounter, 0);
         try {
-            mProgress = typedArray.getInteger(R.styleable.hour_progress, 0);
+            mProgress = String.valueOf(typedArray.getInteger(R.styleable.hour_progress, 0));
             mInactiveColor = typedArray.getColor(R.styleable.hour_inactiveColor,
                     ContextCompat.getColor(getContext(), R.color.colorPrimary));
             mColor = typedArray.getColor(R.styleable.hour_color, ContextCompat.getColor(getContext(), R.color.colorAccent));
@@ -162,11 +160,11 @@ public class HourCounterView extends View {
         }
     }
 
-    public int getProgress() {
+    public String getProgress() {
         return mProgress;
     }
 
-    public void setProgress(int progress) {
+    public void setProgress(String progress) {
         mProgress = progress;
         invalidate();
     }

@@ -35,7 +35,7 @@ public class SubTask implements Parcelable {
     private String createdBy;
     @SerializedName("plan_date")
     @Expose
-    private Object planDate;
+    private String planDate;
     @SerializedName("plan_period")
     @Expose
     private String planPeriod;
@@ -47,7 +47,7 @@ public class SubTask implements Parcelable {
     private Integer planOrder;
     @SerializedName("deadline_date")
     @Expose
-    private Object deadlineDate;
+    private String deadlineDate;
     @SerializedName("deadline_time")
     @Expose
     private Object deadlineTime;
@@ -215,11 +215,11 @@ public class SubTask implements Parcelable {
         this.createdBy = createdBy;
     }
 
-    public Object getPlanDate() {
+    public String getPlanDate() {
         return planDate;
     }
 
-    public void setPlanDate(Object planDate) {
+    public void setPlanDate(String planDate) {
         this.planDate = planDate;
     }
 
@@ -247,11 +247,11 @@ public class SubTask implements Parcelable {
         this.planOrder = planOrder;
     }
 
-    public Object getDeadlineDate() {
+    public String getDeadlineDate() {
         return deadlineDate;
     }
 
-    public void setDeadlineDate(Object deadlineDate) {
+    public void setDeadlineDate(String deadlineDate) {
         this.deadlineDate = deadlineDate;
     }
 

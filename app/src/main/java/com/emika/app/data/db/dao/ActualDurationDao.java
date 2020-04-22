@@ -17,6 +17,9 @@ public interface ActualDurationDao {
     @Query("SELECT * FROM `Actual duration`")
     Maybe<List<ActualDurationEntity>> getAllDuration();
 
+    @Query("SELECT * FROM `Actual duration` WHERE createdBy = :assignee AND date = :date")
+    Maybe<List<ActualDurationEntity>> getAllDurationByAssigneeDate(String assignee, String date);
+
     @Insert
     void insert(List<ActualDurationEntity> actualDurationEntities);
 

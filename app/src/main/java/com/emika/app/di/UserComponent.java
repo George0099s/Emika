@@ -20,6 +20,7 @@ import com.emika.app.presentation.ui.calendar.BottomSheetSelectEpicLinks;
 import com.emika.app.presentation.ui.calendar.Inbox;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.ui.chat.ChatFragment;
+import com.emika.app.presentation.ui.profile.CreateContactDialogFragment;
 import com.emika.app.presentation.ui.profile.EditProfileActivity;
 import com.emika.app.presentation.ui.profile.MemberActivity;
 import com.emika.app.presentation.ui.profile.ProfileFragment;
@@ -28,6 +29,7 @@ import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
+import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
 import javax.inject.Singleton;
 
@@ -64,5 +66,6 @@ public interface UserComponent {
     void inject(Inbox inbox);
     void inject(AllMembersAdapter allMembersAdapter);
     void inject(BottomSheetDayInfo bottomSheetDayInfo);
-
+    void inject(CreateContactDialogFragment createContactDialogFragment);
+    void inject(ProfileViewModel profileViewModel);
 }

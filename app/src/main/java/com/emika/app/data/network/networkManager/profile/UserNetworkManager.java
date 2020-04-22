@@ -132,7 +132,6 @@ public class UserNetworkManager {
             public void onResponse(retrofit2.Call<InviteModel> call, Response<InviteModel> response) {
                 if (response.body() != null) {
                     InviteModel model = response.body();
-                    Log.d(TAG, "onResponse: " + model.getPayload());
                     callback.onInviteSend(model);
                 }
             }
@@ -216,6 +215,7 @@ public class UserNetworkManager {
         Retrofit retrofit = NetworkService.getInstance().getRetrofit();
         CompanyApi service = retrofit.create(CompanyApi.class);
         Call<InviteModel> call = service.revokeInvite(id, token);
+        Log.d(TAG, "revokeInvite: " + call.request().url());
         call.enqueue(new Callback<InviteModel>() {
             @Override
             public void onResponse(retrofit2.Call<InviteModel> call, Response<InviteModel> response) {
@@ -228,7 +228,7 @@ public class UserNetworkManager {
 
             @Override
             public void onFailure(retrofit2.Call<InviteModel> call, Throwable t) {
-                callback.onInvitesDownloaded(null);
+//                callback.onInvitesDownloaded(null);
                 Log.d(TAG, "Something went wrong :c");
             }
         });

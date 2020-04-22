@@ -79,6 +79,7 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         setLeaders();
     };
     private Observer<Payload> getUserInfo = user -> {
+        Log.d(TAG, "1231231231231321323: ");
         this.user.setId(user.getId());
         this.user.setFirstName(user.getFirstName());
         this.user.setLastName(user.getLastName());
@@ -89,9 +90,10 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         this.user.setExtraLeaders(user.getLeaders());
         this.user.setAdmin(user.getIsAdmin());
         this.user.setLeader(user.getIsLeader());
+        
+        contactAdapter = new ProfileContactAdapter(user.getContacts(), getContext());
         userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
         jobTitle.setText(user.getJobTitle());
-        contactAdapter = new ProfileContactAdapter(user.getContacts(), getContext());
         contactsRecycler.setAdapter(contactAdapter);
         if (user.getPictureUrl() != null)
             Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
@@ -158,8 +160,8 @@ public class ProfileFragment extends Fragment implements TokenCallback {
     private void initView(View view) {
         app.getComponent().inject(this);
         Log.d(TAG, "initView: " + companyDi.getName());
-        token = getActivity().getIntent().getStringExtra("token");
         sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        token = sharedPreferences.getString("token","");
         userDbManager = new UserDbManager();
         networkManager = new AuthNetworkManager(token);
         userName = view.findViewById(R.id.profile_user_name);
@@ -167,7 +169,10 @@ public class ProfileFragment extends Fragment implements TokenCallback {
         userImg = view.findViewById(R.id.profile_user_img);
         viewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
         viewModel.setContext(getContext());
+        viewModel.downloadUserData();
+        viewModel.getDbUserData();
         viewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), getUserInfo);
+//        viewModel.getUser().observe(getViewLifecycleOwner(), getUserUpdated);
         viewModel.getCompanyInfoMutableLiveData().observe(getViewLifecycleOwner(), getCompanyInfo);
         contactsRecycler = view.findViewById(R.id.profile_contacts_recycler);
         contactsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -187,9 +192,18 @@ public class ProfileFragment extends Fragment implements TokenCallback {
 
         manageInvites = view.findViewById(R.id.profile_manage_invites);
         manageInvites.setOnClickListener(this::goToManageInvites);
-
-
     }
+
+    private Observer<User> getUserUpdated = user -> {
+        userName.setText(String.format("%s %s", user.getFirstName(), user.getLastName()));
+        jobTitle.setText(user.getJobTitle());
+        contactAdapter = new ProfileContactAdapter(user.getContacts(), getContext());
+        contactsRecycler.setAdapter(contactAdapter);
+        if (user.getPictureUrl() != null)
+            Glide.with(this).load(user.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
+        else
+            Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
+    };
 
     private Observer<PayloadCompanyInfo> getCompanyInfo = companyInfo -> {
         companyDi.setBalance(companyInfo.getBalance());
@@ -253,6 +267,7 @@ public class ProfileFragment extends Fragment implements TokenCallback {
     @Override
     public void onResume() {
         super.onResume();
+        viewModel.downloadUserData();
         viewModel.getUserMutableLiveData();
     }
 

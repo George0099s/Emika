@@ -75,7 +75,7 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
                     assignee.setPictureUrl(member.getPictureUrl());
                     bottomSheetCalendarSelectUser.dismiss();
                     if (addTaskListViewModel == null && taskInfoViewModel == null) {
-                        calendarViewModel.getListMutableLiveData();
+                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
                         calendarViewModel.getAssigneeMutableLiveData();
                     } else if (addTaskListViewModel != null) {
                         addTaskListViewModel.getAssignee();

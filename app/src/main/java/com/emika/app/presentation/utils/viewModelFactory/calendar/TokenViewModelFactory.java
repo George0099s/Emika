@@ -14,6 +14,7 @@ import com.emika.app.presentation.viewmodel.calendar.InboxViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 import com.emika.app.presentation.viewmodel.chat.ChatViewModel;
 import com.emika.app.presentation.viewmodel.profile.AllMembersViewModel;
+import com.emika.app.presentation.viewmodel.profile.CreateContactDialogViewModel;
 import com.emika.app.presentation.viewmodel.profile.EditProfileViewModel;
 import com.emika.app.presentation.viewmodel.profile.ManageInviteViewModel;
 import com.emika.app.presentation.viewmodel.profile.MemberViewModel;
@@ -72,6 +73,9 @@ public class TokenViewModelFactory extends ViewModelProvider.NewInstanceFactory 
         }
         else if (modelClass == DayInfoViewModel.class){
             return (T) new DayInfoViewModel(token);
+        }
+        else if (modelClass == CreateContactDialogViewModel.class){
+            return (T) new CreateContactDialogViewModel(token);
         }
         return null;
     }

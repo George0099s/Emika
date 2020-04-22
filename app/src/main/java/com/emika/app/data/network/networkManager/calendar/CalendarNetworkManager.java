@@ -155,33 +155,41 @@ public class CalendarNetworkManager {
 //    }
     public void updateTask(PayloadTask task) {
         JSONObject taskJSON = new JSONObject();
+        JSONArray subTask = new JSONArray();
+        if (task.getSubTaskList() != null)
+            for (int i = 0; i < task.getSubTaskList().size(); i++) {
+                subTask.put(task.getSubTaskList().get(i));
+            }
         try {
+
+            if (task.getParentTaskId() != null)
+                taskJSON.put("parent_id", task.getParentTaskId());
+
             taskJSON.put("token", token);
             taskJSON.put("_id", task.getId());
             taskJSON.put("name", task.getName());
-            taskJSON.put("duration_actual", task.getDurationActual());
             taskJSON.put("duration", task.getDuration());
+            taskJSON.put("duration_actual", task.getDurationActual());
+            taskJSON.put("sub_tasks", subTask);
             if (task.getPlanDate() == null)
                 taskJSON.put("plan_date", JSONObject.NULL);
             else
                 taskJSON.put("plan_date", task.getPlanDate());
-            if (task.getDeadlineDate() == null)
+            if (task.getDeadlineDate() == null || task.getDeadlineDate().equals("null"))
                 taskJSON.put("deadline_date", JSONObject.NULL);
             else
                 taskJSON.put("deadline_date", task.getDeadlineDate());
-
             if (task.getPlanOrder() != null)
                 taskJSON.put("plan_order", Integer.parseInt(task.getPlanOrder()));
+
             taskJSON.put("description", task.getDescription());
             taskJSON.put("status", task.getStatus());
-            Log.d(TAG, "updateTask: " + task.getStatus());
             taskJSON.put("project_id", task.getProjectId());
             taskJSON.put("section_id", task.getSectionId());
             taskJSON.put("epic_links", converter.fromListToJSONArray(task.getEpicLinks()));
             taskJSON.put("priority", task.getPriority());
             taskJSON.put("assignee", task.getAssignee());
             socket.emit("server_update_task", taskJSON);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -282,10 +290,7 @@ public class CalendarNetworkManager {
     }
 
     public void downLoadDurationLog(DurationActualCallback callback) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL) // Адрес сервера
-                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
-                .build();
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
 
         CalendarApi service = retrofit.create(CalendarApi.class);
         Call<ModelDurationActual> call = service.fetchDurationLogs(token);
@@ -296,10 +301,11 @@ public class CalendarNetworkManager {
                     ModelDurationActual model = response.body();
 
                     List<PayloadDurationActual> durationActualList = model.getPayload();
+                    Log.d(TAG, "onResponse: " + durationActualList.size());
                     if (durationActualList != null)
                         callback.onDurationLogDownloaded(durationActualList);
                     else
-                        callback.onDurationLogDownloaded(new ArrayList<>());
+                        callback.onDurationLogDownloaded(null);
                 }
             }
 
@@ -397,5 +403,30 @@ public class CalendarNetworkManager {
             e.printStackTrace();
         }
         socket.emit("server_update_task", taskJSON);
+    }
+
+    public void addSubTask(SubTask task) {
+        Retrofit retrofit = networkService.getRetrofit();
+        CalendarApi service = retrofit.create(CalendarApi.class);
+        Call<ModelTask> call = service.addSubTask(token, task.getName(), task.getProjectId(), task.getPlanDate(), task.getDeadlineDate(), task.getAssignee(), String.valueOf(task.getDuration())
+                , task.getPriority(), task.getSectionId(), task.getParentTaskId());
+        call.enqueue(new Callback<ModelTask>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelTask> call, Response<ModelTask> response) {
+                if (response.body() != null) {
+                    ModelTask model = response.body();
+                    PayloadTask task = model.getPayloadTask();
+//                    if (task != null)
+//                        callback.getAddedTask(task);
+//                    else
+//                        callback.getAddedTask(new PayloadTask());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelTask> call, Throwable t) {
+                Log.d(TAG, t.getMessage());
+            }
+        });
     }
 }

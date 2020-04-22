@@ -1,6 +1,7 @@
 package com.emika.app.presentation.ui.chat;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +65,8 @@ public class ChatFragment extends Fragment {
     private Button sendMessage;
     private Socket socket;
     private ImageView emikaImg;
+    private JSONObject tokenJson;
+    private ChatFragment chatFragment;
     private Observer<PayloadChat> getMessage = chat -> {
         if (chat != null) {
             if (chat.getMessages() != null) {
@@ -73,7 +76,6 @@ public class ChatFragment extends Fragment {
             }
         }
     };
-
 
     private Emitter.Listener onUpdateSuggestion = new Emitter.Listener() {
         @Override
@@ -127,6 +129,10 @@ public class ChatFragment extends Fragment {
             adapter.update(message);
 //            viewModel.updateMessage(message);
             chatRecycler.scrollToPosition(0);
+
+            if(chatFragment.isVisible())
+            socket.emit("server_read_messages", tokenJson);
+
 //            adapter.notifyItemInserted(0);
 //            adapter.notifyDataSetChanged();
         } catch (JSONException e) {
@@ -147,6 +153,13 @@ public class ChatFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        chatFragment = (ChatFragment) getChildFragmentManager().findFragmentByTag("chatFragment");
+        tokenJson = new JSONObject();
+        try {
+            tokenJson.put("token", token);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         adapter = new ChatAdapterOld();
         EmikaApplication.getInstance().getComponent().inject(this);
         emikaImg = view.findViewById(R.id.chat_emika_img);

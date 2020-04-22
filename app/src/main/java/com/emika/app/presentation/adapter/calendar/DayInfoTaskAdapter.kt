@@ -72,7 +72,6 @@ class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val co
             holder.spentTime.text = String.format("%sh", (task.durationActual / 60).toString())
         else
             holder.spentTime.text = String.format("%sh", df!!.format(task.durationActual / 60.0f.toDouble()))
-        Log.d("123", task.durationActual.toString())
         holder.priority.text = task.priority
         holder.userName.text = user.firstName + " " + user.lastName
         if (task.status == "done")

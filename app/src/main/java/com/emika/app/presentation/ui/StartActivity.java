@@ -49,6 +49,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
     private StartActivityViewModel startActivityViewModel;
     private ProjectDbManager projectDbManager;
     private LifecycleOwner lifecycleOwner;
+    private Boolean taskLoaded = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +118,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
     }
 
     private Observer<Boolean> hasCompanyId = has -> {
+
         if (has) {
             Intent intent = new Intent(StartActivity.this, MainActivity.class);
             intent.putExtra("token", startActivityViewModel.getToken());

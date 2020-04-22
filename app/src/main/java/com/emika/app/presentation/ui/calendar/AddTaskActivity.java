@@ -3,6 +3,7 @@ package com.emika.app.presentation.ui.calendar;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -30,8 +31,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -46,6 +49,7 @@ import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -72,7 +76,7 @@ public class AddTaskActivity extends AppCompatActivity {
             deadlineDate.setTextColor(getResources().getColor(R.color.black));
         }
     };
-
+    private DecimalFormat df;
     private String currentDate;
     private EditText taskName, taskDescription;
     private ImageView addTask, userImg;
@@ -91,7 +95,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section, epicLinks;
     private BottomSheetSelectEpicLinks mySheetDialog;
     private String DATE;
-    private EditText subTaskName;
+    private PayloadTask task;
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -107,12 +111,13 @@ public class AddTaskActivity extends AppCompatActivity {
         dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
         dateAndTime.set(Calendar.MINUTE, minute);
         estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
+        task.setDuration(hourOfDay * 60 + minute);
     };
     private Observer<Payload> userInfo = userInfo -> {
 
     };
     private Observer<PayloadTask> taskObserver = task -> {
-//        Intent intent = new Intent();
+        //        Intent intent = new Intent();
 //        intent.putExtra("task", task);
 //        setResult(42, intent);
         finish();
@@ -159,12 +164,13 @@ public class AddTaskActivity extends AppCompatActivity {
         taskDescription = findViewById(R.id.add_task_description);
         mySheetDialog = new BottomSheetSelectEpicLinks();
         List<SubTask> tasks = new ArrayList<>();
+        df = new DecimalFormat("#.#");
+        task = getIntent().getParcelableExtra("task");
 
-//        subTaskName = findViewById(R.id.add_task_subtask_name);
         addSubTask = findViewById(R.id.add_task_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
         app.getComponent().inject(this);
-        token = getIntent().getStringExtra("token");
+        token = EmikaApplication.getInstance().getSharedPreferences().getString("token", "");
         subTaskRecycler = findViewById(R.id.add_task_subtask_recycler);
         inbox = findViewById(R.id.add_task_inbox);
         inbox.setOnClickListener(this::goToInBox);
@@ -185,6 +191,7 @@ public class AddTaskActivity extends AppCompatActivity {
         addTask = findViewById(R.id.add_task_img);
         addTask.setOnClickListener(this::addTask);
         back = findViewById(R.id.add_task_back);
+
         back.setOnClickListener(this::onBackPressed);
         planDate = findViewById(R.id.add_task_plan_date);
         estimatedTime = findViewById(R.id.add_task_estimated_time);
@@ -201,6 +208,7 @@ public class AddTaskActivity extends AppCompatActivity {
         section = findViewById(R.id.add_task_project_section);
         project.setText(projectDi.getProjectName());
         section.setText(projectDi.getProjectSectionName());
+        Log.d(TAG, "initView: " + projectDi.getProjectSectionName() + " " + projectDi.getProjectName());
         selectProject = findViewById(R.id.add_task_select_project);
         selectProject.setOnClickListener(this::selectProject);
         epicLinks = findViewById(R.id.add_task_epic_links);
@@ -210,7 +218,9 @@ public class AddTaskActivity extends AppCompatActivity {
         subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
         subTaskAdapter = new SubTaskAdapter(tasks, calendarViewModel, null);
         subTaskRecycler.setAdapter(subTaskAdapter);
-
+        if (task != null)
+            setTaskInfo(task);
+        else task = new PayloadTask();
     }
 
     private void goToInBox(View view) {
@@ -296,23 +306,23 @@ public class AddTaskActivity extends AppCompatActivity {
             taskName.setError("Task name is missing");
         } else {
             List<String> subTasks = new ArrayList<>();
-            PayloadTask newTask = new PayloadTask();
-            newTask.setName(taskName.getText().toString());
-            newTask.setProjectId(projectDi.getProjectId());
-            newTask.setPlanDate(currentDate);
-            newTask.setDeadlineDate(deadlineDateString);
-            newTask.setAssignee(assignee.getId());
-            newTask.setDuration(Integer.parseInt(estimatedTime.getText().toString().substring(0, estimatedTime.length() - 1)) * 60);
-            newTask.setDescription(taskDescription.getText().toString());
-            newTask.setPriority(priority.getText().toString().toLowerCase());
-            newTask.setSectionId(projectDi.getProjectId());
-            newTask.setPlanOrder("1");
-            newTask.setEpicLinks(epicLinksId);
+            task.setName(taskName.getText().toString());
+            task.setProjectId(projectDi.getProjectId());
+            task.setPlanDate(currentDate);
+            task.setDeadlineDate(deadlineDateString);
+            task.setAssignee(assignee.getId());
+            task.setDescription(taskDescription.getText().toString());
+            task.setPriority(priority.getText().toString().toLowerCase());
+            task.setSectionId(projectDi.getProjectId());
+            task.setPlanOrder("1");
+            if (task.getDuration() == null)
+            task.setDuration(1);
+            task.setEpicLinks(epicLinksId);
             for (int i = 0; i < subTaskAdapter.getTaskList().size(); i++) {
                 subTasks.add(subTaskAdapter.getTaskList().get(i).getName());
             }
-            newTask.setSubTaskList(subTasks);
-            viewModel.getMutableLiveData(newTask).observe(this, taskObserver);
+            task.setSubTaskList(subTasks);
+            viewModel.getMutableLiveData(task).observe(this, taskObserver);
         }
     }
 
@@ -420,5 +430,58 @@ public class AddTaskActivity extends AppCompatActivity {
             timePickerDialog.show();
         }
         mLastClickTime = SystemClock.elapsedRealtime();
+    }
+
+    private void setTaskInfo(PayloadTask task) {
+        if (task != null) {
+            task.setId(null);
+            currentDate = task.getPlanDate();
+            taskName.setText(task.getName());
+//            if (task.getPlanDate() != null || !task.getPlanDate().equals("null"))
+            planDate.setText(DateHelper.getDate(task.getPlanDate()));
+            if (task.getDeadlineDate() != null && !task.getDeadlineDate().equals("null")) {
+                deadlineDate.setText(task.getDeadlineDate());
+                deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
+                deadlineDate.setTextColor(getResources().getColor(R.color.black));
+            }
+
+            projectDi.setProjectId(task.getProjectId());
+            projectDi.setProjectSectionId(task.getSectionId());
+
+//        for (PayloadSection section : sectionList) {
+//            if (task.getSectionId().equals(section.getId())) {
+//                this.section.setText(section.getName());
+//            }
+//        }
+//
+//        for (ProjectEntity proj : projectList) {
+//            if (task.getProjectId().equals(proj.getId())) {
+//                this.project.setText(proj.getName());
+//            }
+//        }
+
+            switch (task.getPriority()) {
+                case "low":
+                    priority.setText("Low");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
+                    break;
+                case "normal":
+                    priority.setText("Normal");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
+                    break;
+                case "high":
+                    priority.setText("High");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
+                    break;
+                case "urgent":
+                    priority.setText("Urgent");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
+                    break;
+            }
+            if (task.getDuration() % 60 == 0)
+                estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
+            else
+                estimatedTime.setText(String.format("%sh", df.format(task.getDuration() / 60.0f)));
+        }
     }
 }

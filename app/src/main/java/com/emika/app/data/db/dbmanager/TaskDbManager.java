@@ -1,5 +1,6 @@
 package com.emika.app.data.db.dbmanager;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.emika.app.data.EmikaApplication;
@@ -13,6 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
+import io.reactivex.disposables.Disposable;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -32,12 +36,50 @@ public class TaskDbManager {
         taskDao = db.taskDao();
         converter = new Converter();
     }
-
-    public void addDbTask(TaskDbCallback taskCallbackCallback){
-//        Observable.fromCallable((new CallableAddTask(taskCallbackCallback)))
-//                .subscribeOn(Schedulers.io())
-//                .subscribe();
+    @SuppressLint("CheckResult")
+    public void getAllDbTaskById(TaskDbCallback callback, String assignee) {
+        db.taskDao().getAllTaskByAssignee(assignee)
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onTasksLoaded);
     }
+    @SuppressLint("CheckResult")
+    public void getAllDbTaskByDateId(TaskDbCallback callback, String assignee, String planDate) {
+        db.taskDao().getAllTaskByDateAssignee(assignee, planDate)
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onTasksLoaded);
+    }
+
+    @SuppressLint("CheckResult")
+    public void getAllDbTask(TaskDbCallback callback) {
+        db.taskDao().getAllTask()
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onTasksLoaded);
+    }
+
+    public void addAllProjects(List<TaskEntity> taskEntityList) {
+        Completable.fromAction(() -> db.taskDao().insert(taskEntityList)).observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
+
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onTasksLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+
 
     private Boolean addTask(String name, String description, String planDate, String deadlineDate, String priority, String epicLinks, String estimatedTime){
         TaskEntity taskEntity = new TaskEntity();
@@ -52,19 +94,6 @@ public class TaskDbManager {
         return true;
     }
 
-    public void getAllTask(TaskDbCallback taskCallbackCallback) {
-        Observable.fromCallable((new CallableGetAllTask(taskCallbackCallback)))
-                .subscribeOn(Schedulers.io())
-                .subscribe();
-    }
-
-    private Boolean getDBTask(TaskDbCallback taskCallbackCallback) {
-        payloadTaskList = taskDao.getAllTask();
-        if (payloadTaskList != null && !payloadTaskList.isEmpty()) {
-            taskCallbackCallback.setDbTask(payloadTaskList);
-        }
-        return true;
-    }
 
 
     private Boolean deleteDbAllTask() {
@@ -91,19 +120,7 @@ public class TaskDbManager {
         return true;
     }
 
-    public void insertDbAllTask(List<TaskEntity> payloadTaskList) {
-        Observable.fromCallable((new CallableInsertAllTask(payloadTaskList)))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
-    }
 
-    private Boolean insertDBAllTask(List<TaskEntity> payloadTaskList) {
-        if (payloadTaskList != null)
-            taskDao.deleteAll();
-            taskDao.insert(payloadTaskList);
-        return true;
-    }
 
     private class CallableUpdateTask implements Callable<Boolean> {
         private TaskEntity taskEntity;
@@ -118,19 +135,6 @@ public class TaskDbManager {
         }
     }
 
-    private class CallableGetAllTask implements Callable<Boolean> {
-        private TaskDbCallback taskCallback;
-
-        public CallableGetAllTask(TaskDbCallback taskCallback) {
-            this.taskCallback = taskCallback;
-        }
-
-        @Override
-        public Boolean call() throws Exception {
-            return getDBTask(taskCallback);
-        }
-    }
-
     private class CallableDeleteAllTask implements Callable<Boolean> {
         public CallableDeleteAllTask() {
 
@@ -142,17 +146,4 @@ public class TaskDbManager {
         }
     }
 
-    private class CallableInsertAllTask implements Callable<Boolean> {
-        private List<TaskEntity> payloadTaskList;
-
-        public CallableInsertAllTask(List<TaskEntity> payloadTaskList) {
-            this.payloadTaskList = payloadTaskList;
-        }
-
-        @Override
-        public Boolean call() throws Exception {
-            return insertDBAllTask(payloadTaskList);
-        }
-
-    }
 }

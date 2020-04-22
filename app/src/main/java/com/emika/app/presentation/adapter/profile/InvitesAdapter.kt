@@ -1,5 +1,6 @@
 package com.emika.app.presentation.adapter.profile
 
+import android.content.Context
 import android.opengl.Visibility
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,7 @@ import com.emika.app.R
 import com.emika.app.data.network.pojo.invites.PayloadInvite
 import com.emika.app.presentation.viewmodel.profile.ManageInviteViewModel
 
-class InvitesAdapter(private val pendingInviteModels: MutableList<PayloadInvite>, private val viewModel: ManageInviteViewModel) : RecyclerView.Adapter<InvitesAdapter.ViewHolder>() {
+class InvitesAdapter(private val pendingInviteModels: MutableList<PayloadInvite>, private val viewModel: ManageInviteViewModel, private val context: Context) : RecyclerView.Adapter<InvitesAdapter.ViewHolder>() {
 
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -39,12 +40,22 @@ class InvitesAdapter(private val pendingInviteModels: MutableList<PayloadInvite>
         var invite = pendingInviteModels[position]
         holder.email!!.text = invite.email
         holder.status!!.text = invite.inviteSentAt
-        if (invite.status == ("activated"))
+        if (invite.status == ("activated")) {
             holder.revoke!!.visibility = View.GONE
-        holder.status!!.setOnClickListener {
+            holder.status!!.text = context.getString(R.string.invitation_activated) + " " + invite.createdAt
+//            holder.status!!.setTextColor(context.resources.getColor(R.color.green))
+        }
+        if (invite.status == ("revoked")) {
+            holder.revoke!!.visibility = View.GONE
+            holder.status!!.text = context.getString(R.string.revoked) + " " + invite.createdAt
+//            holder.status!!.setTextColor(context.resources.getColor(R.color.red))
+        }
+
+        holder.revoke!!.setOnClickListener {
             viewModel.revokeInvite(invite.id)
-            pendingInviteModels.remove(invite)
-            notifyItemRemoved(position)
+            viewModel.invites
+            pendingInviteModels[position].status = "revoked"
+            notifyDataSetChanged()
         }
     }
 

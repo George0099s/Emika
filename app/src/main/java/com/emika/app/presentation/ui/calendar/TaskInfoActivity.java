@@ -2,11 +2,13 @@ package com.emika.app.presentation.ui.calendar;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -38,6 +40,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.entity.EpicLinksEntity;
+import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
@@ -51,6 +55,7 @@ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModel
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -66,7 +71,8 @@ public class TaskInfoActivity extends AppCompatActivity {
     Assignee assignee;
     @Inject
     EpicLinks epicLinksDi;
-
+    @Inject
+    Project projectDi;
     Calendar dateAndTime = Calendar.getInstance();
     private EmikaApplication app = EmikaApplication.getInstance();
     private PayloadTask task;
@@ -79,7 +85,6 @@ public class TaskInfoActivity extends AppCompatActivity {
     private String token, deadlineDateString;
     private LinearLayout selectProject;
     private CalendarViewModel calendarViewModel;
-
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -94,20 +99,6 @@ public class TaskInfoActivity extends AppCompatActivity {
             calendarViewModel.updateTask(task);
         }
     };
-    TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
-        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        dateAndTime.set(Calendar.MINUTE, minute);
-        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
-        task.setDuration(hourOfDay * 60);
-        calendarViewModel.updateTask(task);
-    };
-    TimePickerDialog.OnTimeSetListener spentTimeListener = (view, hourOfDay, minute) -> {
-        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        dateAndTime.set(Calendar.MINUTE, minute);
-        spentTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
-        task.setDurationActual(hourOfDay * 60);
-        calendarViewModel.updateTask(task);
-    };
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -116,10 +107,38 @@ public class TaskInfoActivity extends AppCompatActivity {
             dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             planDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             task.setPlanDate(DateHelper.getDatePicker(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
+
             calendarViewModel.updateTask(task);
         }
 
     };
+    private DecimalFormat df;
+    TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
+        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        dateAndTime.set(Calendar.MINUTE, minute);
+        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
+        int dayMinutes = hourOfDay * 60 + minute;
+        if (dayMinutes % 60 == 0)
+            estimatedTime.setText(String.format("%sh", String.valueOf(dayMinutes / 60)));
+        else
+            estimatedTime.setText(String.format("%sh", df.format(dayMinutes / 60.0f)));
+        task.setDuration(dayMinutes);
+        calendarViewModel.updateTask(task);
+    };
+    TimePickerDialog.OnTimeSetListener spentTimeListener = (view, hourOfDay, minute) -> {
+        dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        dateAndTime.set(Calendar.MINUTE, minute);
+        int dayMinutes = hourOfDay * 60 + minute;
+        if (dayMinutes % 60 == 0)
+            spentTime.setText(String.format("%sh", String.valueOf(dayMinutes / 60)));
+        else
+            spentTime.setText(String.format("%sh", df.format(dayMinutes / 60.0f)));
+        task.setDurationActual(hourOfDay * 60 + minute);
+
+        calendarViewModel.updateTask(task);
+    };
+    private List<PayloadSection> sectionList = new ArrayList<>();
+    private List<ProjectEntity> projectList = new ArrayList<>();
     private ImageView menu;
     private CheckBox taskDone, taskCanceled;
     private Button back;
@@ -166,12 +185,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             taskInfoViewModel.updateTask(task);
         }
     };
-    private Observer<Project> getTaskProject = project -> {
-        this.project.setText(project.getProjectName());
-        section.setText(project.getProjectSectionName());
-        task.setProjectId(project.getProjectId());
-        task.setSectionId(project.getProjectSectionId());
-    };
+
     private Observer<List<EpicLinksEntity>> setTaskEpicLinks = epicLinksEntities -> {
         if (epicLinksEntities.size() != 0)
             for (int i = 0; i < epicLinksEntities.size(); i++) {
@@ -187,32 +201,37 @@ public class TaskInfoActivity extends AppCompatActivity {
         adapter = new SubTaskAdapter(subTask, null, taskInfoViewModel);
         subTaskRecycler.setAdapter(adapter);
     };
+    private Observer<List<ProjectEntity>> getProjects = projectEntities -> {
+        projectList = projectEntities;
+        calendarViewModel.getSectionListMutableLiveData();
+    };
+    private Observer<List<PayloadSection>> getSections = payloadSections -> {
+        sectionList = payloadSections;
+        taskInfoViewModel.getProjectMutableLiveData();
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_info);
+        initViews();
         setSupportActionBar(findViewById(R.id.task_info_toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        initViews();
     }
 
     private void initViews() {
+        df = new DecimalFormat("#.#");
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         app.getComponent().inject(this);
-        task = getIntent().getParcelableExtra("task");
+        if (getIntent() != null)
+            task = getIntent().getParcelableExtra("task");
         token = EmikaApplication.getInstance().getSharedPreferences().getString("token", null);
         subTaskRecycler = findViewById(R.id.task_info_subtask_recycler);
         subTaskRecycler.setHasFixedSize(true);
         subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
         addSubTask = findViewById(R.id.task_info_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
-//        subTaskName = findViewById(R.id.task_info_subtask_name);
-        taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
-        calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
-        taskInfoViewModel.setTask(task);
-        taskInfoViewModel.getEpicLinksMutableLiveData().observe(this, setTaskEpicLinks);
-        taskInfoViewModel.getSubTaskMutableLiveData(task.getId()).observe(this, getSubTask);
+
         taskDescription = findViewById(R.id.task_info_description);
         taskDescription.addTextChangedListener(taskDescriptionTextWatcher);
         taskName = findViewById(R.id.task_info_name);
@@ -237,23 +256,53 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskCanceled.setOnClickListener(this::refreshTask);
         userImg.setOnClickListener(this::selectCurrentAssignee);
         userName.setOnClickListener(this::selectCurrentAssignee);
-        taskInfoViewModel.getAssigneeMutableLiveData().observe(this, setAssignee);
         back = findViewById(R.id.task_info_back);
         back.setOnClickListener(this::onBackPressed);
         selectProject = findViewById(R.id.tak_info_select_project);
         selectProject.setOnClickListener(this::selectProject);
-        taskInfoViewModel.getProjectMutableLiveData().observe(this, getTaskProject);
         project = findViewById(R.id.task_info_project);
         section = findViewById(R.id.task_info_project_section);
         epicLink = findViewById(R.id.task_info_epic_links);
         epicLink.setOnClickListener(this::selectEpicLinks);
-        setTaskInfo(task);
+
+        taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
+        calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
+        taskInfoViewModel.setTask(task);
+        taskInfoViewModel.getTaskMutableLiveData().observe(this, getTask);
+        taskInfoViewModel.getEpicLinksMutableLiveData().observe(this, setTaskEpicLinks);
+        taskInfoViewModel.getSubTaskMutableLiveData(task.getId()).observe(this, getSubTask);
+        taskInfoViewModel.getAssigneeMutableLiveData().observe(this, setAssignee);
+        calendarViewModel.getProjectMutableLiveData().observe(this, getProjects);
+        calendarViewModel.getSectionListMutableLiveData().observe(this, getSections);
+        taskInfoViewModel.getProjectMutableLiveData().observe(this, getProjectsMutable);
+
     }
+
+
+    private Observer<Project> getProjectsMutable = project1 -> {
+        if (project1 != null && project1.getProjectSectionId() != null && project1.getProjectId() != null ) {
+            for (ProjectEntity proj : projectList) {
+                if (project1.getProjectId().equals(proj.getId())) {
+                    this.project.setText(proj.getName());
+                }
+            }
+
+            for (PayloadSection section : sectionList) {
+                if (project1.getProjectSectionId().equals(section.getId())) {
+                    this.section.setText(section.getName());
+                }
+            }
+        }
+    };
 
     private void addSubTask(View view) {
         List<String> subTasks = new ArrayList<>();
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
+        subTask.setParentTaskId(task.getId());
+        subTask.setAssignee(user.getId());
+        subTask.setPlanDate(task.getPlanDate());
+        subTask.setCompanyId(task.getCompanyId());
         adapter.addSubTask(subTask);
         adapter.notifyItemInserted(0);
         subTaskRecycler.scrollToPosition(0);
@@ -262,6 +311,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         }
         task.setSubTaskList(subTasks);
         taskInfoViewModel.updateTask(task);
+        taskInfoViewModel.addSubTask(subTask);
     }
 
     private void refreshTask(View view) {
@@ -273,6 +323,62 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskName.setTextColor(getResources().getColor(R.color.black));
         taskName.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
     }
+
+    private Observer<PayloadTask> getTask = task ->{
+        if (task != null) {
+            taskName.setText(task.getName());
+            planDate.setText(DateHelper.getDate(task.getPlanDate()));
+            if (task.getDeadlineDate() != null && !task.getDeadlineDate().equals("null")) {
+                deadlineDate.setText(task.getDeadlineDate());
+                deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
+                deadlineDate.setTextColor(getResources().getColor(R.color.black));
+            }
+            if (task.getDescription() != null)
+            taskDescription.setText(Html.fromHtml(task.getDescription()));
+            if (task.getStatus().equals("canceled")) {
+                taskCanceled.setVisibility(View.VISIBLE);
+                taskCanceled.setChecked(true);
+                taskDone.setVisibility(View.GONE);
+                calendarViewModel.updateTask(task);
+                taskName.setTextColor(getResources().getColor(R.color.task_name_done));
+                taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+
+            switch (task.getPriority()) {
+                case "low":
+                    priority.setText("Low");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
+                    break;
+                case "normal":
+                    priority.setText("Normal");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
+                    break;
+                case "high":
+                    priority.setText("High");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
+                    break;
+                case "urgent":
+                    priority.setText("Urgent");
+                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
+                    break;
+            }
+            switch (task.getStatus()) {
+                case "done":
+                    taskDone.setChecked(true);
+                    break;
+                default:
+                    taskDone.setChecked(false);
+            }
+            if (task.getDuration() % 60 == 0)
+                estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
+            else
+                estimatedTime.setText(String.format("%sh", df.format(task.getDuration() / 60.0f)));
+            if (task.getDurationActual() % 60 == 0)
+                spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
+            else
+                spentTime.setText(String.format("%sh", df.format(task.getDurationActual() / 60.0f)));
+        }
+    };
 
     private void selectProject(View view) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
@@ -326,7 +432,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         menu.add(0, 3, 3, menuIconWithText(getResources().getDrawable(R.drawable.ic_move_task), getResources().getString(R.string.move_task)));
         menu.add(0, 4, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.duplicate_task)));
         if (task.getStatus().equals("canceled"))
-        menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_archive), getResources().getString(R.string.archieve_task)));
+            menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_archive), getResources().getString(R.string.archieve_task)));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -349,8 +455,10 @@ public class TaskInfoActivity extends AppCompatActivity {
                 planDate.callOnClick();
                 break;
             case 4:
-//                task.setStatus("deleted");
-//                calendarViewModel.updateTask(task);
+                Intent intent = new Intent(this, AddTaskActivity.class);
+                finish();
+                intent.putExtra("task", task);
+                startActivity(intent);
                 break;
             case 5:
                 task.setStatus("deleted");
@@ -369,56 +477,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return sb;
     }
-
-    private void setTaskInfo(PayloadTask task) {
-        if (task != null) {
-            taskName.setText(task.getName());
-            if (task.getPlanDate() != null || !task.getPlanDate().equals("null"))
-            planDate.setText(DateHelper.getDate(task.getPlanDate()));
-            if (task.getDeadlineDate() != null ) {
-                deadlineDate.setText(task.getDeadlineDate());
-                deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
-                deadlineDate.setTextColor(getResources().getColor(R.color.black));
-            }
-//            project.setText(task.get);
-            if (task.getStatus().equals("canceled")) {
-                taskCanceled.setVisibility(View.VISIBLE);
-                taskCanceled.setChecked(true);
-                taskDone.setVisibility(View.GONE);
-                calendarViewModel.updateTask(task);
-                taskName.setTextColor(getResources().getColor(R.color.task_name_done));
-                taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            }
-            switch (task.getPriority()) {
-                case "low":
-                    priority.setText("Low");
-                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
-                    break;
-                case "normal":
-                    priority.setText("Normal");
-                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_normal), null, null, null);
-                    break;
-                case "high":
-                    priority.setText("High");
-                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
-                    break;
-                case "urgent":
-                    priority.setText("Urgent");
-                    priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
-                    break;
-            }
-            switch (task.getStatus()) {
-                case "done":
-                    taskDone.setChecked(true);
-                    break;
-                default:
-                    taskDone.setChecked(false);
-            }
-            estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
-            spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
-        }
-    }
-
+    
     private void showPopupMenu(View v) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
@@ -495,6 +554,8 @@ public class TaskInfoActivity extends AppCompatActivity {
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
                 deadlineDate.setText("No deadline");
+                deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline), null, null, null);
+                deadlineDate.setTextColor(getResources().getColor(R.color.grey));
                 task.setDeadlineDate(null);
                 calendarViewModel.updateTask(task);
             });
@@ -522,7 +583,8 @@ public class TaskInfoActivity extends AppCompatActivity {
             return;
         } else {
             int hourOfDay = task.getDurationActual() / 60;
-            CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, spentTimeListener, hourOfDay, 0, true);
+            int minute = task.getDurationActual() % 60;
+            CustomTimePickerDialog timePickerDialog = new CustomTimePickerDialog(this, spentTimeListener, hourOfDay, minute, true);
             timePickerDialog.setIcon(R.drawable.ic_estimated_time);
             timePickerDialog.show();
         }

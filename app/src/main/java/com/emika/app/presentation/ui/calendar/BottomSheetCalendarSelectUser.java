@@ -2,11 +2,13 @@ package com.emika.app.presentation.ui.calendar;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +22,7 @@ import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
 import com.emika.app.presentation.adapter.calendar.SelectCurrentUserAdapter;
+import com.emika.app.presentation.ui.profile.ManageInvites;
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
@@ -41,6 +44,7 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     private AddTaskListViewModel addTaskListViewModel;
     private TaskInfoViewModel taskInfoViewModel;
     private PayloadTask task;
+    private Button invite;
     private EmikaApplication app = EmikaApplication.getInstance();
     @Inject
     Assignee assignee;
@@ -50,7 +54,6 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.bottom_sheet_select_assignee, container, false);
         setStyle(BottomSheetCalendarSelectUser.STYLE_NORMAL, R.style.BottomSheetStyleDialogTheme);
-//        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         initView(view);
         return view;
     }
@@ -72,7 +75,13 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
         memberRecycler = view.findViewById(R.id.bottom_sheet_recycler_select_user);
         memberRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         memberRecycler.setHasFixedSize(true);
+        invite = view.findViewById(R.id.invite_person);
+        invite.setOnClickListener(this::invitePerson);
+    }
 
+    private void invitePerson(View view) {
+        Intent intent = new Intent(getContext(), ManageInvites.class);
+        startActivity(intent);
     }
 
     @Override

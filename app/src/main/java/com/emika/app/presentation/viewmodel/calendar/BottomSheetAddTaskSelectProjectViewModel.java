@@ -83,4 +83,8 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
     public void onSectionLoaded(List<SectionEntity> sections) {
         sectionListMutableLiveData.postValue(converter.fromListEntitySectionToPayloadSection(sections));
     }
+
+    public String getProjectId() {
+        return projectId;
+    }
 }

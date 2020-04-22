@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,14 +115,15 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
             holder.itemView.setTag(mItemList.get(position));
             if (task.getDuration() % 60 == 0)
                 holder.estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
-            else {
+            else
                 holder.estimatedTime.setText(String.format("%sh", df.format(task.getDuration() / 60.0f)));
-            }
+
             if (task.getDurationActual() % 60 == 0)
                 holder.spentTime.setText(String.format("%sh", String.valueOf(task.getDurationActual() / 60)));
             else
                 holder.spentTime.setText(String.format("%sh", df.format(task.getDurationActual() / 60.0f)));
-            holder.project.setText("Emika");
+
+
             holder.isDone.setOnClickListener(v -> {
                 if (holder.isDone.isChecked()) {
                     holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));

@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         fragmentManager.beginTransaction().add(R.id.main_container, boardFragment).commit();
         fragmentManager.beginTransaction().add(R.id.main_container, profileFragment).hide(profileFragment).commit();
-        fragmentManager.beginTransaction().add(R.id.main_container, chatFragment).hide(chatFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.main_container, chatFragment, "chatFragment").hide(chatFragment).commit();
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.chat_bg));
 
         KeyboardVisibilityEvent.setEventListener(
@@ -125,12 +125,10 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.menu_chat:
                 if (active != chatFragment) {
-
                     fragmentManager.beginTransaction().hide(active).show(chatFragment).commit();
                     getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
                     socket.emit("server_read_messages", tokenJson);
                     active = chatFragment;
-
                 }
                 return true;
 

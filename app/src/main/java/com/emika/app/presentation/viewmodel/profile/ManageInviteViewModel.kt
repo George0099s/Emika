@@ -25,6 +25,7 @@ class ManageInviteViewModel(val token: String?): ViewModel(), CallbackSendInvite
     }
 
     fun revokeInvite(id: String){
+        print(id)
         repository.revoke(this, id)
     }
 
