@@ -16,6 +16,7 @@ import com.emika.app.data.network.pojo.company.Payload;
 import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 
 import java.util.List;
@@ -29,11 +30,12 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     private List<PayloadSection> sections;
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
-
+    @Inject
+    ProjectsDi projectsDagger;
     public SectionAdapter(List<PayloadSection> sections, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task) {
-        this.sections = sections;
-        this.viewModel = viewModel;
         emikaApplication.getComponent().inject(this);
+        this.viewModel = viewModel;
+        this.sections = sections;
     }
 
     @NonNull
@@ -47,6 +49,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     public void onBindViewHolder(@NonNull SectionViewHolder holder, int position) {
         PayloadSection section = sections.get(position);
         holder.sectionName.setText(section.getName());
+        if (projectDi.getProjectSectionId() != null)
         if (projectDi.getProjectSectionId().equals(section.getId()))
             holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
         else

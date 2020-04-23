@@ -18,6 +18,7 @@ import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 
 import java.util.List;
@@ -28,15 +29,16 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     private static final String TAG = "ProjectAdapter";
     @Inject
     Project projectDi;
+
     private List<PayloadProject> projects;
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     private PayloadTask task;
     public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task) {
+        emikaApplication.getComponent().inject(this);
         this.projects = projects;
         this.viewModel = viewModel;
         this.task = task;
-        emikaApplication.getComponent().inject(this);
     }
 
 
@@ -66,7 +68,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
             projectDi.setProjectId(project.getId());
             projectDi.setProjectName(project.getName());
-            viewModel.setProjectId(project.getId());
+//            viewModel.setProjectId(project.getId());
+//            viewModel.setProjectId();
             viewModel.getSectionListMutableLiveData();
             notifyDataSetChanged();
         });

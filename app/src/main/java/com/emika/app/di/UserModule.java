@@ -32,4 +32,9 @@ public class UserModule {
     static CompanyDi getCompany() {
         return new CompanyDi();
     }
+    @Provides
+    @Singleton
+    static ProjectsDi getProjects() {
+        return new ProjectsDi();
+    }
 }

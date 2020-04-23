@@ -16,6 +16,7 @@ import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.presentation.utils.Converter;
 
@@ -35,6 +36,8 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
     private EmikaApplication app = EmikaApplication.getInstance();
     @Inject
     Project projectDi;
+    @Inject
+    ProjectsDi projectsDagger;
     public BottomSheetAddTaskSelectProjectViewModel(String token) {
         this.token = token;
         projectListMutableLiveData = new MutableLiveData<>();
@@ -44,8 +47,13 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
         app.getComponent().inject(this);
     }
 
+//    public MutableLiveData<List<PayloadProject>> getProjectListMutableLiveData() {
+//        repository.getAllProjects(this);
+//        return projectListMutableLiveData;
+//    }
+
     public MutableLiveData<List<PayloadProject>> getProjectListMutableLiveData() {
-        repository.getAllProjects(this);
+        projectListMutableLiveData.setValue(projectsDagger.getProjects());
         return projectListMutableLiveData;
     }
 
@@ -65,13 +73,25 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
                 sectionListMutableLiveData.postValue(sectionList);
     }
 
+//    public MutableLiveData<List<PayloadSection>> getSectionListMutableLiveData() {
+//        repository.getAllSections(this);
+//        return sectionListMutableLiveData;
+//    }
+
     public MutableLiveData<List<PayloadSection>> getSectionListMutableLiveData() {
-        repository.getAllSections(this);
+
+        List<PayloadSection> sectionList = new ArrayList<>();
+        for (PayloadSection section : projectsDagger.getSections()) {
+            if (section.getProjectId().equals(projectDi.getProjectId())) {
+                sectionList.add(section);
+            }
+        }
+        sectionListMutableLiveData.setValue(sectionList);
         return sectionListMutableLiveData;
     }
 
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
+    public void setProjectId() {
+        this.projectId = projectDi.getProjectId();
     }
 
     @Override

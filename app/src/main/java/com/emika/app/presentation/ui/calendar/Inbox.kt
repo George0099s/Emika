@@ -2,6 +2,7 @@ package com.emika.app.presentation.ui.calendar
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.emika.app.R
 import com.emika.app.data.EmikaApplication
+import com.emika.app.data.db.entity.ProjectEntity
 import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.di.User
 import com.emika.app.features.calendar.MemberItemDecoration
@@ -30,7 +32,7 @@ class Inbox : AppCompatActivity() {
     private var inboxTaskList: MutableList<PayloadTask>? = null
     private var date: String = ""
     private val decor: MemberItemDecoration = MemberItemDecoration()
-
+    private var projects: List<ProjectEntity> = arrayListOf()
     @JvmField
     @Inject
     var userDi: User? = null
@@ -48,6 +50,7 @@ class Inbox : AppCompatActivity() {
         inboxTaskList = ArrayList()
         viewModel = ViewModelProvider(this, TokenViewModelFactory(token)).get(CalendarViewModel::class.java)
         inboxViewModel = ViewModelProvider(this, TokenViewModelFactory(token)).get(InboxViewModel::class.java)
+        viewModel!!.projectMutableLiveData.observe(this, getProjectLiveData)
         inbox_recycler.setHasFixedSize(true)
         inbox_recycler.addItemDecoration(decor)
         inbox_recycler.setLayoutManager(LinearLayoutManager(this))
@@ -62,6 +65,10 @@ class Inbox : AppCompatActivity() {
 
     fun onBackPressed(v: View) {
         super.onBackPressed()
+    }
+
+    private val getProjectLiveData = Observer<List<ProjectEntity>> { projects ->
+        this.projects = projects
     }
 
     private val getAddedTask = Observer<List<PayloadTask>> { tasks ->
@@ -83,11 +90,12 @@ class Inbox : AppCompatActivity() {
     }
 
     private val getTask = Observer { taskList: List<PayloadTask> ->
+
         for (inboxTask in taskList) {
             if (inboxTask.planDate == null && inboxTask.assignee == userDi!!.id)
                 inboxTaskList!!.add(inboxTask)
         }
-        adapter = InboxTaskAdapter(inboxTaskList!!, this, inboxViewModel!!)
+        adapter = InboxTaskAdapter(inboxTaskList!!, this, inboxViewModel!!, projects)
         inbox_recycler!!.adapter = adapter
     }
 

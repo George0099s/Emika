@@ -2,6 +2,7 @@ package com.emika.app.presentation.ui.calendar;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -48,6 +50,7 @@ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModel
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -83,7 +86,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private AddTaskListViewModel viewModel;
     private ProfileViewModel profileViewModel;
     private Button back, inbox;
-
+    private Context toastContext;
     private SubTaskAdapter subTaskAdapter;
     private RecyclerView subTaskRecycler;
     private CalendarViewModel calendarViewModel;
@@ -166,7 +169,6 @@ public class AddTaskActivity extends AppCompatActivity {
         List<SubTask> tasks = new ArrayList<>();
         df = new DecimalFormat("#.#");
         task = getIntent().getParcelableExtra("task");
-
         addSubTask = findViewById(R.id.add_task_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
         app.getComponent().inject(this);
@@ -208,7 +210,6 @@ public class AddTaskActivity extends AppCompatActivity {
         section = findViewById(R.id.add_task_project_section);
         project.setText(projectDi.getProjectName());
         section.setText(projectDi.getProjectSectionName());
-        Log.d(TAG, "initView: " + projectDi.getProjectSectionName() + " " + projectDi.getProjectName());
         selectProject = findViewById(R.id.add_task_select_project);
         selectProject.setOnClickListener(this::selectProject);
         epicLinks = findViewById(R.id.add_task_epic_links);
@@ -234,21 +235,9 @@ public class AddTaskActivity extends AppCompatActivity {
         List<SubTask> subTasks = new ArrayList<>();
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
-//        subTask.setName(subTaskName.getText().toString());
-//        subTasks = subTaskAdapter.getTaskList();
-//        subTasks.add(0, subTask);
-
         subTaskAdapter.addSubTask(subTask);
         subTaskAdapter.notifyItemInserted(0);
         subTaskRecycler.scrollToPosition(0);
-
-//        if (subTaskName.getText().toString().isEmpty()){
-//            subTaskName.requestFocus();
-//            subTaskName.setError("Missing sub-task name");
-//        } else {
-//            subTaskAdapter.addSubTask(subTask);
-//            subTaskName.setText("");
-//        }
     }
 
     private void onBackPressed(View view) {
@@ -305,6 +294,9 @@ public class AddTaskActivity extends AppCompatActivity {
             taskName.requestFocus();
             taskName.setError("Task name is missing");
         } else {
+            if (task.getPlanDate() == null) {
+                Toast.makeText(this, "Task added to inbox", Toast.LENGTH_LONG).show();
+            }
             List<String> subTasks = new ArrayList<>();
             task.setName(taskName.getText().toString());
             task.setProjectId(projectDi.getProjectId());
@@ -339,7 +331,11 @@ public class AddTaskActivity extends AppCompatActivity {
 
         @Override
         public void afterTextChanged(Editable s) {
-            inbox.setVisibility(View.GONE);
+            if (taskName.getText().toString().length() > 0)
+                inbox.setVisibility(View.GONE);
+            if (taskName.getText().toString().length() == 0)
+                inbox.setVisibility(View.VISIBLE);
+
         }
     };
 
@@ -394,7 +390,7 @@ public class AddTaskActivity extends AppCompatActivity {
             datePickerDialog.setTitle("Set plan date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
-                    planDate.setText("To inbox");
+                    planDate.setText(getResources().getString(R.string.inbox));
                     currentDate = null;
             });
             datePickerDialog.show();
@@ -413,7 +409,7 @@ public class AddTaskActivity extends AppCompatActivity {
             datePickerDialog.setTitle("Set deadline date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
-                deadlineDate.setText("No deadline");
+                deadlineDate.setText(getResources().getString(R.string.no_deadline));
                 deadlineDateString = null;
             });
             datePickerDialog.show();
@@ -447,18 +443,6 @@ public class AddTaskActivity extends AppCompatActivity {
 
             projectDi.setProjectId(task.getProjectId());
             projectDi.setProjectSectionId(task.getSectionId());
-
-//        for (PayloadSection section : sectionList) {
-//            if (task.getSectionId().equals(section.getId())) {
-//                this.section.setText(section.getName());
-//            }
-//        }
-//
-//        for (ProjectEntity proj : projectList) {
-//            if (task.getProjectId().equals(proj.getId())) {
-//                this.project.setText(proj.getName());
-//            }
-//        }
 
             switch (task.getPriority()) {
                 case "low":

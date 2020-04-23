@@ -99,4 +99,6 @@
     <string name="revoked">revoked</string>
     <string name="invitation_activated">Invitation Activated</string>
     <string name="missing_email">Missing email</string>
+    <string name="inbox">Inbox</string>
+    <string name="no_deadline">no_deadline_string</string>
 </resources>

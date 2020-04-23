@@ -99,7 +99,7 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
         super.setupDialog(dialog, style);
         View contentView = View.inflate(getContext(), R.layout.bottom_sheet_select_assignee, null);
         setStyle(BottomSheetCalendarSelectUser.STYLE_NO_INPUT, R.style.BottomSheetStyleDialogTheme);
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+//        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 //        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.setContentView(contentView);
     }

@@ -72,8 +72,10 @@ public class Converter {
             taskEntity.setDeadlinePeriod(taskList.get(i).getDeadlinePeriod());
             taskEntity.setDescription(taskList.get(i).getDescription());
             taskEntity.setDuration(taskList.get(i).getDuration());
+            taskEntity.setDurationActual(taskList.get(i).getDurationActual());
             taskEntity.setPlanDate(taskList.get(i).getPlanDate());
             taskEntity.setName(taskList.get(i).getName());
+            taskEntity.setProjectId(taskList.get(i).getProjectId());
             taskEntities.add(taskEntity);
         }
         return taskEntities;
@@ -97,7 +99,9 @@ public class Converter {
             payloadTask.setStatus(taskList.get(i).getStatus());
             payloadTask.setDuration(taskList.get(i).getDuration());
             payloadTask.setPlanDate(taskList.get(i).getPlanDate());
+            payloadTask.setDurationActual(taskList.get(i).getDurationActual());
             payloadTask.setName(taskList.get(i).getName());
+            payloadTask.setProjectId(taskList.get(i).getProjectId());
             payloadTaskList.add(payloadTask);
         }
         return payloadTaskList;

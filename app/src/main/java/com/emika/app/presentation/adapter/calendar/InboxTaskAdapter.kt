@@ -1,6 +1,7 @@
 package com.emika.app.presentation.adapter.calendar
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +10,14 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.emika.app.R
+import com.emika.app.data.db.entity.ProjectEntity
 import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.viewmodel.calendar.InboxViewModel
 import java.text.DecimalFormat
 import java.util.*
 
-class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val context: Context, private val viewModel: InboxViewModel?) : RecyclerView.Adapter<InboxTaskAdapter.ViewHolder>() {
+class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val context: Context, private val viewModel: InboxViewModel?, private val projectEntities: List<ProjectEntity>) : RecyclerView.Adapter<InboxTaskAdapter.ViewHolder>() {
 
     fun getAddedTask(): List<PayloadTask> {
         return addedTask
@@ -36,22 +38,17 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val inbox = taskList[position]
         holder.taskName.text = inbox.name
-
-//        holder.estimatedTime.text = String.format("%sh", (inbox.duration / 60).toString())
-//        holder.spentTime.text = String.format("%sh", (inbox.durationActual / 60).toString())
-
-        if (inbox.getDuration() % 60 == 0)
-            holder.estimatedTime.text = String.format("%sh", (inbox.getDuration() / 60).toString())
+        if (inbox.duration % 60 == 0)
+            holder.estimatedTime.text = String.format("%sh", (inbox.duration / 60).toString())
         else
-            holder.estimatedTime.text = String.format("%sh", df!!.format(inbox.getDuration() / 60.0f.toDouble()))
+            holder.estimatedTime.text = String.format("%sh", df!!.format(inbox.duration / 60.0f.toDouble()))
 
-        if (inbox.getDurationActual() % 60 == 0)
-            holder.spentTime.text = String.format("%sh", (inbox.getDurationActual() / 60).toString())
+        if (inbox.durationActual % 60 == 0)
+            holder.spentTime.text = String.format("%sh", (inbox.durationActual / 60).toString())
         else
-            holder.spentTime.text = String.format("%sh", df!!.format(inbox.getDurationActual() / 60.0f.toDouble()))
+            holder.spentTime.text = String.format("%sh", df!!.format(inbox.durationActual / 60.0f.toDouble()))
 
 
-        holder.project.text = "Emika"
         holder.item.setOnClickListener { v: View? ->
             if (addedTask.contains(inbox)) {
                 addedTask.remove(inbox)
@@ -66,25 +63,34 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
 
             }
         }
+
+        for (i in projectEntities.indices) {
+            if (inbox.projectId != null)
+                Log.d("1233", projectEntities.size.toString())
+            if (inbox.projectId == projectEntities[i].id) {
+                    holder.project.text = projectEntities[i].name
+            }
+        }
+
         holder.priority.text = inbox.priority
-        if (inbox.getDeadlineDate() != null && inbox.getDeadlineDate() != "null")
-            holder.deadline.setText(DateHelper.getDate(inbox.getDeadlineDate()))
+        if (inbox.deadlineDate != null && inbox.deadlineDate != "null")
+            holder.deadline.text = DateHelper.getDate(inbox.deadlineDate)
         else
-            holder.deadline.setVisibility(View.GONE)
-        if (inbox.getPriority() != null) when (inbox.getPriority()) {
+            holder.deadline.visibility = View.GONE
+        if (inbox.priority != null) when (inbox.priority) {
             "low" -> {
-                holder.priority.setBackground(context.resources.getDrawable(R.drawable.shape_priority_low))
+                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_low)
                 holder.priority.setTextColor(context.resources.getColor(R.color.low_priority))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_priority_low), null, null, null)
             }
-            "normal" -> holder.priority.setVisibility(View.GONE)
+            "normal" -> holder.priority.visibility = View.GONE
             "high" -> {
-                holder.priority.setBackground(context.resources.getDrawable(R.drawable.shape_priority_high))
+                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_high)
                 holder.priority.setTextColor(context.resources.getColor(R.color.yellow))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_priority_high), null, null, null)
             }
             "urgent" -> {
-                holder.priority.setBackground(context.resources.getDrawable(R.drawable.shape_priority_urgent))
+                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_urgent)
                 holder.priority.setTextColor(context.resources.getColor(R.color.red))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_task_urgent), null, null, null)
             }

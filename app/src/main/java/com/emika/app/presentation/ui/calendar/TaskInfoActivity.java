@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -532,8 +533,10 @@ public class TaskInfoActivity extends AppCompatActivity {
             datePickerDialog.setTitle("Set plan date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
-                planDate.setText("To inbox");
+                planDate.setText(getResources().getString(R.string.inbox));
                 task.setPlanDate(null);
+                if (task.getPlanDate() == null)
+                    Toast.makeText(this, "Task added to inbox", Toast.LENGTH_SHORT).show();
                 calendarViewModel.updateTask(task);
             });
             datePickerDialog.show();

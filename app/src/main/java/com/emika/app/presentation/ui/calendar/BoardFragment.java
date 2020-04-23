@@ -21,6 +21,7 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -296,7 +297,7 @@ public class BoardFragment extends Fragment {
         Boolean hasTask = false;
         int row;
         JSONObject jsonObject = null;
-        String date, name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, parentId, projectId, sectionId;
+        String date, name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, description,  parentId, projectId, sectionId;
         JSONArray epicLinks = new JSONArray();
         List<String> epicLinkList = new ArrayList<>();
         if (getActivity() != null)
@@ -311,6 +312,7 @@ public class BoardFragment extends Fragment {
                 epicLinks = jsonObject.getJSONArray("epic_links");
                 projectId = jsonObject.getString("project_id");
                 sectionId = jsonObject.getString("section_id");
+                description = jsonObject.getString("description");
                 date = planDate;
                 assignee = jsonObject.getString("assignee");
                 row = jsonObject.getInt("plan_order");
@@ -340,6 +342,7 @@ public class BoardFragment extends Fragment {
                                 taskNewPos.second.setAssignee(assignee);
                                 taskNewPos.second.setEpicLinks(epicLinkList);
                                 taskNewPos.second.setProjectId(projectId);
+                                taskNewPos.second.setDescription(description);
                                 taskNewPos.second.setSectionId(sectionId);
                                 taskNewPos.second.setPriority(priority);
                                 taskNewPos.second.setStatus(status);
@@ -373,10 +376,14 @@ public class BoardFragment extends Fragment {
                         task.setDuration(Integer.valueOf(estimatedTime));
                         task.setDeadlineDate(deadlineDate);
                         task.setPlanDate(planDate);
+                        task.setProjectId(projectId);
+                        task.setEpicLinks(epicLinkList);
                         task.setAssignee(assignee);
                         task.setPriority(priority);
+                        task.setDescription(description);
                         task.setStatus(status);
                         addTask(task);
+                        viewModel.addDbTask(task);
                     }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -618,17 +625,26 @@ public class BoardFragment extends Fragment {
         final View header = View.inflate(getActivity(), R.layout.column_header, null);
         int finalEstimatedTime = estimatedTime;
         int finalSpentTime = spentTime;
+
+
         header.setOnClickListener(v -> {
+
+            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+            return;
+        } else {
             Bundle bundle = new Bundle();
             bundle.putString("date", date);
             bundle.putInt("estimatedTime", finalEstimatedTime);
             bundle.putInt("spentTime", finalSpentTime);
-            Log.d(TAG, "addColumn: " + finalEstimatedTime + " " + finalSpentTime);
             bundle.putString("id", assignee.getId());
             BottomSheetDayInfo mySheetDialog = new BottomSheetDayInfo();
             mySheetDialog.setArguments(bundle);
             FragmentManager fm = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
             mySheetDialog.show(fm, "dayInfo");
+
+        }
+            mLastClickTime = SystemClock.elapsedRealtime();
+
         });
 
         ((TextView) header.findViewById(R.id.header_date)).setText(month);

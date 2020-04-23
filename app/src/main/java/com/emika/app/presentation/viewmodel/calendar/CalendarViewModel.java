@@ -272,4 +272,8 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     public void onSectionLoaded(List<SectionEntity> sections) {
         sectionListMutableLiveData.postValue(converter.fromListEntitySectionToPayloadSection(sections));
     }
+
+    public void addDbTask(PayloadTask task) {
+        repository.addDbTask(task);
+    }
 }

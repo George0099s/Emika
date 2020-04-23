@@ -153,7 +153,8 @@ public class ChatFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        chatFragment = (ChatFragment) getChildFragmentManager().findFragmentByTag("chatFragment");
+        chatFragment = (ChatFragment) getParentFragmentManager().findFragmentByTag("chatFragment");
+        token = getActivity().getIntent().getStringExtra("token");
         tokenJson = new JSONObject();
         try {
             tokenJson.put("token", token);
@@ -164,7 +165,6 @@ public class ChatFragment extends Fragment {
         EmikaApplication.getInstance().getComponent().inject(this);
         emikaImg = view.findViewById(R.id.chat_emika_img);
         socket = EmikaApplication.getInstance().getSocket();
-        token = getActivity().getIntent().getStringExtra("token");
         Glide.with(getContext()).asGif().load(R.drawable.emika_gif).apply(RequestOptions.circleCropTransform()).into(emikaImg);
         socket.on("new_message", onNewMessage);
         socket.on("update_suggestions", onUpdateSuggestion);

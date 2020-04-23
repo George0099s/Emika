@@ -53,7 +53,18 @@ public class EmikaApplication extends Application {
         instance = this;
         sharedPreferences = getSharedPreferences(Constants.MY_PREFERENCES, MODE_PRIVATE);
         database = Room.databaseBuilder(this, AppDatabase.class, "emika_db")
+
+                .addMigrations(Migration.MIGRATION_1_2)
+                .addMigrations(Migration.MIGRATION_2_3)
+                .addMigrations(Migration.MIGRATION_3_4)
+                .addMigrations(Migration.MIGRATION_4_5)
+                .addMigrations(Migration.MIGRATION_5_6)
+                .addMigrations(Migration.MIGRATION_6_7)
+                .addMigrations(Migration.MIGRATION_7_8)
+                .addMigrations(Migration.MIGRATION_8_9)
+                .addMigrations(Migration.MIGRATION_9_10)
                 .addMigrations(Migration.MIGRATION_10_11)
+//                .fallbackToDestructiveMigration()
                 .build();
         component = DaggerUserComponent
                 .builder()

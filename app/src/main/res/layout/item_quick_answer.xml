@@ -6,6 +6,6 @@
     tools:text="Hello man"
     android:textColor="@color/black"
     android:padding="8dp"
-    android:background="@drawable/shape_task_params"
-    android:layout_marginStart="10dp"
+    android:layout_marginStart="16dp"
+    android:background="@drawable/shape_suggestion"
     xmlns:tools="http://schemas.android.com/tools" />

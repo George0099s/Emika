@@ -22,6 +22,7 @@ import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
     @Inject
     Assignee assignee;
 
-    private List<PayloadShortMember> memberList;
+    private List<PayloadShortMember> memberList = new ArrayList<>();
     private Context context;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     private CalendarViewModel calendarViewModel;
@@ -39,7 +40,11 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
     private AddTaskListViewModel addTaskListViewModel;
 
     public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel, AddTaskListViewModel addTaskListViewModel, TaskInfoViewModel taskInfoViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
-        this.memberList = memberList;
+        for (int i = 0; i < memberList.size(); i++) {
+            if (!memberList.get(i).getId().equals("emika"))
+                this.memberList.add(memberList.get(i));
+        }
+
         this.context = context;
         this.calendarViewModel = calendarViewModel;
         this.bottomSheetCalendarSelectUser = bottomSheetCalendarSelectUser;
@@ -74,6 +79,8 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
                     assignee.setJobTitle(member.getJobTitle());
                     assignee.setPictureUrl(member.getPictureUrl());
                     bottomSheetCalendarSelectUser.dismiss();
+//                    calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                    calendarViewModel.getAssigneeMutableLiveData();
                     if (addTaskListViewModel == null && taskInfoViewModel == null) {
                         calendarViewModel.getAllDbTaskByAssignee(member.getId());
                         calendarViewModel.getAssigneeMutableLiveData();

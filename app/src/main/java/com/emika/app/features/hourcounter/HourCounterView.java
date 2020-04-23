@@ -57,6 +57,7 @@ public class HourCounterView extends View {
         canvas.translate(mStrokeWidth / 2, mStrokeWidth / 2);
         updateProgressRect();
         canvas.drawArc(mProgressRect, START_ANGLE, MAX_ANGLE, false, mInactiveCirclePaint);
+        mProgress = mProgress.replace(',', '.');
         canvas.drawArc(mProgressRect, START_ANGLE, (float) (Double.parseDouble(mProgress) * MAX_ANGLE / MAX_PROGRESS), false, mCirclePaint);
         drawText(canvas);
     }

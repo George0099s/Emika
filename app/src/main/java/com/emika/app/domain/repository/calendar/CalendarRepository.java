@@ -20,6 +20,7 @@ import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.SectionEntity;
+import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.network.callback.CompanyCallback;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
@@ -97,7 +98,9 @@ public class CalendarRepository {
     public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks, JSONArray subTasks){
         calendarNetworkManager.addTask(callback, task, epicLinks, subTasks);
     }
-
+    public void addDbTask(PayloadTask task){
+        taskDbManager.addTask(converter.fromPayloadTaskToTaskEntity(task));
+    }
     public void addSubTask(SubTask subTask){
         calendarNetworkManager.addSubTask(subTask);
     }

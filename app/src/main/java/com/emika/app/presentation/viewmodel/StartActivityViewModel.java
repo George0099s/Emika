@@ -40,6 +40,7 @@ import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.CompanyDi;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.domain.repository.profile.UserRepository;
 import com.emika.app.presentation.utils.Converter;
@@ -59,6 +60,8 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         EpicLinks epicLinksDi;
         @Inject
         CompanyDi companyDi;
+        @Inject
+        ProjectsDi projectsDagger;
         private String token;
         private CalendarRepository repository;
         private UserRepository userRepository;
@@ -97,6 +100,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
 
         @Override
         public void getProjects(List<PayloadProject> projects) {
+            projectsDagger.setProjects(projects);
             projectDi.setProjectId(projects.get(0).getId());
             projectDi.setProjectName(projects.get(0).getName());
             projectDi.setProjectSectionId(projects.get(0).getDefaultSectionId());
@@ -105,7 +109,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
 
         @Override
         public void getSections(List<PayloadSection> sections) {
-
+            projectsDagger.setSections(sections);
             for (int i = 0; i < sections.size(); i++) {
                 if (sections.get(i).getId().equals(projectDi.getProjectSectionId())) {
                     projectDi.setProjectSectionName(sections.get(i).getName());
@@ -117,6 +121,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         @Override
         public void allMembers(List<PayloadShortMember> shortMembers) {
             repository.insertDbMembers(shortMembers, this);
+
         }
 
         @Override

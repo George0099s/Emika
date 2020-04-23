@@ -19,6 +19,7 @@ import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.presentation.adapter.calendar.ProjectAdapter;
 import com.emika.app.presentation.adapter.calendar.SectionAdapter;
 import com.emika.app.presentation.utils.Converter;
@@ -49,6 +50,8 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment {
     private EmikaApplication app = EmikaApplication.getInstance();
     private Converter converter;
     private PayloadTask task;
+    @Inject
+    ProjectsDi projectsDagger;
     private Observer<List<PayloadProject>> setProjects = projects -> {
         projectAdapter = new ProjectAdapter(projects, mViewModel, task);
         projectRecycler.setAdapter(projectAdapter);
@@ -82,6 +85,7 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment {
     }
 
     private void initView(View view) {
+        EmikaApplication.getInstance().getComponent().inject(this);
         app.getComponent().inject(this);
         addTaskListViewModel = getArguments().getParcelable("addTaskViewModel");
         taskInfoViewModel = getArguments().getParcelable("taskInfoViewModel");

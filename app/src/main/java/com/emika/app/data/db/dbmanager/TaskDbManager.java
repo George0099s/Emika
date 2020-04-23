@@ -8,6 +8,7 @@ import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dao.TaskDao;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
+import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.presentation.utils.Converter;
 
 import java.util.ArrayList;
@@ -57,6 +58,27 @@ public class TaskDbManager {
                 .subscribeOn(io.reactivex.schedulers.Schedulers.io())
                 .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
                 .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onTasksLoaded);
+    }
+
+    @SuppressLint("CheckResult")
+    public void addTask(TaskEntity task) {
+        Completable.fromAction(() -> db.taskDao().insert(task)).observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onTasksLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
     }
 
     public void addAllProjects(List<TaskEntity> taskEntityList) {
@@ -119,7 +141,6 @@ public class TaskDbManager {
         taskDao.update(task);
         return true;
     }
-
 
 
     private class CallableUpdateTask implements Callable<Boolean> {
