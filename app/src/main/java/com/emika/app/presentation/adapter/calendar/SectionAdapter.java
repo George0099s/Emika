@@ -32,6 +32,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     @Inject
     ProjectsDi projectsDagger;
+    private String defaultSection;
     public SectionAdapter(List<PayloadSection> sections, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task) {
         emikaApplication.getComponent().inject(this);
         this.viewModel = viewModel;
@@ -49,9 +50,13 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     public void onBindViewHolder(@NonNull SectionViewHolder holder, int position) {
         PayloadSection section = sections.get(position);
         holder.sectionName.setText(section.getName());
+
+
         if (projectDi.getProjectSectionId() != null)
-        if (projectDi.getProjectSectionId().equals(section.getId()))
+        if (projectDi.getProjectSectionId().equals(section.getId())) {
             holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
+            projectDi.setProjectSectionName(section.getName());
+        }
         else
             holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
 

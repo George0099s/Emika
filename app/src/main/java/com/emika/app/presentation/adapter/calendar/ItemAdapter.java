@@ -43,6 +43,7 @@ import com.emika.app.features.calendar.DragItemAdapter;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.DateHelper;
+import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -64,8 +65,9 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     private List<ProjectEntity> projectEntities;
     private long mLastClickTime = 0;
     private DecimalFormat df;
-
-    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities) {
+    private CalendarViewModel calendarViewModel;
+    public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress,
+                       Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities, CalendarViewModel calendarViewModel) {
         EmikaApplication.getInstance().getComponent().inject(this);
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
@@ -74,9 +76,14 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         this.token = token;
         this.projectEntities = projectEntities;
         this.epicLinksEntities = epicLinksEntities;
+        this.calendarViewModel = calendarViewModel;
         calendarNetworkManager = new CalendarNetworkManager(token);
         setItemList(list);
         df = new DecimalFormat("#.#");
+    }
+
+    public ItemAdapter() {
+
     }
 
     public void setmLayoutId(int mLayoutId) {
@@ -123,7 +130,6 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
             else
                 holder.spentTime.setText(String.format("%sh", df.format(task.getDurationActual() / 60.0f)));
 
-
             holder.isDone.setOnClickListener(v -> {
                 if (holder.isDone.isChecked()) {
                     holder.mText.setTextColor(context.getResources().getColor(R.color.task_name_done));
@@ -135,7 +141,6 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                     calendarNetworkManager.updateTask(task);
                 }
             });
-
             holder.refresh.setOnClickListener(v -> {
                 holder.mText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
                 task.setStatus("wip");
@@ -174,16 +179,11 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                 holder.mText.setTextColor(context.getResources().getColor(R.color.black));
                 holder.isDone.setChecked(false);
             }
-//            holder.mText.setOnClickListener(v -> {
-//                Intent intent = new Intent(context, TaskInfoActivity.class);
-//                intent.putExtra("task", mItemList.get(position).second);
-//                intent.putExtra("token", token);
-//                context.startActivity(intent);
-//            });
+
             if (task.getPriority() != null)
                 switch (task.getPriority()) {
                     case "low":
-                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_low));
+//                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_low));
                         holder.priority.setTextColor(context.getResources().getColor(R.color.low_priority));
                         holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_priority_low), null, null, null);
                         break;
@@ -191,12 +191,12 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                         holder.priority.setVisibility(View.GONE);
                         break;
                     case "high":
-                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_high));
+//                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_high));
                         holder.priority.setTextColor(context.getResources().getColor(R.color.yellow));
                         holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_priority_high), null, null, null);
                         break;
                     case "urgent":
-                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_urgent));
+//                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_urgent));
                         holder.priority.setTextColor(context.getResources().getColor(R.color.red));
                         holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
                         break;
@@ -291,8 +291,9 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                 return;
             } else {
                 Intent intent = new Intent(context, TaskInfoActivity.class);
-                intent.putExtra("task", mItemList.get(getAdapterPosition()).second);
                 intent.putExtra("token", token);
+//                intent.putExtra("calendarViewModel", calendarViewModel);
+                intent.putExtra("task", mItemList.get(getAdapterPosition()).second);
                 context.startActivity(intent);
             }
             mLastClickTime = SystemClock.elapsedRealtime();

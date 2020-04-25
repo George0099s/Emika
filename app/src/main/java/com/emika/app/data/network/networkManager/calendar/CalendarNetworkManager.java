@@ -223,15 +223,18 @@ public class CalendarNetworkManager {
         Retrofit retrofit = networkService.getRetrofit();
         ProjectApi service = retrofit.create(ProjectApi.class);
         Call<ModelProject> call = service.getAllProjects(token);
+        Log.d(TAG, "getAllProjects: " + call.request().url());
         call.enqueue(new Callback<ModelProject>() {
             @Override
             public void onResponse(retrofit2.Call<ModelProject> call, Response<ModelProject> response) {
                 if (response.body() != null) {
                     ModelProject model = response.body();
                     List<PayloadProject> projects = model.getPayload();
+//                    Log.d(TAG, "onResponse:123 " + projects.size());
                     if (projects != null)
                         callback.getProjects(projects);
-                    else callback.getProjects(new ArrayList<>());
+                    else
+                        callback.getProjects(new ArrayList<>());
                 }
             }
 
@@ -426,6 +429,35 @@ public class CalendarNetworkManager {
             @Override
             public void onFailure(retrofit2.Call<ModelTask> call, Throwable t) {
                 Log.d(TAG, t.getMessage());
+            }
+        });
+    }
+
+    public void downloadTaskByAssignee(TaskListCallback callback, String assignee) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(Constants.BASIC_URL) // Адрес сервера
+                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+                .build();
+
+        CalendarApi service = retrofit.create(CalendarApi.class);
+        Call<Model> call = service.fetchAllTasksByAssignee(token, assignee);
+        call.enqueue(new Callback<Model>() {
+            @Override
+            public void onResponse(retrofit2.Call<Model> call, Response<Model> response) {
+                if (response.body() != null) {
+                    Model model = response.body();
+
+                    List<PayloadTask> taskList = model.getPayloadTask();
+
+                    if (taskList != null)
+                        callback.setTaskList(taskList);
+                    else callback.setTaskList(null);
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<Model> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
             }
         });
     }

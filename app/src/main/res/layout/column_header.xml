@@ -37,9 +37,9 @@
                 android:id="@+id/header_date"
                 style="@style/TaskDateTitle"
                 android:layout_width="wrap_content"
+                android:fontFamily="@font/roboto_bold"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textStyle="bold"
                 tools:text="Test" />
 
             <TextView

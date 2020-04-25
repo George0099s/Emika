@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface TaskDbCallback {
     void onTasksLoaded(List<TaskEntity> taskList);
+    void onFilteredTasksLoaded(List<TaskEntity> taskList);
+    void onOneTaskLoaded(TaskEntity taskEntity);
 }

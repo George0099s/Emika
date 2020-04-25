@@ -49,7 +49,6 @@ public class EpicLinksDbManager {
 
             @Override
             public void onComplete() {
-                callback.onEpicLinksLoaded(new ArrayList<>());
                 Log.d(TAG, "onComplete: ");
             }
 

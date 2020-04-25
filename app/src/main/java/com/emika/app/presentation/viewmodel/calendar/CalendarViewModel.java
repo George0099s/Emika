@@ -54,21 +54,21 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback,
-        TaskCallback, MemberDbCallback, Parcelable, EpicLinksDbCallback, ProjectDbCallback, ActualDurationDbCallback, DurationActualCallback, SectionDbCallback {
+        TaskCallback, MemberDbCallback,  EpicLinksDbCallback, ProjectDbCallback, ActualDurationDbCallback, DurationActualCallback, SectionDbCallback, Parcelable {
     private static final String TAG = "CalendarViewModel";
     @Inject
     Assignee assignee;
-
     @Inject
     User userDi;
     private MutableLiveData<List<PayloadTask>> taskListMutableLiveData;
+    private MutableLiveData<List<PayloadTask>> filteredTaskListMutableLiveData;
     private MutableLiveData<Boolean> currentColumn;
     private MutableLiveData<List<PayloadShortMember>> membersMutableLiveData;
     private MutableLiveData<Assignee> assigneeMutableLiveData;
     private MutableLiveData<List<EpicLinksEntity>> epicLinksMutableLiveData;
     private MutableLiveData<List<ProjectEntity>> projectMutableLiveData;
     private MutableLiveData<List<PayloadSection>> sectionListMutableLiveData;
-
+    private MutableLiveData<PayloadTask> taskMutableLiveData;
 
 
     private MutableLiveData<List<PayloadDurationActual>> durationMutableLiveData;
@@ -76,6 +76,11 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     private String token;
     private Context context;
     private Converter converter;
+
+    public void setFirstRun(Boolean firstRun) {
+        this.firstRun = firstRun;
+    }
+
     private Boolean firstRun = true;
     EmikaApplication emikaApplication = EmikaApplication.getInstance();
 
@@ -91,13 +96,18 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         projectMutableLiveData = new MutableLiveData<>();
         durationMutableLiveData = new MutableLiveData<>();
         sectionListMutableLiveData = new MutableLiveData<>();
+        filteredTaskListMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
         converter = new Converter();
+        taskMutableLiveData = new MutableLiveData<>();
     }
 
 
     protected CalendarViewModel(Parcel in) {
+        assignee = in.readParcelable(Assignee.class.getClassLoader());
         token = in.readString();
+        byte tmpFirstRun = in.readByte();
+        firstRun = tmpFirstRun == 0 ? null : tmpFirstRun == 1;
     }
 
     public static final Creator<CalendarViewModel> CREATOR = new Creator<CalendarViewModel>() {
@@ -121,12 +131,24 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     }
 
     public MutableLiveData<List<PayloadTask>> getListMutableLiveData() {
-
+//            repository.getDBTaskListById(this, assignee.getId());
             return taskListMutableLiveData;
     }
 
     public void getAllDbTaskByAssignee(String assignee){
+//        if (!firstRun)
         repository.getDBTaskListById(this, assignee);
+    }
+
+    public void getDbTaskById(String id){
+//        if (!firstRun)
+        repository.getDBTaskById(this, id);
+    }
+
+
+    public void downloadTasksByAssignee(String assignee){
+//        firstRun = false;
+        repository.downloadTasksByAssignee(this, assignee);
     }
 
     public void getAllDbTaskByAssigneeDate(String assignee, String planDate){
@@ -150,21 +172,30 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     @Override
     public void setTaskList(List<PayloadTask> taskList) {
-        Log.d(TAG, "setTaskList: " + taskList.size());
-        ArrayList<PayloadTask> plannedTask = new ArrayList<>();
-        for (int j = 0; j < taskList.size(); j++) {
-                if (taskList.get(j).getAssignee().equals(userDi.getId()))
-                plannedTask.add(taskList.get(j));
-        }
-        taskListMutableLiveData.setValue(plannedTask);
+//        ArrayList<PayloadTask> plannedTask = new ArrayList<>();
+//        for (int j = 0; j < taskList.size(); j++) {
+//                if (taskList.get(j).getAssignee().equals(userDi.getId()))
+//                plannedTask.add(taskList.get(j));
+//        }
+        taskListMutableLiveData.postValue(taskList);
         repository.sedDbData(taskList);
 
     }
 
     @Override
     public void onTasksLoaded(List<TaskEntity> taskList) {
-        List<PayloadTask> payloadTasks = converter.fromTaskEntityToPayloadTaskList(taskList);
-        taskListMutableLiveData.postValue(payloadTasks);
+            taskListMutableLiveData.postValue( converter.fromTaskEntityToPayloadTaskList(taskList));
+    }
+
+    @Override
+    public void onFilteredTasksLoaded(List<TaskEntity> taskList) {
+        filteredTaskListMutableLiveData.postValue(converter.fromTaskEntityToPayloadTaskList(taskList));
+    }
+
+    @Override
+    public void onOneTaskLoaded(TaskEntity taskEntity) {
+        Log.d(TAG, "onOneTaskLoaded: " + taskEntity.getName());
+        taskMutableLiveData.postValue(converter.fromTaskEntityToPayloadTask(taskEntity));
     }
 
     public void setCurrentColumn() {
@@ -197,16 +228,6 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     public void insertDbUser(Payload user){
         repository.insertDbUser(user);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(token);
     }
 
     @Override
@@ -275,5 +296,29 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     public void addDbTask(PayloadTask task) {
         repository.addDbTask(task);
+    }
+
+    public MutableLiveData<List<PayloadTask>> getFilteredTaskListMutableLiveData() {
+        return filteredTaskListMutableLiveData;
+    }
+
+    public void setFilteredTaskListMutableLiveData(MutableLiveData<List<PayloadTask>> filteredTaskListMutableLiveData) {
+        this.filteredTaskListMutableLiveData = filteredTaskListMutableLiveData;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(assignee, flags);
+        dest.writeString(token);
+        dest.writeByte((byte) (firstRun == null ? 0 : firstRun ? 1 : 2));
+    }
+
+    public MutableLiveData<PayloadTask> taskMutableLiveData() {
+        return taskMutableLiveData;
     }
 }

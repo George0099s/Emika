@@ -102,6 +102,7 @@ public class Converter {
             payloadTask.setDurationActual(taskList.get(i).getDurationActual());
             payloadTask.setName(taskList.get(i).getName());
             payloadTask.setProjectId(taskList.get(i).getProjectId());
+            payloadTask.setSectionId(taskList.get(i).getSectionId());
             payloadTaskList.add(payloadTask);
         }
         return payloadTaskList;
@@ -113,6 +114,9 @@ public class Converter {
         payloadTask.setAssignee(task.getAssignee());
         payloadTask.setCompanyId(task.getCompanyId());
         payloadTask.setCreatedAt(task.getCreatedAt());
+        payloadTask.setProjectId(task.getProjectId());
+        payloadTask.setSectionId(task.getSectionId());
+        payloadTask.setStatus(task.getStatus());
         payloadTask.setCreatedBy(task.getCreatedBy());
         payloadTask.setDeadlineDate(task.getDeadlineDate());
         payloadTask.setDeadlineEmika(task.getDeadlineEmika());

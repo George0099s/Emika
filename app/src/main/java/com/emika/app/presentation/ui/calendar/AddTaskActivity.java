@@ -14,6 +14,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -89,16 +91,18 @@ public class AddTaskActivity extends AppCompatActivity {
     private Context toastContext;
     private SubTaskAdapter subTaskAdapter;
     private RecyclerView subTaskRecycler;
-    private CalendarViewModel calendarViewModel;
+    private CalendarViewModel calendarViewModel, boardViewModel;
     private List<PayloadShortMember> memberList;
     private List<String> epicLinksId;
     private TextView addSubTask;
+    private String oldAssignee;
     private EmikaApplication app = EmikaApplication.getInstance();
     private String token, deadlineDateString;
     private TextView planDate, priority, deadlineDate, estimatedTime, userName, project, section, epicLinks;
     private BottomSheetSelectEpicLinks mySheetDialog;
     private String DATE;
     private PayloadTask task;
+    private Calendar c;
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -109,24 +113,36 @@ public class AddTaskActivity extends AppCompatActivity {
             planDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
         }
     };
+
     private LinearLayout selectProject;
+
     TimePickerDialog.OnTimeSetListener estimatedTimeListener = (view, hourOfDay, minute) -> {
         dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
         dateAndTime.set(Calendar.MINUTE, minute);
-        estimatedTime.setText(String.format("%sh", String.valueOf(hourOfDay)));
-        task.setDuration(hourOfDay * 60 + minute);
+        int dayMinutes = hourOfDay * 60 + minute;
+        if (dayMinutes % 60 == 0)
+            estimatedTime.setText(String.format("%sh", String.valueOf(dayMinutes / 60)));
+        else
+            estimatedTime.setText(String.format("%sh", df.format(dayMinutes / 60.0f)));
+        task.setDuration(dayMinutes);
     };
+
     private Observer<Payload> userInfo = userInfo -> {
 
     };
+
     private Observer<PayloadTask> taskObserver = task -> {
-        //        Intent intent = new Intent();
-//        intent.putExtra("task", task);
-//        setResult(42, intent);
+        calendarViewModel.addDbTask(task);
+//        boardViewModel.downloadTasksByAssignee(assignee.getId());
+        Intent intent = new Intent();
+        intent.putExtra("task", task);
+        setResult(42, intent);
         finish();
     };
+
     private Observer<List<PayloadEpicLinks>> getEpicLinks = epicLinks1 -> {
         if (epicLinks1.size() != 0) {
+            epicLinks.setTextColor(getResources().getColor(R.color.black));
             epicLinksId = new ArrayList<>();
             if (epicLinks1.size() > 1)
             epicLinks.setText(String.format("%s +%s", epicLinks1.get(0).getName(), String.valueOf(epicLinks1.size() - 1)));
@@ -136,8 +152,11 @@ public class AddTaskActivity extends AppCompatActivity {
             }
         } else {
             epicLinks.setText("Epic links");
+            epicLinks.setTextColor(getResources().getColor(R.color.unselected_text));
+
         }
     };
+
     private Observer<Assignee> setAssignee = assignee1 -> {
         userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
         if (assignee1.getPictureUrl() != null)
@@ -164,6 +183,9 @@ public class AddTaskActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        c = Calendar.getInstance();
+        c.add(Calendar.DATE, +24);
+        currentDate = getIntent().getStringExtra("date");
         taskDescription = findViewById(R.id.add_task_description);
         mySheetDialog = new BottomSheetSelectEpicLinks();
         List<SubTask> tasks = new ArrayList<>();
@@ -185,22 +207,22 @@ public class AddTaskActivity extends AppCompatActivity {
         viewModel.getProjectMutableLiveData().observe(this, setProjectData);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
         profileViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(ProfileViewModel.class);
+        boardViewModel = getIntent().getParcelableExtra("calendarViewModel");
         profileViewModel.getUserMutableLiveData().observe(this, userInfo);
         taskName = findViewById(R.id.add_task_name);
+        taskName.requestFocus();
         taskName.setImeOptions(EditorInfo.IME_ACTION_DONE);
         taskName.setRawInputType(InputType.TYPE_CLASS_TEXT);
         taskName.addTextChangedListener(textWatcher);
         addTask = findViewById(R.id.add_task_img);
         addTask.setOnClickListener(this::addTask);
         back = findViewById(R.id.add_task_back);
-
         back.setOnClickListener(this::onBackPressed);
         planDate = findViewById(R.id.add_task_plan_date);
         estimatedTime = findViewById(R.id.add_task_estimated_time);
         estimatedTime.setOnClickListener(this::setTime);
         deadlineDate = findViewById(R.id.add_task_deadline_date);
         deadlineDate.setOnClickListener(this::setDeadlineDate);
-        currentDate = getIntent().getStringExtra("date");
         DATE = getIntent().getStringExtra("date");
         priority = findViewById(R.id.add_task_priority);
         priority.setOnClickListener(this::showPopupMenu);
@@ -222,12 +244,12 @@ public class AddTaskActivity extends AppCompatActivity {
         if (task != null)
             setTaskInfo(task);
         else task = new PayloadTask();
+        oldAssignee = assignee.getId();
     }
 
     private void goToInBox(View view) {
         Intent intent = new Intent(this, Inbox.class);
         intent.putExtra("date", currentDate);
-        Log.d(TAG, "goToInBox: " + currentDate);
         startActivity(intent);
     }
 
@@ -256,7 +278,6 @@ public class AddTaskActivity extends AppCompatActivity {
             mySheetDialog.show(fm, "modalSheetDialog");
         }
         mLastClickTime = SystemClock.elapsedRealtime();
-
     }
 
     private void selectCurrentAssignee(View view) {
@@ -265,8 +286,9 @@ public class AddTaskActivity extends AppCompatActivity {
         } else {
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList("members", (ArrayList<? extends Parcelable>) memberList);
-            bundle.putParcelable("viewModel", calendarViewModel);
+            bundle.putParcelable("calendarViewModel", calendarViewModel);
             bundle.putParcelable("addTaskViewModel", viewModel);
+            bundle.putParcelable("boardViewModel", boardViewModel);
             bundle.putString("from", "add task");
             BottomSheetCalendarSelectUser mySheetDialog = new BottomSheetCalendarSelectUser();
             mySheetDialog.setArguments(bundle);
@@ -294,9 +316,6 @@ public class AddTaskActivity extends AppCompatActivity {
             taskName.requestFocus();
             taskName.setError("Task name is missing");
         } else {
-            if (task.getPlanDate() == null) {
-                Toast.makeText(this, "Task added to inbox", Toast.LENGTH_LONG).show();
-            }
             List<String> subTasks = new ArrayList<>();
             task.setName(taskName.getText().toString());
             task.setProjectId(projectDi.getProjectId());
@@ -308,12 +327,15 @@ public class AddTaskActivity extends AppCompatActivity {
             task.setSectionId(projectDi.getProjectId());
             task.setPlanOrder("1");
             if (task.getDuration() == null)
-            task.setDuration(1);
+            task.setDuration(60);
             task.setEpicLinks(epicLinksId);
             for (int i = 0; i < subTaskAdapter.getTaskList().size(); i++) {
                 subTasks.add(subTaskAdapter.getTaskList().get(i).getName());
             }
             task.setSubTaskList(subTasks);
+            if (task.getPlanDate() == null) {
+                Toast.makeText(this, "Task added to inbox", Toast.LENGTH_LONG).show();
+            }
             viewModel.getMutableLiveData(task).observe(this, taskObserver);
         }
     }
@@ -389,6 +411,8 @@ public class AddTaskActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set plan date");
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
+            datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
+
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
                     planDate.setText(getResources().getString(R.string.inbox));
                     currentDate = null;

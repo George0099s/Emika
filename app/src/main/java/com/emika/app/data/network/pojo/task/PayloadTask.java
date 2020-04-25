@@ -423,7 +423,6 @@ public class PayloadTask implements Parcelable{
         this.durationLogged = durationLogged;
     }
 
-
     @Override
     public int describeContents() {
         return 0;

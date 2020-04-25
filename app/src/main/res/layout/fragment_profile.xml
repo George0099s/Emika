@@ -15,7 +15,7 @@
             android:id="@+id/profile_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="20dp"
             android:contentInsetStart="0dp"
             android:contentInsetLeft="0dp"
             android:contentInsetEnd="0dp"
@@ -36,7 +36,7 @@
                     android:id="@+id/profile_user_img"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="16dp"
                     android:src="@mipmap/id_emika_round"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -59,7 +59,8 @@
                         android:layout_marginEnd="5dp"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_medium"
+                        android:textColor="#585858"
                         android:textSize="24sp"
                         app:layout_constraintStart_toEndOf="@+id/profile_user_img"
                         app:layout_constraintTop_toTopOf="@+id/profile_user_img"
@@ -70,7 +71,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:fontFamily="@font/sfuitext_regular"
                         android:textSize="14sp"
 
                         tools:text="Android dev" />
@@ -95,7 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:text="@string/contacts"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/profile_toolbar" />
@@ -104,7 +104,7 @@
             android:id="@+id/profile_contacts_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView17" />
@@ -129,7 +129,7 @@
             android:textColor="@color/light_black"
             android:textSize="16sp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/textView19"
             app:layout_constraintTop_toBottomOf="@+id/textView19" />
@@ -163,8 +163,8 @@
             style="@style/ProfileTitles"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="29dp"
             android:text="@string/company"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/profile_coworkers_recycler" />
@@ -174,7 +174,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/sfuitext_regular"
             android:text="@string/list_of_all_members"
             android:textColor="@color/green"
             app:layout_constraintBottom_toBottomOf="@+id/textView20"
@@ -208,7 +207,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/sfuitextbold"
             android:text="Global ind"
             android:textColor="@color/light_black"
             android:textSize="18sp"
@@ -225,6 +223,7 @@
             app:layout_constraintEnd_toEndOf="@+id/profile_company_name"
             app:layout_constraintStart_toStartOf="@+id/profile_company_name"
             app:layout_constraintTop_toBottomOf="@+id/profile_company_name" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

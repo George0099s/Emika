@@ -14,6 +14,14 @@ class DayInfoViewModel(private val token: String):ViewModel(), TaskDbCallback{
 
     private val repository: CalendarRepository = CalendarRepository(token)
     private val converter: Converter = Converter()
+    override fun onOneTaskLoaded(taskEntity: TaskEntity?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onFilteredTasksLoaded(taskList: MutableList<TaskEntity>?) {
+        taskListMutableLiveData?.postValue(converter.fromTaskEntityToPayloadTaskList(taskList))
+    }
+
     override fun onTasksLoaded(taskList: List<TaskEntity>) {
 //        val payloadTasks: List<PayloadTask> = converter.fromTaskEntityToPayloadTaskList(taskList)
 //        val plannedTask = ArrayList<PayloadTask>()
@@ -22,6 +30,6 @@ class DayInfoViewModel(private val token: String):ViewModel(), TaskDbCallback{
 //                plannedTask.add(payloadTasks[j])
 //            }
 //        }
-        taskListMutableLiveData?.postValue(converter.fromTaskEntityToPayloadTaskList(taskList))
+//        taskListMutableLiveData?.postValue(converter.fromTaskEntityToPayloadTaskList(taskList))
     }
 }

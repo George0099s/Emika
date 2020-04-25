@@ -39,6 +39,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         this.projects = projects;
         this.viewModel = viewModel;
         this.task = task;
+        Log.d(TAG, "ProjectAdapter: " + projects.size() + " " + projectDi.getProjectId() + " " +  projectDi.getProjectSectionId());
     }
 
 
@@ -68,6 +69,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
             holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
             projectDi.setProjectId(project.getId());
             projectDi.setProjectName(project.getName());
+            if (project.getDefaultSectionId() != null)
+            projectDi.setProjectSectionId(project.getDefaultSectionId());
 //            viewModel.setProjectId(project.getId());
 //            viewModel.setProjectId();
             viewModel.getSectionListMutableLiveData();

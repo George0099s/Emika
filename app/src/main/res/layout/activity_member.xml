@@ -16,7 +16,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/sfuidisplay"
             android:text="@string/profile"
             android:drawablePadding="10dp"
             android:drawableLeft="@drawable/ic_green_left_arrow"
@@ -84,7 +83,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:fontFamily="@font/sfuitext_regular"
                         android:textSize="14sp"
 
                         tools:text="Android dev" />
@@ -140,7 +138,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:textColor="@color/green"
-            android:fontFamily="@font/sfuitext_regular"
             android:text="@string/list_of_all_members"
             app:layout_constraintBottom_toBottomOf="@+id/textView20"
             app:layout_constraintEnd_toEndOf="parent"
@@ -209,7 +206,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:fontFamily="@font/sfuitextbold"
             android:text="Global ind"
             android:textColor="@color/light_black"
             android:textSize="18sp"

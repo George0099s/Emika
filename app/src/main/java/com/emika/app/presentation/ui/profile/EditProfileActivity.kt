@@ -36,7 +36,6 @@ import com.emika.app.presentation.ui.auth.AuthActivity
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.profile.EditProfileViewModel
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel
-import com.google.android.material.snackbar.Snackbar
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -93,12 +92,17 @@ class EditProfileActivity : AppCompatActivity(), TokenCallback {
         adapter = ProfileContactAdapter(userDi!!.contacts, this)
         val callback: ItemTouchHelper.Callback = SimpleItemTouchHelperCallback(adapter)
         val touchHelper = ItemTouchHelper(callback)
-
         touchHelper.attachToRecyclerView(contactRecycler)
         contactRecycler!!.adapter = adapter
         mViewModel = ViewModelProviders.of(this, TokenViewModelFactory(token)).get(EditProfileViewModel::class.java)
         mViewModel!!.userMutableLiveData.observe(this, getUserLiveData)
         edit_add_contact.setOnClickListener {v: View -> addContact(v)}
+
+
+        edit_first_name.setOnClickListener {edit_first_name.setSelection(edit_first_name.getText().length) }
+//        taskName.requestFocus()
+
+
     }
 
     private fun addContact(v: View) {
@@ -170,10 +174,8 @@ class EditProfileActivity : AppCompatActivity(), TokenCallback {
         userDi.bio = biography!!.text.toString()
         userDi.jobTitle = jobTitle!!.text.toString()
         mViewModel!!.updateUser(userDi)
-//        profileViewModel!!.userMutableLiveData
-
-        val snack = Snackbar.make(view,"All changes saved",Snackbar.LENGTH_SHORT)
-        snack.show()
+        Toast.makeText(this, resources.getString(R.string.all_changes_saved), Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private val getUserLiveData = Observer { user: Payload? ->

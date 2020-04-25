@@ -233,7 +233,7 @@ public class ProfileFragment extends Fragment implements TokenCallback {
             if (user.getExtraLeaders().contains(leader.getId()))
                 leaders.add(leader);
         }
-        leadAdapter = new AllMembersAdapter(leaders, getContext());
+        leadAdapter = new AllMembersAdapter(leaders, getContext(), user.getId());
         leadRecycler.setAdapter(leadAdapter);
     }
 
@@ -244,12 +244,13 @@ public class ProfileFragment extends Fragment implements TokenCallback {
                 coWorkers.add(coWorker);
         }
 
-        coWorkersAdapter = new AllMembersAdapter(coWorkers, getContext());
+        coWorkersAdapter = new AllMembersAdapter(coWorkers, getContext(), user.getId());
         coWorkersRecycler.setAdapter(coWorkersAdapter);
     }
 
     private void seeAllMembers(View view) {
         Intent intent = new Intent(getContext(), AllMembersActivity.class);
+        intent.putExtra("memberId", user.getId());
         startActivity(intent);
     }
 

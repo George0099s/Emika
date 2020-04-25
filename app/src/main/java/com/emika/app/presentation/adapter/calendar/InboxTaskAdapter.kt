@@ -38,6 +38,8 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val inbox = taskList[position]
         holder.taskName.text = inbox.name
+
+
         if (inbox.duration % 60 == 0)
             holder.estimatedTime.text = String.format("%sh", (inbox.duration / 60).toString())
         else
@@ -49,7 +51,8 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
             holder.spentTime.text = String.format("%sh", df!!.format(inbox.durationActual / 60.0f.toDouble()))
 
 
-        holder.item.setOnClickListener { v: View? ->
+        holder.item.setOnClickListener {
+            v: View? ->
             if (addedTask.contains(inbox)) {
                 addedTask.remove(inbox)
 //                viewModel?.addedTaskList.value!!.toMutableList().remove(inbox)
@@ -79,18 +82,18 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
             holder.deadline.visibility = View.GONE
         if (inbox.priority != null) when (inbox.priority) {
             "low" -> {
-                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_low)
+//                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_low)
                 holder.priority.setTextColor(context.resources.getColor(R.color.low_priority))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_priority_low), null, null, null)
             }
             "normal" -> holder.priority.visibility = View.GONE
             "high" -> {
-                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_high)
+//                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_high)
                 holder.priority.setTextColor(context.resources.getColor(R.color.yellow))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_priority_high), null, null, null)
             }
             "urgent" -> {
-                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_urgent)
+//                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_urgent)
                 holder.priority.setTextColor(context.resources.getColor(R.color.red))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_task_urgent), null, null, null)
             }

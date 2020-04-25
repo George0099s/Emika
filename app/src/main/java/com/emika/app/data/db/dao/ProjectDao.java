@@ -5,6 +5,7 @@ import android.net.sip.SipSession;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
@@ -21,10 +22,10 @@ public  interface ProjectDao {
     @Query("SELECT * FROM Project")
     Maybe<List<ProjectEntity>> getAllProjects();
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<ProjectEntity> projectEntities);
 
-  @Insert
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ProjectEntity projectEntity);
 
 

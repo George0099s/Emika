@@ -49,6 +49,7 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     @Inject
     Assignee assignee;
     private CalendarViewModel calendarViewModel;
+    private CalendarViewModel boardViewModel;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
     private Observer<List<PayloadShortMember>> members = members1 -> {
         adapter = new SelectCurrentUserAdapter(members1, getContext(), calendarViewModel, addTaskListViewModel, taskInfoViewModel, this);
         memberRecycler.setAdapter(adapter);
+        invite.setVisibility(View.VISIBLE);
     };
 
     private void initView(View view) {
@@ -68,9 +70,10 @@ public class BottomSheetCalendarSelectUser extends BottomSheetDialogFragment {
         memberList = getArguments().getParcelableArrayList("members");
         from = getArguments().getString("from");
         task = getArguments().getParcelable("task");
-        calendarViewModel = getArguments().getParcelable("viewModel");
         addTaskListViewModel = getArguments().getParcelable("addTaskViewModel");
         taskInfoViewModel = getArguments().getParcelable("taskInfoViewModel");
+        calendarViewModel = getArguments().getParcelable("calendarViewModel");
+        boardViewModel = getArguments().getParcelable("boardViewModel");
         calendarViewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), members);
         memberRecycler = view.findViewById(R.id.bottom_sheet_recycler_select_user);
         memberRecycler.setLayoutManager(new LinearLayoutManager(getContext()));

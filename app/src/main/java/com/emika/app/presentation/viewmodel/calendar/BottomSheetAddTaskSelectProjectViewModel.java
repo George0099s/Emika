@@ -8,8 +8,6 @@ import androidx.lifecycle.ViewModel;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
-import com.emika.app.data.db.dbmanager.ProjectDbManager;
-import com.emika.app.data.db.dbmanager.SectionDbManager;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
@@ -43,6 +41,8 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
         projectListMutableLiveData = new MutableLiveData<>();
         sectionListMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
+        repository.downloadAllProject(this);
+        repository.downloadSections(this);
         converter = new Converter();
         app.getComponent().inject(this);
     }
@@ -53,33 +53,42 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
 //    }
 
     public MutableLiveData<List<PayloadProject>> getProjectListMutableLiveData() {
-        projectListMutableLiveData.setValue(projectsDagger.getProjects());
+//        projectListMutableLiveData.setValue(projectsDagger.getProjects());
+//        repository.downloadAllProject(this);
         return projectListMutableLiveData;
+    }
+
+    public void getProjects(){
+        repository.getAllProjects(this);
     }
 
     @Override
     public void getProjects(List<PayloadProject> projects) {
+//        projectsDagger.setProjects(projects
+//        logd);
+        Log.d(TAG, "getProjects: " + projects.size());
+        projectsDagger.setProjects(projects);
         projectListMutableLiveData.postValue(projects);
     }
 
     @Override
     public void getSections(List<PayloadSection> sections) {
-            List<PayloadSection> sectionList = new ArrayList<>();
-                for (PayloadSection section : sections) {
-                    if (section.getProjectId().equals(projectDi.getProjectId())) {
-                        sectionList.add(section);
-                    }
-                }
-                sectionListMutableLiveData.postValue(sectionList);
+//            List<PayloadSection> sectionList = new ArrayList<>();
+//                for (PayloadSection section : sections) {
+//                    if (section.getProjectId().equals(projectDi.getProjectId())) {
+//                        sectionList.add(section);
+//                    }
+//                }
+        Log.d(TAG, "getSections: " + sections.size());
+        projectsDagger.setSections(sections);
+                sectionListMutableLiveData.postValue(sections);
     }
 
-//    public MutableLiveData<List<PayloadSection>> getSectionListMutableLiveData() {
-//        repository.getAllSections(this);
-//        return sectionListMutableLiveData;
-//    }
-
+    public void getSections(){
+        repository.getAllSections(this);
+    }
     public MutableLiveData<List<PayloadSection>> getSectionListMutableLiveData() {
-
+//        repository.downloadSections(this);
         List<PayloadSection> sectionList = new ArrayList<>();
         for (PayloadSection section : projectsDagger.getSections()) {
             if (section.getProjectId().equals(projectDi.getProjectId())) {

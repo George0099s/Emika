@@ -3,6 +3,7 @@ package com.emika.app.data.db.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -18,10 +19,10 @@ public interface SectionDao {
     @Query("SELECT * FROM Section")
     Maybe<List<SectionEntity>> getAllSection();
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<SectionEntity> sectionEntities);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(SectionEntity sectionEntity);
 
 

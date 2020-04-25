@@ -26,6 +26,7 @@ public class AllMembersActivity extends AppCompatActivity {
     private AllMembersAdapter adapter;
     private AllMembersViewModel viewModel;
     private String token;
+    private String memberId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +37,7 @@ public class AllMembersActivity extends AppCompatActivity {
 
     private void initView() {
         token = EmikaApplication.getInstance().getSharedPreferences().getString("token", "");
+        memberId = getIntent().getStringExtra("memberId");
         back = findViewById(R.id.all_members_back);
         back.setOnClickListener(this::onBackPressed);
         allMembersRecycler = findViewById(R.id.all_members_recycler);
@@ -51,7 +53,7 @@ public class AllMembersActivity extends AppCompatActivity {
     }
 
     private Observer<List<PayloadShortMember>> getMembers = members -> {
-        adapter = new AllMembersAdapter(members, this);
+        adapter = new AllMembersAdapter(members, this, memberId);
         allMembersRecycler.setAdapter(adapter);
     };
 }

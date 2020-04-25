@@ -1,7 +1,6 @@
 package com.emika.app.presentation.adapter.calendar
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +8,15 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emika.app.R
+import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual
 import com.emika.app.data.network.pojo.task.PayloadTask
+import com.emika.app.di.Assignee
 import com.emika.app.di.User
 import com.emika.app.presentation.utils.DateHelper
 import java.text.DecimalFormat
 import java.util.*
 
-class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val context: Context, private val user: User) : RecyclerView.Adapter<DayInfoTaskAdapter.ViewHolder>() {
+class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val context: Context, private val assignee: Assignee, private val durations: List<PayloadDurationActual>) : RecyclerView.Adapter<DayInfoTaskAdapter.ViewHolder>() {
     private var df: DecimalFormat? = null
     init {
 
@@ -38,6 +39,7 @@ class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val co
         val deadline: TextView
         val status: CheckBox
         val userName: TextView
+        val time: TextView
 
         init {
             taskName = itemView.findViewById(R.id.day_info_task_text)
@@ -47,6 +49,7 @@ class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val co
             priority = itemView.findViewById(R.id.day_info_task_priority);
             deadline = itemView.findViewById(R.id.day_info_task_deadline)
             status = itemView.findViewById(R.id.day_info_task_done)
+            time = itemView.findViewById(R.id.day_info_task_time)
             userName = itemView.findViewById(R.id.day_info_task_completed_by)
         }
     }
@@ -72,8 +75,18 @@ class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val co
             holder.spentTime.text = String.format("%sh", (task.durationActual / 60).toString())
         else
             holder.spentTime.text = String.format("%sh", df!!.format(task.durationActual / 60.0f.toDouble()))
+
+
         holder.priority.text = task.priority
-        holder.userName.text = user.firstName + " " + user.lastName
+
+
+        for (duration in durations)
+            if (duration.taskId == task.id)
+                holder.time.text = DateHelper.getLoggedTimDayInfo(duration.createdAt)
+        holder.userName.text = assignee.firstName + " " + assignee.lastName
+
+
+
         if (task.status == "done")
             holder.status.isChecked = true
 
@@ -81,20 +94,20 @@ class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val co
             holder.deadline.text = DateHelper.getDate(task.deadlineDate)
         else
             holder.deadline.visibility = View.GONE
-        if (task.priority != null) when (task.getPriority()) {
+        if (task.priority != null) when (task.priority) {
             "low" -> {
-                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_low)
+//                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_low)
                 holder.priority.setTextColor(context.resources.getColor(R.color.low_priority))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_priority_low), null, null, null)
             }
-            "normal" -> holder.priority.setVisibility(View.GONE)
+            "normal" -> holder.priority.visibility = View.GONE
             "high" -> {
-                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_high)
+//                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_high)
                 holder.priority.setTextColor(context.resources.getColor(R.color.yellow))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_priority_high), null, null, null)
             }
             "urgent" -> {
-                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_urgent)
+//                holder.priority.background = context.resources.getDrawable(R.drawable.shape_priority_urgent)
                 holder.priority.setTextColor(context.resources.getColor(R.color.red))
                 holder.priority.setCompoundDrawablesWithIntrinsicBounds(context.resources.getDrawable(R.drawable.ic_task_urgent), null, null, null)
             }

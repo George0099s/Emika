@@ -18,6 +18,9 @@ import retrofit2.http.Query;
 public interface CalendarApi {
     @GET("public_api/tasks/fetch")
     Call<Model> fetchAllTasks(@Query("token") String token);
+    @GET("public_api/tasks/fetch")
+    Call<Model> fetchAllTasksByAssignee(@Query("token") String token,
+                                        @Query("assignee") String assignee);
 
     @GET("public_api/projects/duration_actual_logs/fetch")
     Call<ModelDurationActual> fetchDurationLogs(@Query("token") String token);

@@ -31,6 +31,7 @@
         <activity
             android:name=".presentation.ui.calendar.AddTaskActivity"
             android:noHistory="true"
+            android:windowSoftInputMode="stateAlwaysVisible"
             android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.ui.profile.EditProfileActivity"

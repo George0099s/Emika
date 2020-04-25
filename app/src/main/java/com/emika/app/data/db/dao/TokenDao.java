@@ -3,6 +3,7 @@ package com.emika.app.data.db.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -15,10 +16,10 @@ public interface TokenDao {
     TokenEntity getToken();
 
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(TokenEntity token);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(TokenEntity token);
 
     @Delete

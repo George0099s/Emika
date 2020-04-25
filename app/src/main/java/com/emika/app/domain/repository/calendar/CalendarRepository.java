@@ -128,7 +128,6 @@ public class CalendarRepository {
     }
 
     public void insertDbProject(List<ProjectEntity> projectEntities, ProjectDbCallback callback){
-//        projectDbManager.deleteAllProjects();
         projectDbManager.addAllProjects(projectEntities, callback);
     }
 
@@ -189,6 +188,9 @@ public class CalendarRepository {
     public void getDBTaskListById(TaskDbCallback callback,String assignee) {
         taskDbManager.getAllDbTaskById(callback, assignee);
     }
+    public void getDBTaskById(TaskDbCallback callback,String id) {
+        taskDbManager.getTaskById(callback, id);
+    }
 
     public void getDBTaskListByDateId(TaskDbCallback callback,String assignee, String planDate) {
         taskDbManager.getAllDbTaskByDateId(callback, assignee, planDate);
@@ -196,5 +198,9 @@ public class CalendarRepository {
 
     public void getAllDbDurationsByAssignee(ActualDurationDbCallback callback, String assigneeId, String date) {
         actualDurationDbManager.getDurationsByAssignee(callback, assigneeId, date);
+    }
+
+    public void downloadTasksByAssignee(TaskListCallback callback, String assignee) {
+        calendarNetworkManager.downloadTaskByAssignee(callback, assignee);
     }
 }

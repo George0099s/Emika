@@ -3,6 +3,7 @@ package com.emika.app.data.db.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -20,10 +21,10 @@ public interface ActualDurationDao {
     @Query("SELECT * FROM `Actual duration` WHERE createdBy = :assignee AND date = :date")
     Maybe<List<ActualDurationEntity>> getAllDurationByAssigneeDate(String assignee, String date);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<ActualDurationEntity> actualDurationEntities);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(ActualDurationEntity actualDurationEntity);
 
     @Update

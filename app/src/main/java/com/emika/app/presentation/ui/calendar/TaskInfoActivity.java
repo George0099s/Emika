@@ -2,7 +2,9 @@ package com.emika.app.presentation.ui.calendar;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -30,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -66,10 +70,9 @@ import javax.inject.Inject;
 
 public class TaskInfoActivity extends AppCompatActivity {
     private static final String TAG = "TaskInfoActivity";
-    @Inject
-    User user;
-    @Inject
-    Assignee assignee;
+
+//    @Inject
+//    Assignee assignee;
     @Inject
     EpicLinks epicLinksDi;
     @Inject
@@ -85,7 +88,8 @@ public class TaskInfoActivity extends AppCompatActivity {
     private TaskInfoViewModel taskInfoViewModel;
     private String token, deadlineDateString;
     private LinearLayout selectProject;
-    private CalendarViewModel calendarViewModel;
+    private Assignee assignee;
+    private CalendarViewModel calendarViewModel, boardViewModel;
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -138,12 +142,15 @@ public class TaskInfoActivity extends AppCompatActivity {
 
         calendarViewModel.updateTask(task);
     };
+
     private List<PayloadSection> sectionList = new ArrayList<>();
     private List<ProjectEntity> projectList = new ArrayList<>();
     private ImageView menu;
     private CheckBox taskDone, taskCanceled;
     private Button back;
+    private Calendar c;
     private Observer<Assignee> setAssignee = assignee1 -> {
+        assignee = assignee1;
         userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
         if (assignee1.getPictureUrl() != null)
             Glide.with(this).load(assignee1.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
@@ -188,14 +195,19 @@ public class TaskInfoActivity extends AppCompatActivity {
     };
 
     private Observer<List<EpicLinksEntity>> setTaskEpicLinks = epicLinksEntities -> {
-        if (epicLinksEntities.size() != 0)
+        if (epicLinksEntities.size() != 0) {
+            epicLink.setTextColor(getResources().getColor(R.color.black));
             for (int i = 0; i < epicLinksEntities.size(); i++) {
                 if (task.getEpicLinks().size() > 1)
                     epicLink.setText(String.format("%s +%s", epicLinksEntities.get(i).getName(), String.valueOf(task.getEpicLinks().size() - 1)));
                 else
                     epicLink.setText(epicLinksEntities.get(i).getName());
             }
-        else epicLink.setText("Epic link");
+        }
+        else {
+            epicLink.setText("Epic link");
+            epicLink.setTextColor(getResources().getColor(R.color.unselected_text));
+        }
     };
     private long mLastClickTime = 0;
     private Observer<List<SubTask>> getSubTask = subTask -> {
@@ -221,21 +233,31 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        c = Calendar.getInstance();
+        c.add(Calendar.DATE, +24);
+        InputMethodManager imm = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(imm != null){
+            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+        }
         df = new DecimalFormat("#.#");
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         app.getComponent().inject(this);
         if (getIntent() != null)
             task = getIntent().getParcelableExtra("task");
+//        boardiewModel = getIntent().getParcelableExtra("calendarViewModel");
+
         token = EmikaApplication.getInstance().getSharedPreferences().getString("token", null);
         subTaskRecycler = findViewById(R.id.task_info_subtask_recycler);
         subTaskRecycler.setHasFixedSize(true);
         subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
         addSubTask = findViewById(R.id.task_info_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
-
         taskDescription = findViewById(R.id.task_info_description);
         taskDescription.addTextChangedListener(taskDescriptionTextWatcher);
         taskName = findViewById(R.id.task_info_name);
+        taskName.requestFocus();
+        taskName.setSelection(taskName.getText().length());
         taskName.setImeOptions(EditorInfo.IME_ACTION_DONE);
         taskName.setRawInputType(InputType.TYPE_CLASS_TEXT);
         taskName.addTextChangedListener(taskNameTextWatcher);
@@ -281,18 +303,20 @@ public class TaskInfoActivity extends AppCompatActivity {
 
 
     private Observer<Project> getProjectsMutable = project1 -> {
-        if (project1 != null && project1.getProjectSectionId() != null && project1.getProjectId() != null ) {
+        if (project1 != null  && project1.getProjectId() != null ) {
             for (ProjectEntity proj : projectList) {
                 if (project1.getProjectId().equals(proj.getId())) {
                     this.project.setText(proj.getName());
                 }
             }
-
+            if (project1.getProjectSectionId() != null)
             for (PayloadSection section : sectionList) {
                 if (project1.getProjectSectionId().equals(section.getId())) {
                     this.section.setText(section.getName());
                 }
             }
+            else this.section.setText("");
+
         }
     };
 
@@ -301,7 +325,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
         subTask.setParentTaskId(task.getId());
-        subTask.setAssignee(user.getId());
+        subTask.setAssignee(assignee.getId());
         subTask.setPlanDate(task.getPlanDate());
         subTask.setCompanyId(task.getCompanyId());
         adapter.addSubTask(subTask);
@@ -428,12 +452,14 @@ public class TaskInfoActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         menu.add(0, 1, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_cancel_task), getResources().getString(R.string.cancel_task)));
         menu.add(0, 2, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_rename_task), getResources().getString(R.string.rename_task)));
         menu.add(0, 3, 3, menuIconWithText(getResources().getDrawable(R.drawable.ic_move_task), getResources().getString(R.string.move_task)));
         menu.add(0, 4, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.duplicate_task)));
         if (task.getStatus().equals("canceled"))
             menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_archive), getResources().getString(R.string.archieve_task)));
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -450,6 +476,12 @@ public class TaskInfoActivity extends AppCompatActivity {
                 taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 break;
             case 2:
+                InputMethodManager imm = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                if(imm != null){
+                    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+                }
+                taskName.setSelection(taskName.getText().length());
                 taskName.requestFocus();
                 break;
             case 3:
@@ -531,6 +563,9 @@ public class TaskInfoActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.MONTH),
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set plan date");
+
+
+            datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
                 planDate.setText(getResources().getString(R.string.inbox));
@@ -554,6 +589,7 @@ public class TaskInfoActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.MONTH),
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set deadline date");
+            datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
                 deadlineDate.setText("No deadline");
@@ -600,7 +636,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             return;
         } else {
             Bundle bundle = new Bundle();
-            bundle.putParcelable("viewModel", calendarViewModel);
+            bundle.putParcelable("calendarViewModel", calendarViewModel);
             bundle.putParcelable("taskInfoViewModel", taskInfoViewModel);
             bundle.putParcelable("task", task);
             bundle.putString("from", "task info");

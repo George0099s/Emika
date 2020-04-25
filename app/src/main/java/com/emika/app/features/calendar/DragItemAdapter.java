@@ -17,6 +17,7 @@
 package com.emika.app.features.calendar;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -84,6 +85,7 @@ public abstract class DragItemAdapter<T, VH extends com.emika.app.features.calen
     public void addItem(int pos, Pair item) {
         if (mItemList != null && mItemList.size() >= pos) {
             mItemList.add(pos, item);
+            Log.d(TAG, "addItem: ");
             notifyItemInserted(pos);
         }
     }

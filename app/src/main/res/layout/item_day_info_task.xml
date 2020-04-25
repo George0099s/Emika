@@ -87,7 +87,10 @@
             android:layout_height="wrap_content"
             android:background="@drawable/custom_inbox_item"
             android:gravity="center_vertical"
-            android:padding="12dp">
+            android:paddingTop="8dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="7dp"
+            android:paddingBottom="6dp">
 
             <LinearLayout
                 android:id="@+id/linearLayout5"
@@ -118,9 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:background="@drawable/shape_priority_low"
                     android:drawablePadding="4dp"
-                    android:padding="4dp"
                     android:textSize="12sp"
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
@@ -132,7 +133,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:background="@drawable/shape_deadline"
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
                     tools:text="5 days left" />
@@ -166,7 +166,7 @@
                     android:layout_height="wrap_content"
                     android:enabled="false"
                     android:button="@drawable/custom_checkboks"
-                    android:paddingVertical="20dp"
+                    android:paddingVertical="15dp"
                     android:textColorHighlight="@color/grey" />
 
             </LinearLayout>
@@ -178,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                android:fontFamily="sans-serif"
+                android:fontFamily="@font/roboto_medium"
                 android:textStyle="normal"
                 card_view:layout_constraintEnd_toStartOf="@+id/linearLayout6"
                 card_view:layout_constraintStart_toEndOf="@+id/checkbox_layout"
@@ -191,6 +191,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="2dp"
+                android:gravity="end"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent">
 
@@ -198,7 +199,8 @@
                     android:id="@+id/day_info_task_estimated_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="@font/consolab"
                     android:background="@drawable/shape_estimated_time"
                     android:gravity="center"
                     android:text="1h"
@@ -209,10 +211,11 @@
 
                 <TextView
                     android:id="@+id/day_info_task_spent_time"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/shape_spent_time"
                     android:gravity="center"
+                    android:fontFamily="@font/consolab"
                     android:text="1h"
                     android:textColor="@color/green"
                     android:textSize="10sp"

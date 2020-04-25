@@ -38,11 +38,13 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
     private Context context;
     private MembersContactAdapter adapter;
     private long mLastClickTime = 0;
+    private String memberId;
     @Inject
     User userDi;
 
-    public AllMembersAdapter(List<PayloadShortMember> members, Context context) {
+    public AllMembersAdapter(List<PayloadShortMember> members, Context context, String memberId) {
         this.members = members;
+        this.memberId = memberId;
         EmikaApplication.getInstance().getComponent().inject(this);
         for (int i = 0; i < this.members.size(); i++) {
             if (this.members.get(i).getId().equals("emika"))
@@ -86,7 +88,7 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
                     if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                         return;
                     } else {
-                        if (!member.getId().equals(userDi.getId())) {
+                        if (!member.getId().equals(userDi.getId()) && !member.getId().equals(memberId)) {
                             Intent intent = new Intent(context, MemberActivity.class);
                             intent.putExtra("memberId", member.getId());
                             context.startActivity(intent);

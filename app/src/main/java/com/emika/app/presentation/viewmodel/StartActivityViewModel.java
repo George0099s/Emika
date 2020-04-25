@@ -88,7 +88,8 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
                             repository.sendRegistrationKey(key);
                         }
                     });
-            userDbManager.dropAllTable();
+//            userDbManager.dropAllTable();
+
             repository.downloadAllMembers(this);
             repository.downloadSections(this);
             repository.downloadAllProject(this);
@@ -100,11 +101,11 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
 
         @Override
         public void getProjects(List<PayloadProject> projects) {
+            repository.insertDbProject(converter.fromPayloadProjectToProjectEntityList(projects), this);
             projectsDagger.setProjects(projects);
             projectDi.setProjectId(projects.get(0).getId());
             projectDi.setProjectName(projects.get(0).getName());
             projectDi.setProjectSectionId(projects.get(0).getDefaultSectionId());
-            repository.insertDbProject(converter.fromPayloadProjectToProjectEntityList(projects), this);
         }
 
         @Override
@@ -217,6 +218,16 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
 
     @Override
     public void onTasksLoaded(List<TaskEntity> taskList) {
+
+    }
+
+    @Override
+    public void onFilteredTasksLoaded(List<TaskEntity> taskList) {
+
+    }
+
+    @Override
+    public void onOneTaskLoaded(TaskEntity taskEntity) {
 
     }
 }

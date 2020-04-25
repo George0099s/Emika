@@ -5,6 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="background">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:fontFamily">@font/roboto_regular</item>
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:navigationBarColor">@color/black</item>
     </style>

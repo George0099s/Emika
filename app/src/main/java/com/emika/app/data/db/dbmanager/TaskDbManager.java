@@ -44,12 +44,20 @@ public class TaskDbManager {
                 .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
                 .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onTasksLoaded);
     }
+
+    @SuppressLint("CheckResult")
+    public void getTaskById(TaskDbCallback callback, String id) {
+        db.taskDao().getTaskById(id)
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe((io.reactivex.functions.Consumer<? super TaskEntity>) callback::onOneTaskLoaded);
+    }
     @SuppressLint("CheckResult")
     public void getAllDbTaskByDateId(TaskDbCallback callback, String assignee, String planDate) {
         db.taskDao().getAllTaskByDateAssignee(assignee, planDate)
                 .subscribeOn(io.reactivex.schedulers.Schedulers.io())
                 .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
-                .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onTasksLoaded);
+                .subscribe((io.reactivex.functions.Consumer<? super List<TaskEntity>>) callback::onFilteredTasksLoaded);
     }
 
     @SuppressLint("CheckResult")

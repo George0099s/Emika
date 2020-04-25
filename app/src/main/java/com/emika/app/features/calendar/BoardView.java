@@ -91,7 +91,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         this.lastColumn = lastColumn;
     }
 
-    private int lastColumn = 0 ;
+    private int lastColumn = 15 ;
 
     public BoardView(Context context) {
         super(context);
@@ -177,10 +177,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
                 setStartColumn(lastColumn);
             }
         }
-//        else {
-//            Log.d(TAG, "onLayout: " + lastColumn + " " + getFocusedColumn());
-//            setStartColumn(lastColumn );
-//        }
         mHasLaidOut = true;
     }
 
@@ -906,7 +902,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         recyclerView.setLayoutManager(layoutManager != null ? layoutManager : new LinearLayoutManager(getContext()));
         recyclerView.setBackgroundColor(columnProperties.getItemsSectionBackgroundColor());
         recyclerView.setHasFixedSize(columnProperties.hasFixedItemSize());
-
         List<RecyclerView.ItemDecoration> itemDecorations = columnProperties.getItemDecorations();
         for (int i = 0; i < itemDecorations.size(); i++) {
             recyclerView.addItemDecoration(itemDecorations.get(i));
@@ -990,13 +985,11 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
 
         layout.addView(recyclerView);
         mLists.add(index, recyclerView);
-
         mColumnLayout.addView(layout, index);
 
         updateBoardSpaces();
 
         setupColumnDragListener(columnProperties.getColumnDragView(), recyclerView);
-
         return recyclerView;
     }
 

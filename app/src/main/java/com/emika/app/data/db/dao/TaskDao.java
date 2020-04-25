@@ -3,7 +3,9 @@ package com.emika.app.data.db.dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.emika.app.data.db.entity.TaskEntity;
@@ -22,17 +24,21 @@ public interface TaskDao {
 
     @Query("SELECT * FROM Task WHERE assignee = :assignee")
     Maybe<List<TaskEntity>> getAllTaskByAssignee(String assignee);
+    @Query("SELECT * FROM Task WHERE id = :id")
+    Maybe<TaskEntity> getTaskById(String id);
 
      @Query("SELECT * FROM Task WHERE assignee = :assignee AND planDate = :planDate")
     Maybe<List<TaskEntity>> getAllTaskByDateAssignee(String assignee, String planDate);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<TaskEntity> taskEntityList);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(TaskEntity taskEntity);
 
-    @Update
+
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(TaskEntity task);
 
     @Delete

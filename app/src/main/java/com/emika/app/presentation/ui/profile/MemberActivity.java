@@ -54,6 +54,7 @@ public class MemberActivity extends AppCompatActivity {
     };
     private Observer<PayloadMember> getMemberInfo = member -> {
         this.member = member;
+
         viewModel.getMembersMutableLiveData();
         memberName.setText(String.format("%s %s", member.getFirstName(), member.getLastName()));
         memberJob.setText(member.getJobTitle());
@@ -112,6 +113,7 @@ public class MemberActivity extends AppCompatActivity {
 
     private void seeAllMembers(View view) {
         Intent intent = new Intent(this, AllMembersActivity.class);
+        intent.putExtra("memberId", memberId);
         startActivity(intent);
     }
 
@@ -122,7 +124,7 @@ public class MemberActivity extends AppCompatActivity {
                 leaders.add(leader);
             }
         }
-        leadAdapter = new AllMembersAdapter(leaders, this);
+        leadAdapter = new AllMembersAdapter(leaders, this, memberId);
         leadRecycler.setAdapter(leadAdapter);
     }
 
@@ -133,7 +135,7 @@ public class MemberActivity extends AppCompatActivity {
                 coWorkers.add(coWorker);
         }
 
-        coWorkersAdapter = new AllMembersAdapter(coWorkers, this);
+        coWorkersAdapter = new AllMembersAdapter(coWorkers, this, memberId);
         coWorkerRecycler.setAdapter(coWorkersAdapter);
     }
 

@@ -1,14 +1,7 @@
 package com.emika.app.presentation.utils;
 
-import android.os.Build;
-import android.util.Log;
-
-import androidx.annotation.RequiresApi;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -26,7 +19,7 @@ public class DateHelper {
         return startDate;
     }
 
-    public static String getDate(String date){
+    public static String getDate(String date) {
         if (date != null && !date.equals("null")) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat formatted = new SimpleDateFormat("d MMM");
@@ -45,22 +38,38 @@ public class DateHelper {
         return date;
 
     }
-    public static String getDatePicker(String date){
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d");
-            SimpleDateFormat formatted = new SimpleDateFormat("yyyy-MM-d");
-            Calendar c = Calendar.getInstance();
-            try {
-                c.setTime(sdf.parse(date));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            // number of days to add
+
+    public static String getDatePicker(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d");
+        SimpleDateFormat formatted = new SimpleDateFormat("yyyy-MM-d");
+        Calendar c = Calendar.getInstance();
+        try {
+            c.setTime(sdf.parse(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // number of days to add
         if (date != null)
             date = formatted.format(c.getTime());
-            return date;
+        return date;
     }
 
-    public static String getDatOfWeek(int s){
+    public static String getLoggedTimDayInfo(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d hh:mm:ss");
+        SimpleDateFormat formatted = new SimpleDateFormat("hh:mm");
+        Calendar c = Calendar.getInstance();
+        try {
+            c.setTime(sdf.parse(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // number of days to add
+        if (date != null)
+            date = formatted.format(c.getTime());
+        return date;
+    }
+
+    public static String getDatOfWeek(int s) {
         String dayOfWeek;
         SimpleDateFormat weekFormat = new SimpleDateFormat("EEEE");
         Calendar c = Calendar.getInstance();
@@ -68,6 +77,6 @@ public class DateHelper {
         Calendar b = c;
         b.add(Calendar.DATE, s);// number of days to add
         dayOfWeek = weekFormat.format(b.getTime());
-    return dayOfWeek;
+        return dayOfWeek;
     }
 }

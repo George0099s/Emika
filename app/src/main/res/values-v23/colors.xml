@@ -11,6 +11,7 @@
     <color name="picker_default_selector_color">#646464</color>
     <color name="picker_default_divider_color">@android:color/transparent</color>
     <color name="light_green">#35A666</color>
+    <color name="green_status_bar">#2A8552</color>
     <dimen name="picker_default_divider_height">1dp</dimen>
 
 </resources>

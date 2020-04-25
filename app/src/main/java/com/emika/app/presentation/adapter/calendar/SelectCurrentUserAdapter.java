@@ -1,6 +1,7 @@
 package com.emika.app.presentation.adapter.calendar;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,12 +40,13 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
     private TaskInfoViewModel taskInfoViewModel;
     private AddTaskListViewModel addTaskListViewModel;
 
-    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel, AddTaskListViewModel addTaskListViewModel, TaskInfoViewModel taskInfoViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
+    public SelectCurrentUserAdapter(List<PayloadShortMember> memberList, Context context, CalendarViewModel calendarViewModel,
+                                    AddTaskListViewModel addTaskListViewModel, TaskInfoViewModel taskInfoViewModel, BottomSheetCalendarSelectUser bottomSheetCalendarSelectUser) {
         for (int i = 0; i < memberList.size(); i++) {
             if (!memberList.get(i).getId().equals("emika"))
                 this.memberList.add(memberList.get(i));
         }
-
+//        this.memberList = memberList;
         this.context = context;
         this.calendarViewModel = calendarViewModel;
         this.bottomSheetCalendarSelectUser = bottomSheetCalendarSelectUser;
@@ -78,17 +80,23 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
                     assignee.setId(member.getId());
                     assignee.setJobTitle(member.getJobTitle());
                     assignee.setPictureUrl(member.getPictureUrl());
-                    bottomSheetCalendarSelectUser.dismiss();
-//                    calendarViewModel.getAllDbTaskByAssignee(member.getId());
-//                    calendarViewModel.getAssigneeMutableLiveData();
+
                     if (addTaskListViewModel == null && taskInfoViewModel == null) {
                         calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                        calendarViewModel.downloadTasksByAssignee(member.getId());
                         calendarViewModel.getAssigneeMutableLiveData();
                     } else if (addTaskListViewModel != null) {
                         addTaskListViewModel.getAssignee();
+//                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                        calendarViewModel.getAssigneeMutableLiveData();
                     } else {
                         taskInfoViewModel.getAssigneeMutableLiveData();
+                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                        calendarViewModel.downloadTasksByAssignee(member.getId());
+
+                        calendarViewModel.getAssigneeMutableLiveData();
                     }
+                    bottomSheetCalendarSelectUser.dismiss();
                 });
             }
         }
