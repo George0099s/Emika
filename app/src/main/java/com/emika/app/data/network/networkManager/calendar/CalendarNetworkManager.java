@@ -375,8 +375,8 @@ public class CalendarNetworkManager {
                     PayloadSubTask payloadSubTask = model.getPayload();
                     List<SubTask> subTasks = payloadSubTask.getSubTasks();
                     if (subTasks != null)
-                        callback.onSubTaskLoaded(subTasks);
-                    else callback.onSubTaskLoaded(new ArrayList<>());
+                        callback.onSubTaskListLoaded(subTasks);
+                    else callback.onSubTaskListLoaded(new ArrayList<>());
                 }
             }
 
@@ -393,36 +393,32 @@ public class CalendarNetworkManager {
             taskJSON.put("token", token);
             taskJSON.put("_id", task.getId());
             taskJSON.put("name", task.getName());
-            taskJSON.put("duration_actual", task.getDurationActual());
-            taskJSON.put("duration", task.getDuration());
-            taskJSON.put("parent_id", task.getParentTaskId());
-            taskJSON.put("deadline_date", task.getDeadlineDate());
+            taskJSON.put("parent_task_id", task.getParentTaskId());
+            Log.d(TAG, "updateSubTask: " + task.getParentTaskId());
             taskJSON.put("status", task.getStatus());
             taskJSON.put("project_id", task.getProjectId());
-            taskJSON.put("section_id", task.getSectionId());
-            taskJSON.put("priority", task.getPriority());
-            taskJSON.put("assignee", task.getAssignee());
         } catch (JSONException e) {
             e.printStackTrace();
         }
         socket.emit("server_update_task", taskJSON);
     }
 
-    public void addSubTask(SubTask task) {
+    public void addSubTask(SubTask task, SubTaskCallback callback) {
         Retrofit retrofit = networkService.getRetrofit();
         CalendarApi service = retrofit.create(CalendarApi.class);
-        Call<ModelTask> call = service.addSubTask(token, task.getName(), task.getProjectId(), task.getPlanDate(), task.getDeadlineDate(), task.getAssignee(), String.valueOf(task.getDuration())
-                , task.getPriority(), task.getSectionId(), task.getParentTaskId());
+        Call<ModelTask> call = service.addSubTask(token, task.getName(), task.getProjectId(), task.getParentTaskId());
         call.enqueue(new Callback<ModelTask>() {
             @Override
             public void onResponse(retrofit2.Call<ModelTask> call, Response<ModelTask> response) {
                 if (response.body() != null) {
                     ModelTask model = response.body();
+                    Log.d(TAG, "onResponse: " +  model.getError());
+
                     PayloadTask task = model.getPayloadTask();
-//                    if (task != null)
-//                        callback.getAddedTask(task);
-//                    else
-//                        callback.getAddedTask(new PayloadTask());
+                    if (task != null)
+                        callback.onSubTaskLoaded(task.getId());
+                    else
+                        callback.onSubTaskLoaded(null);
                 }
             }
 

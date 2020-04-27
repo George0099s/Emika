@@ -238,10 +238,11 @@ public class AddTaskActivity extends AppCompatActivity {
 
         epicLinks = findViewById(R.id.add_task_epic_links);
         epicLinks.setOnClickListener(this::selectEpicLinks);
-
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
         viewModel.getEpicLinksMutableLiveData().observe(this, getEpicLinks);
         subTaskRecycler.setHasFixedSize(true);
-        subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
+        subTaskRecycler.setLayoutManager(layoutManager);
         subTaskAdapter = new SubTaskAdapter(tasks, calendarViewModel, null);
         subTaskRecycler.setAdapter(subTaskAdapter);
         if (task != null)
@@ -263,6 +264,7 @@ public class AddTaskActivity extends AppCompatActivity {
         subTaskAdapter.addSubTask(subTask);
         subTaskAdapter.notifyItemInserted(0);
         subTaskRecycler.scrollToPosition(0);
+        subTaskRecycler.requestFocus(0);
     }
 
     private void onBackPressed(View view) {

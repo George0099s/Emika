@@ -1,5 +1,6 @@
 package com.emika.app.presentation.adapter.calendar;
 
+import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -19,6 +20,7 @@ import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHolder> {
@@ -27,9 +29,12 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
     private List<SubTask> taskList;
     private CalendarViewModel calendarViewModel;
     private TaskInfoViewModel taskInfoViewModel;
-
     public SubTaskAdapter(List<SubTask> taskList, CalendarViewModel calendarViewModel, TaskInfoViewModel taskInfoViewModel) {
-        this.taskList = taskList;
+        this.taskList = new ArrayList<>();
+        for (int i = 0; i < taskList.size(); i++) {
+            if (!taskList.get(i).getStatus().equals("deleted"))
+                this.taskList.add(taskList.get(i));
+        }
         this.calendarViewModel = calendarViewModel;
         this.taskInfoViewModel = taskInfoViewModel;
     }
@@ -48,8 +53,8 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
         SubTask subTask = taskList.get(position);
+
         holder.body.setImeOptions(EditorInfo.IME_ACTION_DONE);
         holder.body.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
@@ -110,11 +115,7 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
     }
 
     public void addSubTask(SubTask subTask) {
-//        this.taskList = subTasks;
         taskList.add(0, subTask);
-//        if (taskInfoViewModel != null)
-//            taskInfoViewModel.updateSubTask();
-//        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

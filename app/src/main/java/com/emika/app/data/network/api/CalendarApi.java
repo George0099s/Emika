@@ -66,13 +66,7 @@ public interface CalendarApi {
     Call<ModelTask> addSubTask(@Query("token") String token,
                                @Field("name") String name,
                                @Field("project_id") String projectId,
-                               @Field("plan_date") String planDate,
-                               @Field("deadline_date") String deadlineDate,
-                               @Field("assignee") String assignee,
-                               @Field("duration") String estimatedTime,
-                               @Field("priority") String priority,
-                               @Field("section_id") String sectionId,
-                               @Field("parent_id") String parentId);
+                               @Field("parent_task_id") String parentId);
 
 
     @FormUrlEncoded

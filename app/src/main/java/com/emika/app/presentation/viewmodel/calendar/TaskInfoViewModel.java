@@ -54,6 +54,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     private TaskInfoRepository taskInfoRepository;
     private String token;
     private static final String TAG = "TaskInfoViewModel";
+    private MutableLiveData<String> subTaskIdMutableLiveData;
 
     @Inject
     Assignee assignee;
@@ -75,6 +76,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
         taskEpicLinks =  new ArrayList<>();
         subTaskMutableLiveData = new MutableLiveData<>();
         memberEntities = new ArrayList<>();
+        subTaskIdMutableLiveData = new MutableLiveData<>();
     }
     protected TaskInfoViewModel(Parcel in) {
         task = in.readParcelable(PayloadTask.class.getClassLoader());
@@ -171,8 +173,13 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     }
 
     @Override
-    public void onSubTaskLoaded(List<SubTask> subTasks) {
+    public void onSubTaskListLoaded(List<SubTask> subTasks) {
         subTaskMutableLiveData.postValue(subTasks);
+    }
+
+    @Override
+    public void onSubTaskLoaded(String id) {
+        subTaskIdMutableLiveData.postValue(id);
     }
 
 
@@ -181,12 +188,16 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     }
 
     public void addSubTask(SubTask subTask) {
-        repository.addSubTask(subTask);
+        repository.addSubTask(subTask, this);
     }
 
     @Override
     public void onMembersLoaded(List<MemberEntity> memberEntityList) {
         memberEntities = memberEntityList;
+    }
+
+    public MutableLiveData<String>  getSubTaskIdMutableLiveData() {
+        return subTaskIdMutableLiveData;
     }
 }
 

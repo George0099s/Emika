@@ -249,8 +249,10 @@ public class TaskInfoActivity extends AppCompatActivity {
 
         token = EmikaApplication.getInstance().getSharedPreferences().getString("token", null);
         subTaskRecycler = findViewById(R.id.task_info_subtask_recycler);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
         subTaskRecycler.setHasFixedSize(true);
-        subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));
+        subTaskRecycler.setLayoutManager(layoutManager);
         addSubTask = findViewById(R.id.task_info_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
         taskDescription = findViewById(R.id.task_info_description);
@@ -290,6 +292,7 @@ public class TaskInfoActivity extends AppCompatActivity {
 
         taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
+
         taskInfoViewModel.setTask(task);
         taskInfoViewModel.getTaskMutableLiveData().observe(this, getTask);
         taskInfoViewModel.getEpicLinksMutableLiveData().observe(this, setTaskEpicLinks);
@@ -298,9 +301,13 @@ public class TaskInfoActivity extends AppCompatActivity {
         calendarViewModel.getProjectMutableLiveData().observe(this, getProjects);
         calendarViewModel.getSectionListMutableLiveData().observe(this, getSections);
         taskInfoViewModel.getProjectMutableLiveData().observe(this, getProjectsMutable);
+        taskInfoViewModel.getSubTaskIdMutableLiveData().observe(this, getAddedSubTaskId);
 
     }
 
+    private Observer<String> getAddedSubTaskId = subTaskId -> {
+        adapter.getTaskList().get(0).setId(subTaskId);
+    };
 
     private Observer<Project> getProjectsMutable = project1 -> {
         if (project1 != null  && project1.getProjectId() != null ) {
@@ -324,10 +331,15 @@ public class TaskInfoActivity extends AppCompatActivity {
         List<String> subTasks = new ArrayList<>();
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
+        subTask.setName("");
         subTask.setParentTaskId(task.getId());
         subTask.setAssignee(assignee.getId());
         subTask.setPlanDate(task.getPlanDate());
+        subTask.setDeadlineDate(task.getDeadlineDate());
         subTask.setCompanyId(task.getCompanyId());
+        subTask.setProjectId(task.getProjectId());
+        subTask.setSectionId(task.getSectionId());
+        subTask.setDuration(60);
         adapter.addSubTask(subTask);
         adapter.notifyItemInserted(0);
         subTaskRecycler.scrollToPosition(0);
@@ -337,6 +349,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         task.setSubTaskList(subTasks);
         taskInfoViewModel.updateTask(task);
         taskInfoViewModel.addSubTask(subTask);
+        subTaskRecycler.requestFocus(0);
     }
 
     private void refreshTask(View view) {

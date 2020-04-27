@@ -101,8 +101,8 @@ public class CalendarRepository {
     public void addDbTask(PayloadTask task){
         taskDbManager.addTask(converter.fromPayloadTaskToTaskEntity(task));
     }
-    public void addSubTask(SubTask subTask){
-        calendarNetworkManager.addSubTask(subTask);
+    public void addSubTask(SubTask subTask, SubTaskCallback callback){
+        calendarNetworkManager.addSubTask(subTask, callback);
     }
 
     public void downloadAllMembers(ShortMemberCallback callback){

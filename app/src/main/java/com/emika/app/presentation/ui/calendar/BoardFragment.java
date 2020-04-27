@@ -343,8 +343,6 @@ public class BoardFragment extends Fragment {
                 estimatedTime = jsonObject.getString("duration");
                 spentTime = jsonObject.getString("duration_actual");
 
-                Log.d(TAG, ":  " + name);
-
                 PayloadTask task2 = new PayloadTask();
                 task2.setId(id);
                 task2.setName(name);
