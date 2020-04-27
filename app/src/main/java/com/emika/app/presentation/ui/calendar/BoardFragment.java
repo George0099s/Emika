@@ -277,7 +277,6 @@ public class BoardFragment extends Fragment {
                             s = s.replace(',', '.');
                             spentHourCounterView.setProgress(s);
                         }
-//                            spentHourCounterView.setProgress(df.format(spentTime / 60.0f));
                     }
                 }
             }
@@ -297,7 +296,7 @@ public class BoardFragment extends Fragment {
         }
         viewModel.getProjectMutableLiveData();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 40; i++) {
             Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
         }
 

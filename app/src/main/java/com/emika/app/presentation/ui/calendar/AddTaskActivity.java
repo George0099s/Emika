@@ -226,6 +226,7 @@ public class AddTaskActivity extends AppCompatActivity {
         DATE = getIntent().getStringExtra("date");
         priority = findViewById(R.id.add_task_priority);
         priority.setOnClickListener(this::showPopupMenu);
+
         planDate.setOnClickListener(this::setPlanDate);
         memberList = getIntent().getParcelableArrayListExtra("members");
         project = findViewById(R.id.add_task_project);
@@ -234,8 +235,10 @@ public class AddTaskActivity extends AppCompatActivity {
         section.setText(projectDi.getProjectSectionName());
         selectProject = findViewById(R.id.add_task_select_project);
         selectProject.setOnClickListener(this::selectProject);
+
         epicLinks = findViewById(R.id.add_task_epic_links);
         epicLinks.setOnClickListener(this::selectEpicLinks);
+
         viewModel.getEpicLinksMutableLiveData().observe(this, getEpicLinks);
         subTaskRecycler.setHasFixedSize(true);
         subTaskRecycler.setLayoutManager(new LinearLayoutManager(this));

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -61,6 +62,11 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
         tokenDbManager = new TokenDbManager();
         lifecycleOwner = this;
         sharedPreferences = emikaApplication.getSharedPreferences();
+        if (sharedPreferences.getBoolean("darkMode", false))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
         if (NetworkState.getInstance(getApplication()).isOnline())
             if (!sharedPreferences.getBoolean("logged in", false))
                 Observable.fromCallable((new CallableGetToken()))

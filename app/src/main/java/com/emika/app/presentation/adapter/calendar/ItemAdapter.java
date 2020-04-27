@@ -136,7 +136,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                     task.setStatus("done");
                     calendarNetworkManager.updateTask(task);
                 } else {
-                    holder.mText.setTextColor(context.getResources().getColor(R.color.black));
+                    holder.mText.setTextColor(context.getResources().getColor(R.color.mainTextColor));
                     task.setStatus("wip");
                     calendarNetworkManager.updateTask(task);
                 }
@@ -176,7 +176,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                 holder.refresh.setVisibility(View.GONE);
                 holder.isDone.setVisibility(View.VISIBLE);
                 holder.isDone.setChecked(false);
-                holder.mText.setTextColor(context.getResources().getColor(R.color.black));
+                holder.mText.setTextColor(context.getResources().getColor(R.color.mainTextColor));
                 holder.isDone.setChecked(false);
             }
 

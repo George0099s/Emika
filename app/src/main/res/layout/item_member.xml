@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:layout_marginBottom="5dp"
+
     android:background="@drawable/ripple_btn"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -25,7 +26,7 @@
         android:layout_marginStart="12dp"
         android:ellipsize="end"
         android:layout_marginEnd="12dp"
-        android:textColor="@color/black"
+        android:textColor="@color/mainTextColor"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/member_img"
         app:layout_constraintEnd_toStartOf="@+id/member_job_title"

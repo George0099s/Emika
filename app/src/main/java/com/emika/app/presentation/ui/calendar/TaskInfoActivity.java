@@ -99,7 +99,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             deadlineDateString = DateHelper.getDatePicker(year + "-" + (month + 1) + "-" + dayOfMonth);
             deadlineDate.setText(DateHelper.getDate(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
-            deadlineDate.setTextColor(getResources().getColor(R.color.black));
+            deadlineDate.setTextColor(getResources().getColor(R.color.mainTextColor));
             task.setDeadlineDate(DateHelper.getDatePicker(String.format("%s-%s-%s", String.valueOf(year), String.valueOf(month + 1), String.valueOf(dayOfMonth))));
             calendarViewModel.updateTask(task);
         }
@@ -356,7 +356,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             if (task.getDeadlineDate() != null && !task.getDeadlineDate().equals("null")) {
                 deadlineDate.setText(task.getDeadlineDate());
                 deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline_date_active), null, null, null);
-                deadlineDate.setTextColor(getResources().getColor(R.color.black));
+                deadlineDate.setTextColor(getResources().getColor(R.color.mainTextColor));
             }
             if (task.getDescription() != null)
             taskDescription.setText(Html.fromHtml(task.getDescription()));
@@ -563,8 +563,6 @@ public class TaskInfoActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.MONTH),
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set plan date");
-
-
             datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {

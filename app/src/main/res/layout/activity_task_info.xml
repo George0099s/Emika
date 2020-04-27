@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/addTaskBackground"
     tools:context=".presentation.ui.calendar.TaskInfoActivity">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -106,7 +106,7 @@
                 android:drawableLeft="@drawable/ic_daata"
                 android:drawablePadding="5dp"
                 android:text="Today"
-                android:textColor="@color/black"
+                android:textColor="@color/mainTextColor"
                 app:layout_constraintStart_toStartOf="@+id/task_info_name"
                 app:layout_constraintTop_toBottomOf="@+id/task_info_name" />
 
@@ -127,7 +127,7 @@
                     android:drawableLeft="@drawable/shape_project_cicle"
                     android:drawablePadding="5dp"
                     android:text="Emika"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/mainTextColor" />
 
                 <View
                     android:layout_width="1dp"
@@ -143,7 +143,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="Open tasks"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/mainTextColor" />
             </LinearLayout>
 
         </LinearLayout>
@@ -156,7 +156,7 @@
             android:drawablePadding="12dp"
             android:layout_marginStart="8dp"
             android:text="@string/sub_task"
-            android:textColor="@color/black"
+            android:textColor="@color/mainTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView3"
             app:layout_constraintTop_toBottomOf="@+id/view3" />
@@ -265,7 +265,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="George Avakyan"
-            android:textColor="@color/black"
+            android:textColor="@color/mainTextColor"
             android:paddingVertical="5dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintBottom_toBottomOf="@+id/task_info_user_img"
@@ -306,7 +306,7 @@
                 android:drawableLeft="@drawable/ic_priority_low"
                 android:drawablePadding="5dp"
                 android:text="Low"
-                android:textColor="@color/black"
+                android:textColor="@color/mainTextColor"
                 app:layout_constraintBottom_toBottomOf="@+id/task_info_deadline_date"
                 app:layout_constraintStart_toEndOf="@+id/task_info_deadline_date"
                 app:layout_constraintTop_toTopOf="@+id/task_info_deadline_date"

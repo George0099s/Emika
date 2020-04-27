@@ -124,7 +124,7 @@ public class MemberActivity extends AppCompatActivity {
                 leaders.add(leader);
             }
         }
-        leadAdapter = new AllMembersAdapter(leaders, this, memberId);
+        leadAdapter = new AllMembersAdapter(leaders, this, memberId, getPackageManager());
         leadRecycler.setAdapter(leadAdapter);
     }
 
@@ -135,7 +135,7 @@ public class MemberActivity extends AppCompatActivity {
                 coWorkers.add(coWorker);
         }
 
-        coWorkersAdapter = new AllMembersAdapter(coWorkers, this, memberId);
+        coWorkersAdapter = new AllMembersAdapter(coWorkers, this, memberId, getPackageManager());
         coWorkerRecycler.setAdapter(coWorkersAdapter);
     }
 

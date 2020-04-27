@@ -31,7 +31,7 @@
 — Проверка рекламной
 компании"
             android:letterSpacing="-0.05"
-            android:textColor="@color/light_black"
+            android:textColor="@color/mainTextColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

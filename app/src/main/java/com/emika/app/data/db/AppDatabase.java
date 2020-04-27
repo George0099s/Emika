@@ -10,6 +10,7 @@ import com.emika.app.data.db.dao.MessagesDao;
 import com.emika.app.data.db.dao.ProjectDao;
 import com.emika.app.data.db.dao.SectionDao;
 import com.emika.app.data.db.dao.TaskDao;
+import com.emika.app.data.db.dao.TaskTransactionDao;
 import com.emika.app.data.db.dao.TokenDao;
 import com.emika.app.data.db.dao.UserDao;
 import com.emika.app.data.db.entity.ActualDurationEntity;
@@ -35,4 +36,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract MessagesDao messagesDao();
     public abstract SectionDao sectionDao();
     public abstract ActualDurationDao actualDurationDao();
+    public abstract TaskTransactionDao taskTransactionDao();
+
 }

@@ -1,14 +1,11 @@
 <resources>
-
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:fontFamily">@font/roboto_regular</item>
-<!--        <item name="statusBarBackground">#FFF</item>-->
-        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:navigationBarColor">#171717</item>
     </style>
+
     <style name="MyTimePickerWidgetStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:headerBackground">#ffe082</item>
         <item name="android:numbersTextColor">#b71c1c</item>
@@ -17,6 +14,7 @@
         <item name="android:timePickerMode">spinner</item>
         <item name="android:amPmTextColor">#9c27b0</item>
     </style>
+
     <style name="inputPlaceholder">
         <item name="hintTextColor">@color/grey</item>
         <item name="android:textSize">14sp</item>
@@ -25,10 +23,11 @@
         <item name="android:layout_height">40dp</item>
         <item name="android:layout_marginStart">20dp</item>
         <item name="android:layout_marginEnd">20dp</item>
-    </style> <style name="profileEditText">
+    </style>
+    <style name="profileEditText">
         <item name="hintTextColor">@color/grey</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/mainTextColor</item>
         <item name="android:background">@drawable/shape_profile_ed</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">40dp</item>
@@ -54,20 +53,22 @@
 
     <style name="TaskDateTitle">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/mainTextColor</item>
     </style>
+
     <style name="TaskDay">
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">#96ABC8</item>
+        <item name="android:textColor">@color/secondaryText</item>
     </style>
     <style name="TaskName">
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/mainTextColor</item>
+        <item name="fontFamily">@font/roboto_medium</item>
     </style>
 
     <style name="TaskParams" >
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/mainTextColor</item>
     </style>
 
     <color name="black">#000</color>
@@ -106,18 +107,18 @@
     </style>
 
     <style name="ProfileTitles">
-        <item name="android:textColor">#424242</item>
+        <item name="android:textColor">@color/profileTitleText</item>
         <item name="android:textSize">24sp</item>
         <item name="android:fontFamily">@font/roboto_bold</item>
     </style>
       <style name="ProfileContactText">
-        <item name="android:textColor">#585858</item>
+        <item name="android:textColor">@color/profileNameText</item>
         <item name="android:textSize">16sp</item>
     </style>
     <style name="InvitesInput">
         <item name="textSize">16sp</item>
         <item name="hintTextColor">#96ABC8</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/mainTextColor</item>
         <item name="android:background">@drawable/shape_input_invites</item>
     </style>
 </resources>

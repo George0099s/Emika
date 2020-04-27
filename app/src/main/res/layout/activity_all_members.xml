@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/calendarBackground"
     tools:context=".presentation.ui.profile.AllMembersActivity">
 
     <TextView
@@ -29,7 +29,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/all_members"
         android:textAllCaps="true"
-        android:textColor="@color/black"
+        android:textColor="@color/mainTextColor"
         android:textSize="34sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/all_members_back" />

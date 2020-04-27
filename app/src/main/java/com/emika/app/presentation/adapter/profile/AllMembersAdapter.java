@@ -2,6 +2,7 @@ package com.emika.app.presentation.adapter.profile;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,12 +40,14 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
     private MembersContactAdapter adapter;
     private long mLastClickTime = 0;
     private String memberId;
+    private PackageManager packageManager;
     @Inject
     User userDi;
 
-    public AllMembersAdapter(List<PayloadShortMember> members, Context context, String memberId) {
+    public AllMembersAdapter(List<PayloadShortMember> members, Context context, String memberId, PackageManager packageManager) {
         this.members = members;
         this.memberId = memberId;
+        this.packageManager = packageManager;
         EmikaApplication.getInstance().getComponent().inject(this);
         for (int i = 0; i < this.members.size(); i++) {
             if (this.members.get(i).getId().equals("emika"))
@@ -69,9 +72,9 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
             if (member.getContacts().size() > 3)
                 for (int i = 0; i < 3 ; i++) {
                 memberContacts.add(member.getContacts().get(i));
-                    adapter = new MembersContactAdapter(memberContacts, context);
+                    adapter = new MembersContactAdapter(memberContacts, context, packageManager);
                 }
-            else adapter = new MembersContactAdapter(member.getContacts(), context);
+            else adapter = new MembersContactAdapter(member.getContacts(), context, packageManager);
 
             holder.name.setText(String.format("%s %s", member.getFirstName(), member.getLastName()));
                 holder.job.setText(member.getJobTitle());

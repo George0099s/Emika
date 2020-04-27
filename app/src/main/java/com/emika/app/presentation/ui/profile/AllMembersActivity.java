@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ import com.emika.app.presentation.viewmodel.profile.AllMembersViewModel;
 
 import java.util.List;
 
+import javax.security.auth.callback.PasswordCallback;
+
 public class AllMembersActivity extends AppCompatActivity {
 
     private RecyclerView allMembersRecycler;
@@ -27,6 +30,7 @@ public class AllMembersActivity extends AppCompatActivity {
     private AllMembersViewModel viewModel;
     private String token;
     private String memberId;
+    private PackageManager packageManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +40,7 @@ public class AllMembersActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        packageManager = getPackageManager();
         token = EmikaApplication.getInstance().getSharedPreferences().getString("token", "");
         memberId = getIntent().getStringExtra("memberId");
         back = findViewById(R.id.all_members_back);
@@ -53,7 +58,7 @@ public class AllMembersActivity extends AppCompatActivity {
     }
 
     private Observer<List<PayloadShortMember>> getMembers = members -> {
-        adapter = new AllMembersAdapter(members, this, memberId);
+        adapter = new AllMembersAdapter(members, this, memberId, packageManager);
         allMembersRecycler.setAdapter(adapter);
     };
 }

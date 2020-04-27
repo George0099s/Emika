@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F2F5"
+    android:background="@color/calendarBackground"
     android:fitsSystemWindows="true">
 
     <ProgressBar
@@ -90,7 +90,7 @@
             android:id="@+id/fab_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
+            android:textColor="@color/mainTextColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/fab_job_title"
             app:layout_constraintTop_toTopOf="@+id/fab_img"

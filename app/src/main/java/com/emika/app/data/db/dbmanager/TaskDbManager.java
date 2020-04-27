@@ -6,6 +6,7 @@ import android.util.Log;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dao.TaskDao;
+import com.emika.app.data.db.dao.TaskTransactionDao;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.network.pojo.task.PayloadTask;
@@ -27,6 +28,7 @@ public class TaskDbManager {
     private AppDatabase db;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
     private TaskDao taskDao;
+    private TaskTransactionDao dao;
     private List<TaskEntity> payloadTaskList = new ArrayList<>();
     private Converter converter;
 
@@ -35,8 +37,14 @@ public class TaskDbManager {
     public TaskDbManager() {
         db = emikaApplication.getDatabase();
         taskDao = db.taskDao();
+        dao = db.taskTransactionDao();
         converter = new Converter();
     }
+
+    public void firsInsert(List<TaskEntity> taskEntityList){
+        db.taskTransactionDao().insertAndDeleteInTransaction(taskEntityList);
+    }
+
     @SuppressLint("CheckResult")
     public void getAllDbTaskById(TaskDbCallback callback, String assignee) {
         db.taskDao().getAllTaskByAssignee(assignee)

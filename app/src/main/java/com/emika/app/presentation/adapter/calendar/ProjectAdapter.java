@@ -39,7 +39,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         this.projects = projects;
         this.viewModel = viewModel;
         this.task = task;
-        Log.d(TAG, "ProjectAdapter: " + projects.size() + " " + projectDi.getProjectId() + " " +  projectDi.getProjectSectionId());
     }
 
 

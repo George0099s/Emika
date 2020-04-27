@@ -12,6 +12,17 @@
     <color name="picker_default_divider_color">@android:color/transparent</color>
     <color name="light_green">#35A666</color>
     <color name="green_status_bar">#2A8552</color>
+    <color name="calendarBackground">#F0F2F5</color>
     <dimen name="picker_default_divider_height">1dp</dimen>
+    <color name="inactiveHourCounter">#FFF</color>
+    <color name="mainTextColor">#000</color>
+    <color name="taskDoneTextColor">#6F85A2</color>
+    <color name="task_name_done">#6F85A2</color>
+    <color name="addTaskBackground">#FFF</color>
+    <color name="profileBackground">#FFF</color>
+    <color name="profileNameText">#585858</color>
+    <color name="profileTitleText">#424242</color>
+    <color name="leftChatText">#525252</color>
+    <color name="bottomNavView">#171717</color>
 
 </resources>
