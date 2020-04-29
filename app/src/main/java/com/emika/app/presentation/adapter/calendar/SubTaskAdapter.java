@@ -17,13 +17,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.network.pojo.subTask.SubTask;
+import com.emika.app.presentation.adapter.profile.ItemTouchHelper.ItemTouchHelperAdapter;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHolder> {
+public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHolder> implements ItemTouchHelperAdapter {
     private static final String TAG = "SubTaskAdapter";
 
     private List<SubTask> taskList;
@@ -57,7 +59,10 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
 
         holder.body.setImeOptions(EditorInfo.IME_ACTION_DONE);
         holder.body.setRawInputType(InputType.TYPE_CLASS_TEXT);
-
+        if (subTask.getNewTask()) {
+            holder.body.requestFocus();
+            subTask.setNewTask(false);
+        } else holder.body.clearFocus();
         if (subTask.getName() != null)
             holder.body.setText(subTask.getName());
 
@@ -115,7 +120,9 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
     }
 
     public void addSubTask(SubTask subTask) {
-        taskList.add(0, subTask);
+        subTask.setNewTask(true);
+        taskList.add(getItemCount(), subTask);
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -129,5 +136,30 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
             body = itemView.findViewById(R.id.sub_task_item_body);
             checkBox = itemView.findViewById(R.id.sub_task_item_checkbox);
         }
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(taskList, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(taskList, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        if (taskInfoViewModel != null) {
+            taskList.get(position).setStatus("deleted");
+            taskInfoViewModel.updateSubTask(taskList.get(position));
+        }
+        taskList.remove(position);
+        notifyItemRemoved(position);
+//        notifyDataSetChanged();
     }
 }

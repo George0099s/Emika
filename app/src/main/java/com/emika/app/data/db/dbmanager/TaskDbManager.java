@@ -106,8 +106,7 @@ public class TaskDbManager {
 
             @Override
             public void onComplete() {
-
-                Log.d(TAG, "onComplete: ");
+                Log.d(TAG, "onComplete: " + taskEntityList.size());
             }
 
             @Override

@@ -62,10 +62,10 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
         tokenDbManager = new TokenDbManager();
         lifecycleOwner = this;
         sharedPreferences = emikaApplication.getSharedPreferences();
-        if (sharedPreferences.getBoolean("darkMode", false))
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        else
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+//        if (sharedPreferences.getBoolean("darkMode", false))
+//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+//        else
+//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         if (NetworkState.getInstance(getApplication()).isOnline())
             if (!sharedPreferences.getBoolean("logged in", false))

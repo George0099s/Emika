@@ -95,10 +95,12 @@ public class EpicLinksAdapter extends RecyclerView.Adapter<EpicLinksAdapter.Epic
                         if (taskInfoViewModel.getTask().getEpicLinks().get(i).equals(epicLink.getId()))
                             taskInfoViewModel.getTask().getEpicLinks().remove(i);
                     }
+                   taskInfoViewModel.getDbEpicLinks();
                     taskInfoViewModel.getEpicLinksMutableLiveData();
                     taskInfoViewModel.updateTask(taskInfoViewModel.getTask());
                 } if(isChecked){
                     taskInfoViewModel.getTask().getEpicLinks().add(epicLink.getId());
+                    taskInfoViewModel.getDbEpicLinks();
                     taskInfoViewModel.getEpicLinksMutableLiveData();
                     taskInfoViewModel.updateTask(taskInfoViewModel.getTask());
                 }

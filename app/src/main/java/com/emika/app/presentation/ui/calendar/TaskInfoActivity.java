@@ -37,6 +37,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,10 +56,13 @@ import com.emika.app.di.Project;
 import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
+import com.emika.app.presentation.adapter.profile.ItemTouchHelper.SimpleItemTouchHelperCallback;
+import com.emika.app.presentation.adapter.profile.ItemTouchHelper.SubTaskTouchHelperCallback;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -89,6 +93,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     private String token, deadlineDateString;
     private LinearLayout selectProject;
     private Assignee assignee;
+    private LinearLayout backLayout;
     private CalendarViewModel calendarViewModel, boardViewModel;
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
@@ -213,6 +218,9 @@ public class TaskInfoActivity extends AppCompatActivity {
     private Observer<List<SubTask>> getSubTask = subTask -> {
         adapter = new SubTaskAdapter(subTask, null, taskInfoViewModel);
         subTaskRecycler.setAdapter(adapter);
+        ItemTouchHelper.Callback callback = new SubTaskTouchHelperCallback(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(subTaskRecycler);
     };
     private Observer<List<ProjectEntity>> getProjects = projectEntities -> {
         projectList = projectEntities;
@@ -250,11 +258,13 @@ public class TaskInfoActivity extends AppCompatActivity {
         token = EmikaApplication.getInstance().getSharedPreferences().getString("token", null);
         subTaskRecycler = findViewById(R.id.task_info_subtask_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setReverseLayout(true);
+        layoutManager.setReverseLayout(false);
+        layoutManager.setStackFromEnd(false);
         subTaskRecycler.setHasFixedSize(true);
         subTaskRecycler.setLayoutManager(layoutManager);
         addSubTask = findViewById(R.id.task_info_add_sub_task);
         addSubTask.setOnClickListener(this::addSubTask);
+
         taskDescription = findViewById(R.id.task_info_description);
         taskDescription.addTextChangedListener(taskDescriptionTextWatcher);
         taskName = findViewById(R.id.task_info_name);
@@ -282,7 +292,9 @@ public class TaskInfoActivity extends AppCompatActivity {
         userImg.setOnClickListener(this::selectCurrentAssignee);
         userName.setOnClickListener(this::selectCurrentAssignee);
         back = findViewById(R.id.task_info_back);
+        backLayout = findViewById(R.id.task_info_back_layout);
         back.setOnClickListener(this::onBackPressed);
+        backLayout.setOnClickListener(this::onBackPressed);
         selectProject = findViewById(R.id.tak_info_select_project);
         selectProject.setOnClickListener(this::selectProject);
         project = findViewById(R.id.task_info_project);
@@ -295,6 +307,7 @@ public class TaskInfoActivity extends AppCompatActivity {
 
         taskInfoViewModel.setTask(task);
         taskInfoViewModel.getTaskMutableLiveData().observe(this, getTask);
+        taskInfoViewModel.getDbEpicLinks();
         taskInfoViewModel.getEpicLinksMutableLiveData().observe(this, setTaskEpicLinks);
         taskInfoViewModel.getSubTaskMutableLiveData(task.getId()).observe(this, getSubTask);
         taskInfoViewModel.getAssigneeMutableLiveData().observe(this, setAssignee);
@@ -340,16 +353,36 @@ public class TaskInfoActivity extends AppCompatActivity {
         subTask.setProjectId(task.getProjectId());
         subTask.setSectionId(task.getSectionId());
         subTask.setDuration(60);
-        adapter.addSubTask(subTask);
-        adapter.notifyItemInserted(0);
-        subTaskRecycler.scrollToPosition(0);
-        for (int i = 0; i < adapter.getTaskList().size(); i++) {
-            subTasks.add(adapter.getTaskList().get(i).getName());
+        if (adapter.getTaskList().size() == 0) {
+            adapter.addSubTask(subTask);
+            adapter.notifyItemInserted(adapter.getItemCount());
+            subTaskRecycler.scrollToPosition(adapter.getItemCount());
+            for (int i = 0; i < adapter.getTaskList().size(); i++) {
+                subTasks.add(adapter.getTaskList().get(i).getName());
+            }
+            task.setSubTaskList(subTasks);
+            taskInfoViewModel.updateTask(task);
+            taskInfoViewModel.addSubTask(subTask);
+            subTaskRecycler.requestFocus(adapter.getItemCount() - 1);
+        } else if (!adapter.getTaskList().get(adapter.getItemCount()-1).getName().isEmpty()) {
+            adapter.addSubTask(subTask);
+            adapter.notifyItemInserted(adapter.getItemCount());
+            subTaskRecycler.scrollToPosition(adapter.getItemCount());
+            for (int i = 0; i < adapter.getTaskList().size(); i++) {
+                subTasks.add(adapter.getTaskList().get(i).getName());
+            }
+            task.setSubTaskList(subTasks);
+            taskInfoViewModel.updateTask(task);
+            taskInfoViewModel.addSubTask(subTask);
+            subTaskRecycler.requestFocus(adapter.getItemCount() - 1);
+        } else {
+            Snackbar myAwesomeSnackbar = Snackbar.make(
+                    view,
+                    "Sub-task name is missing",
+                    Snackbar.LENGTH_SHORT
+            );
+            myAwesomeSnackbar.show();
         }
-        task.setSubTaskList(subTasks);
-        taskInfoViewModel.updateTask(task);
-        taskInfoViewModel.addSubTask(subTask);
-        subTaskRecycler.requestFocus(0);
     }
 
     private void refreshTask(View view) {
@@ -400,12 +433,10 @@ public class TaskInfoActivity extends AppCompatActivity {
                     priority.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_task_urgent), null, null, null);
                     break;
             }
-            switch (task.getStatus()) {
-                case "done":
-                    taskDone.setChecked(true);
-                    break;
-                default:
-                    taskDone.setChecked(false);
+            if ("done".equals(task.getStatus())) {
+                taskDone.setChecked(true);
+            } else {
+                taskDone.setChecked(false);
             }
             if (task.getDuration() % 60 == 0)
                 estimatedTime.setText(String.format("%sh", String.valueOf(task.getDuration() / 60)));
@@ -460,7 +491,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private void onBackPressed(View view) {
-        super.onBackPressed();
+        finish();
     }
 
     @Override
@@ -472,7 +503,6 @@ public class TaskInfoActivity extends AppCompatActivity {
         menu.add(0, 4, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.duplicate_task)));
         if (task.getStatus().equals("canceled"))
             menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_archive), getResources().getString(R.string.archieve_task)));
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -603,7 +633,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
-                deadlineDate.setText("No deadline");
+                deadlineDate.setText(getResources().getString(R.string.no_deadline));
                 deadlineDate.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_deadline), null, null, null);
                 deadlineDate.setTextColor(getResources().getColor(R.color.grey));
                 task.setDeadlineDate(null);

@@ -508,12 +508,18 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     }
 
     public void moveItem(int fromColumn, int fromRow, int toColumn, int toRow, boolean scrollToItem) {
+        Log.d(TAG, "moveItem: onne");
+
         if (!isDragging() && mLists.size() > fromColumn && mLists.get(fromColumn).getAdapter().getItemCount() > fromRow
                 && mLists.size() > toColumn && mLists.get(toColumn).getAdapter().getItemCount() >= toRow) {
+            Log.d(TAG, "moveItem: two");
+
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(fromColumn).getAdapter();
             Pair item = adapter.removeItem(fromRow);
             adapter = (DragItemAdapter) mLists.get(toColumn).getAdapter();
             adapter.addItem(toRow, item);
+            Log.d(TAG, "moveItem: yeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+
             if (scrollToItem) {
                 scrollToItem(toColumn, toRow, false);
             }
@@ -521,10 +527,13 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     }
 
     public void moveItem(long itemId, int toColumn, int toRow, boolean scrollToItem) {
+
+
         for (int i = 0; i < mLists.size(); i++) {
             RecyclerView.Adapter adapter = mLists.get(i).getAdapter();
             final int count = adapter.getItemCount();
             for (int j = 0; j < count; j++) {
+
                 long id = adapter.getItemId(j);
                 if (id == itemId) {
                     moveItem(i, j, toColumn, toRow, scrollToItem);

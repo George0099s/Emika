@@ -103,6 +103,7 @@ public class AddTaskActivity extends AppCompatActivity {
     private String DATE;
     private PayloadTask task;
     private Calendar c;
+    private LinearLayout backLayout;
     DatePickerDialog.OnDateSetListener planDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -164,10 +165,13 @@ public class AddTaskActivity extends AppCompatActivity {
         else
             Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(userImg);
     };
+
+
     private Observer<Project> setProjectData = project1 -> {
         project.setText(project1.getProjectName());
         section.setText(project1.getProjectSectionName());
     };
+
     private long mLastClickTime = 0;
 
     @Override
@@ -217,7 +221,9 @@ public class AddTaskActivity extends AppCompatActivity {
         addTask = findViewById(R.id.add_task_img);
         addTask.setOnClickListener(this::addTask);
         back = findViewById(R.id.add_task_back);
+        backLayout = findViewById(R.id.add_task_back_back_layout);
         back.setOnClickListener(this::onBackPressed);
+        backLayout.setOnClickListener(this::onBackPressed);
         planDate = findViewById(R.id.add_task_plan_date);
         estimatedTime = findViewById(R.id.add_task_estimated_time);
         estimatedTime.setOnClickListener(this::setTime);
@@ -239,7 +245,8 @@ public class AddTaskActivity extends AppCompatActivity {
         epicLinks = findViewById(R.id.add_task_epic_links);
         epicLinks.setOnClickListener(this::selectEpicLinks);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setReverseLayout(true);
+        layoutManager.setReverseLayout(false);
+        layoutManager.setStackFromEnd(false);
         viewModel.getEpicLinksMutableLiveData().observe(this, getEpicLinks);
         subTaskRecycler.setHasFixedSize(true);
         subTaskRecycler.setLayoutManager(layoutManager);
@@ -261,10 +268,25 @@ public class AddTaskActivity extends AppCompatActivity {
         List<SubTask> subTasks = new ArrayList<>();
         SubTask subTask = new SubTask();
         subTask.setStatus("wip");
-        subTaskAdapter.addSubTask(subTask);
-        subTaskAdapter.notifyItemInserted(0);
-        subTaskRecycler.scrollToPosition(0);
-        subTaskRecycler.requestFocus(0);
+        subTask.setName("");
+        if (subTaskAdapter.getTaskList().size() == 0) {
+            subTaskAdapter.addSubTask(subTask);
+            subTaskAdapter.notifyItemInserted(subTaskAdapter.getItemCount());
+            subTaskRecycler.scrollToPosition(subTaskAdapter.getItemCount());
+            subTaskRecycler.requestFocus(subTaskAdapter.getItemCount() - 1);
+        } else if (!subTaskAdapter.getTaskList().get(subTaskAdapter.getItemCount()-1).getName().isEmpty()) {
+            subTaskAdapter.addSubTask(subTask);
+            subTaskAdapter.notifyItemInserted(subTaskAdapter.getItemCount());
+            subTaskRecycler.scrollToPosition(subTaskAdapter.getItemCount());
+            subTaskRecycler.requestFocus(subTaskAdapter.getItemCount() - 1);
+        } else {
+            Snackbar myAwesomeSnackbar = Snackbar.make(
+                    view,
+                    "Sub-task name is missing",
+                    Snackbar.LENGTH_SHORT
+            );
+            myAwesomeSnackbar.show();
+        }
     }
 
     private void onBackPressed(View view) {

@@ -1,6 +1,7 @@
 package com.emika.app.presentation.adapter.calendar
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -76,7 +77,7 @@ class DayInfoTaskAdapter(private val taskList: List<PayloadTask>, private val co
         else
             holder.spentTime.text = String.format("%sh", df!!.format(task.durationActual / 60.0f.toDouble()))
 
-
+        Log.d("LOG_TAG",  task.durationActual.toString())
         holder.priority.text = task.priority
 
 

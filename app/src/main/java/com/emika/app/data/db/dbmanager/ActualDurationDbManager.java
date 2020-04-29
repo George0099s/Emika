@@ -65,6 +65,26 @@ public class ActualDurationDbManager {
         });
     }
 
+    public void insertDurations(ActualDurationEntity actualDurationEntity, ActualDurationDbCallback callback) {
+        Completable.fromAction(() -> db.actualDurationDao().insert(actualDurationEntity)).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) { }
+
+            @Override
+            public void onComplete() {
+//                callback.onActualDurationLoaded(null);
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onMembersLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+
     public void deleteAllDurations() {
         Completable.fromAction(() -> db.actualDurationDao().deleteAll()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
             @Override
@@ -84,5 +104,23 @@ public class ActualDurationDbManager {
         });
     }
 
+    public void updateDbDuration(ActualDurationEntity actualDurationEntity) {
+        Completable.fromAction(() -> db.actualDurationDao().update(actualDurationEntity)).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) { }
 
+            @Override
+            public void onComplete() {
+//                callback.onActualDurationLoaded(null);
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onMembersLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
 }

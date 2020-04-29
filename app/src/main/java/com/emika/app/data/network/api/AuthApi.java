@@ -32,7 +32,7 @@ public interface AuthApi {
     Call<ModelAuth> logOut(@Query("token") String token);
 
     @FormUrlEncoded
-    @POST("public_api/auth/log_out")
+    @POST("public_api/auth/restore")
     Call<ModelAuth> restorePassword(@Query("token") String token,
                                     @Field("email") String email);
 

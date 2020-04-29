@@ -1,5 +1,6 @@
 package com.emika.app.data.db.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -11,6 +12,7 @@ import androidx.room.Update;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.pojo.task.PayloadTask;
+import com.google.android.gms.tasks.Tasks;
 
 import java.util.List;
 
@@ -24,10 +26,18 @@ public interface TaskDao {
 
     @Query("SELECT * FROM Task WHERE assignee = :assignee")
     Maybe<List<TaskEntity>> getAllTaskByAssignee(String assignee);
+
     @Query("SELECT * FROM Task WHERE id = :id")
     Maybe<TaskEntity> getTaskById(String id);
 
-     @Query("SELECT * FROM Task WHERE assignee = :assignee AND planDate = :planDate")
+    @Query("SELECT * FROM Task")
+    LiveData<List<TaskEntity>> getAllTaskLiveData();
+
+    @Query("SELECT * FROM Task WHERE assignee = :assignee")
+    LiveData<List<TaskEntity>> getAllTaskLiveDataByAssignee(String assignee);
+
+
+    @Query("SELECT * FROM Task WHERE assignee = :assignee AND planDate = :planDate")
     Maybe<List<TaskEntity>> getAllTaskByDateAssignee(String assignee, String planDate);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

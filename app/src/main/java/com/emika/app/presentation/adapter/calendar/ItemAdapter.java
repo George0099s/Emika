@@ -47,6 +47,7 @@ import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -65,9 +66,35 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     private List<ProjectEntity> projectEntities;
     private long mLastClickTime = 0;
     private DecimalFormat df;
+    private ArrayList<Pair<Long, PayloadTask>> sortedTask = new ArrayList<>();
     private CalendarViewModel calendarViewModel;
     public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress,
                        Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities, CalendarViewModel calendarViewModel) {
+
+        for (int i = 0; i < list.size(); i++) {
+        /*Предполагаем, что первый элемент (в каждом
+           подмножестве элементов) является минимальным */
+        if (!list.get(i).second.getPlanOrder().equals("null")) {
+            int min = Integer.parseInt(list.get(i).second.getPlanOrder());
+            int min_i = i;
+        /*В оставшейся части подмножества ищем элемент,
+           который меньше предположенного минимума*/
+            for (int j = i + 1; j < list.size(); j++) {
+                //Если находим, запоминаем его индекс
+                if (Integer.parseInt(list.get(j).second.getPlanOrder()) < min) {
+                    min = Integer.parseInt(list.get(j).second.getPlanOrder());
+                    min_i = j;
+                }
+            }
+        /*Если нашелся элемент, меньший, чем на текущей позиции,
+          меняем их местами*/
+            if (i != min_i) {
+                int tmp = Integer.parseInt(list.get(i).second.getPlanOrder());
+
+                Collections.swap(list, i, min_i);
+            }
+        }
+        }
         EmikaApplication.getInstance().getComponent().inject(this);
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
@@ -84,6 +111,8 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
 
     public ItemAdapter() {
 
+    }
+    public void sss(){
     }
 
     public void setmLayoutId(int mLayoutId) {
@@ -118,6 +147,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
         super.onBindViewHolder(holder, position);
         PayloadTask task = mItemList.get(position).second;
         if (!task.getStatus().equals("deleted")) {
+            task.setPlanOrder(String.valueOf(position));
             holder.mText.setText(task.getName());
             holder.itemView.setTag(mItemList.get(position));
             if (task.getDuration() % 60 == 0)
@@ -141,6 +171,7 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                     calendarNetworkManager.updateTask(task);
                 }
             });
+
             holder.refresh.setOnClickListener(v -> {
                 holder.mText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
                 task.setStatus("wip");

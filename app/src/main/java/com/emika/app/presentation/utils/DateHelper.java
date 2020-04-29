@@ -25,18 +25,27 @@ public class DateHelper {
             SimpleDateFormat formatted = new SimpleDateFormat("d MMM");
 
             Calendar c = Calendar.getInstance();
+            int today = c.getTime().getDay();
+            int newDay = 0;
             try {
                 c.setTime(sdf.parse(date));
-
+                newDay = c.getTime().getDay();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
             // number of days to add
-            if (date != null)
+            if (date != null) {
+                if (today == newDay)
+                    date = "Today";
+                else if (today < newDay && newDay - today == 1)
+                    date = "Tomorrow";
+                else if (today > newDay && today - newDay == 1)
+                    date = "Yesterday";
+                else
                 date = formatted.format(c.getTime());
+            }
         }
         return date;
-
     }
 
     public static String getDatePicker(String date) {

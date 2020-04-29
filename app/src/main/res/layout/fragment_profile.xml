@@ -231,6 +231,7 @@
             android:layout_marginTop="18dp"
             android:drawableLeft="@drawable/ic_dark_theme"
             android:drawablePadding="14dp"
+            android:visibility="gone"
             android:text="@string/dark_theme"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/profile_company_img"

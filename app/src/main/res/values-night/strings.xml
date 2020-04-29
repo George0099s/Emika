@@ -104,4 +104,6 @@
     <string name="all_changes_saved">All changes saved</string>
     <string name="sub_task">Sub-task</string>
     <string name="dark_theme">Dark Theme</string>
+    <string name="first_name_optinal">First name (optional)</string>
+    <string name="last_name_optional">Last name (optional)</string>
 </resources>

@@ -152,14 +152,15 @@ public class AuthNetworkManager {
         });
     }
 
-    public void restorePassword(AuthCallback callback) {
+    public void restorePassword(AuthCallback callback, String email) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL) // Адрес сервера
-                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
+                .baseUrl(Constants.BASIC_URL)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         AuthApi service = retrofit.create(AuthApi.class);
         Call<ModelAuth> call = service.restorePassword(token, email);
+        Log.d(TAG, "restorePassword: " + call.request().url() + " " + email);
         call.enqueue(new Callback<ModelAuth>() {
             @Override
             public void onResponse(retrofit2.Call<ModelAuth> call, Response<ModelAuth> response) {

@@ -127,12 +127,16 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment i
     }
 
     private void addProject(View view) {
-        if (addTaskListViewModel != null)
+        if (addTaskListViewModel != null) {
+            addTaskListViewModel.setEpicLinksList(new ArrayList<>());
+            addTaskListViewModel.getEpicLinksMutableLiveData();
             addTaskListViewModel.getProjectMutableLiveData();
+        }
         if (taskInfoViewModel != null) {
             task.setProjectId(projectDi.getProjectId());
             task.setSectionId(projectDi.getProjectSectionId());
             taskInfoViewModel.setTask(task);
+            taskInfoViewModel.getEpicLinksMutableLiveData().setValue(new ArrayList<>());
             taskInfoViewModel.getTaskMutableLiveData();
             taskInfoViewModel.getProjectMutableLiveData();
             taskInfoViewModel.updateTask(task);

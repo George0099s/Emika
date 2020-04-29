@@ -144,6 +144,7 @@ class ProfileFragment : Fragment(), TokenCallback {
 
     private fun initView(view: View) {
         app.component.inject(this)
+        sharedPreferences = EmikaApplication.getInstance().sharedPreferences
         token = EmikaApplication.getInstance().sharedPreferences.getString("token", "")
         view.darkThemeMode.isChecked = EmikaApplication.instance.sharedPreferences.getBoolean("darkMode", true)
         userDbManager = UserDbManager()

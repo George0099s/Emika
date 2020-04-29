@@ -1,7 +1,6 @@
 package com.emika.app.presentation.ui.calendar;
 
 import android.animation.ObjectAnimator;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -39,6 +38,7 @@ import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
+import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.network.networkManager.profile.UserNetworkManager;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
@@ -53,6 +53,7 @@ import com.emika.app.features.calendar.DragItem;
 import com.emika.app.features.hourcounter.HourCounterView;
 import com.emika.app.presentation.adapter.calendar.ItemAdapter;
 import com.emika.app.presentation.utils.Constants;
+import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.DateHelper;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetDialogViewModel;
@@ -113,6 +114,7 @@ public class BoardFragment extends Fragment {
     private Animation animOutRight;
     private String oldAssignee;
     private ProgressBar progressBar;
+    private Converter converter;
     private Observer<List<EpicLinksEntity>> getEpicLinks = epicLinksEntities -> {
         this.epicLinksEntities = epicLinksEntities;
     };
@@ -193,6 +195,7 @@ public class BoardFragment extends Fragment {
                     }
                 }
             }
+            viewModel.insertDbDuration(durationActual);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -240,6 +243,7 @@ public class BoardFragment extends Fragment {
         String id, value, status, taskId, projectId, companyId, date, person, createdAt, createdBy;
         JSONArray jsonArray = null;
         JSONObject jsonObject = new JSONObject();
+        PayloadDurationActual durationActual = new PayloadDurationActual();
         try {
             jsonArray = new JSONArray(Arrays.toString(args));
             jsonObject = jsonArray.getJSONObject(0);
@@ -253,7 +257,15 @@ public class BoardFragment extends Fragment {
             createdAt = jsonObject.getString("created_at");
             createdBy = jsonObject.getString("created_by");
             person = jsonObject.getString("person");
-
+            durationActual.setValue(Integer.valueOf(value));
+            durationActual.setCompanyId(companyId);
+            durationActual.setCreatedAt(createdAt);
+            durationActual.setCreatedBy(createdBy);
+            durationActual.setDate(date);
+            durationActual.setId(id);
+            durationActual.setPerson(person);
+            durationActual.setProjectId(projectId);
+            durationActual.setTaskId(taskId);
             for (int i = 0; i < durationActualList.size(); i++) {
                 if (durationActualList.get(i).getId().equals(id)) {
                     durationActualList.get(i).setValue(Integer.valueOf(value));
@@ -280,6 +292,7 @@ public class BoardFragment extends Fragment {
                     }
                 }
             }
+            viewModel.updateDbDuration(durationActual);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -287,6 +300,11 @@ public class BoardFragment extends Fragment {
     private long mLastClickTime = 0;
 
     private Observer<List<PayloadTask>> getTask = taskList -> {
+//       Toast.makeText(getContext(), String.valueOf(taskList.size()), Toast.LENGTH_SHORT).show();
+//
+//        for (int i = 0; i < taskList.size(); i++) {
+//            Log.d(TAG, ": "  + taskList.get(i).getName() +  " " + taskList.get(i).getAssignee() + " " + taskList.get(i).getStatus() + " " + taskList.get(i).getPlanDate());
+//        }
         progressBar.setVisibility(View.VISIBLE);
         mBoardView.setVisibility(View.GONE);
         payloadTaskList = new ArrayList<>();
@@ -296,9 +314,9 @@ public class BoardFragment extends Fragment {
         }
         viewModel.getProjectMutableLiveData();
 
-        for (int i = 0; i < 40; i++) {
-            Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
-        }
+//        for (int i = 0; i < 40; i++) {
+//            Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
+//        }
 
         AsyncTask asyncTask = new AsyncTask();
         asyncTask.execute(payloadTaskList);
@@ -315,7 +333,7 @@ public class BoardFragment extends Fragment {
     private Emitter.Listener onTaskUpdate = args -> Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
         Boolean hasTask = false;
         int row;
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         String date, name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, description, parentId, projectId, sectionId;
         JSONArray epicLinks = new JSONArray();
         List<String> epicLinkList = new ArrayList<>();
@@ -355,8 +373,10 @@ public class BoardFragment extends Fragment {
                 task2.setEpicLinks(epicLinkList);
                 task2.setAssignee(assignee);
                 task2.setPriority(priority);
+                task2.setPlanOrder(String.valueOf(row));
                 task2.setDescription(description);
                 task2.setStatus(status);
+                Log.d(TAG, ":  " + row);
                 for (int i = 0; i < mBoardView.getColumnCount(); i++) {
                     for (int j = 0; j < mBoardView.getAdapter(i).getItemCount(); j++) {
                         Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(j);
@@ -384,23 +404,35 @@ public class BoardFragment extends Fragment {
                                 viewModel.updateDbTask(taskNewPos.second);
                                 mBoardView.removeItem(i, j);
                             } else {
-
                                 if (taskNewPos.second.getStatus().equals("deleted")) {
                                     taskNewPos.second.setPlanDate(planDate);
                                     viewModel.updateDbTask(taskNewPos.second);
                                     mBoardView.removeItem(i, j);
                                 } else if (taskNewPos.second.getPlanDate().equals(planDate)) {
+                                    if (row > 0)
                                     mBoardView.getAdapter(i).swapItems(j, row);
+                                    else if (row == 0)
+                                        mBoardView.getAdapter(i).swapItems(j, row);
+                                    else if (row < 0)
+                                        mBoardView.getAdapter(i).swapItems(j, 0);
+
                                     mBoardView.invalidate();
                                     viewModel.updateDbTask(taskNewPos.second);
-                                } else if (!taskNewPos.second.getPlanDate().equals(planDate)){
+                                } else if (!taskNewPos.second.getPlanDate().equals(planDate)) {
                                     for (int k = 0; k < mBoardView.getColumnCount(); k++) {
-                                        if (planDate.equals(Constants.dateColumnMap.get(k))) {
-                                            taskNewPos.second.setPlanDate(planDate);
-                                            mBoardView.moveItem(i, j, k, row-1, false);
-                                            mBoardView.invalidate();
-//                                            viewModel.updateDbTask(taskNewPos.second);
+                                        if (!Constants.dateColumnMap.containsValue(planDate)){
+                                            mBoardView.getAdapter(i).getItemList().remove(taskNewPos);
                                         }
+
+                                            if (planDate.equals(Constants.dateColumnMap.get(k))) {
+                                            taskNewPos.second.setPlanDate(planDate);
+                                                if (row > 0)
+                                            mBoardView.moveItem(i, j, k, row-1, false);
+                                            else
+                                                mBoardView.moveItem(i, j, k, 0, false);
+                                            mBoardView.invalidate();
+                                        }
+
                                     }
                                 }
                             }
@@ -408,7 +440,7 @@ public class BoardFragment extends Fragment {
                     }
                 }
                 if (!date.equals("null"))
-                    if (assignee.equals(this.assignee.getId()) && !hasTask) {
+                    if (assignee.equals(this.assignee.getId()) && !hasTask)  {
                         PayloadTask task = new PayloadTask();
                         task.setName(name);
                         task.setId(id);
@@ -420,7 +452,9 @@ public class BoardFragment extends Fragment {
                         task.setPlanDate(planDate);
                         task.setAssignee(assignee);
                         task.setPriority(priority);
+                        task.setPlanOrder(String.valueOf(row));
                         task.setStatus(status);
+                        if (!status.equals("deleted") && !status.equals("archived"))
                         addTask(task);
                         viewModel.updateDbTask(task2);
                         viewModel.addDbTask(task2);
@@ -471,10 +505,14 @@ public class BoardFragment extends Fragment {
 //                     }
 //                 }
 //                viewModel.updateDbTask(task);
-                catch (JSONException e) {
+            catch (JSONException e) {
                 e.printStackTrace();
             }
     });
+
+    private Observer<PayloadTask> getTaskMutableData = task -> {
+        addTask(task);
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -483,13 +521,11 @@ public class BoardFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
     private void initViews(View view) {
-
+        for (int i = 0; i < 100; i++) {
+            Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
+        }
+        converter = new Converter();
         progressBar = view.findViewById(R.id.board_progress_bar);
         animRight = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right_anim);
         animLeft = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left_anim);
@@ -515,19 +551,20 @@ public class BoardFragment extends Fragment {
         socket.on("create_duration_actual_log", onCreateActualDuration);
         socket.on("delete_duration_actual_log", onDeleteActualDuration);
         socket.on("update_duration_actual_log", onUpdateActualDuration);
-        viewModel.downloadTasksByAssignee(assignee.getId());
-//        viewModel.getAllDbTaskByAssignee(assignee.getId());
+           profileViewModel.setContext(getContext());
+        profileViewModel.downloadUserData();
+//        profileViewModel.getDbUserData();
+        profileViewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), userInfo);
+//        viewModel.getAllDbTask();
         viewModel.getAllDbDurations();
-
+        viewModel.downloadTasksByAssignee(user.getId());
+//        viewModel.getAllDbTaskByAssignee(user.getId());
         fabUserName = view.findViewById(R.id.fab_user_name);
         fabImg = view.findViewById(R.id.fab_img);
         fabJobTitle = view.findViewById(R.id.fab_job_title);
         selectCurrentUser = view.findViewById(R.id.select_current_user);
         selectCurrentUser.setOnClickListener(this::selectCurrentAssignee);
-        profileViewModel.setContext(getContext());
-        profileViewModel.downloadUserData();
-        profileViewModel.getDbUserData();
-        profileViewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), userInfo);
+
         rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
         rightScroll = view.findViewById(R.id.right_scroll_to_current_date);
         leftScroll = view.findViewById(R.id.left_scroll_to_current_date);
@@ -551,20 +588,34 @@ public class BoardFragment extends Fragment {
 
             @Override
             public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
-            }
-
-            @Override
-            public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
-                Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(newColumn).getItemList().get(newRow);
-                taskNewPos.second.setPlanDate(Constants.dateColumnMap.get(newColumn));
-                taskNewPos.second.setPlanOrder(String.valueOf(newRow + 1));
+                Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(toColumn).getItemList().get(toRow);
+//                Pair<Long, PayloadTask> taskOldPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(fromColumn).getItemList().get(fromRow);
+                Log.d(TAG, "onItemDragEnded() called with: fromColumn = [" + fromColumn + "], fromRow = [" + fromRow + "], toColumn = [" + toColumn + "], toRow = [" + toRow + "]");
+                taskNewPos.second.setPlanDate(Constants.dateColumnMap.get(toColumn));
+                taskNewPos.second.setPlanOrder(String.valueOf(toRow));
+//                taskOldPos.second.setPlanOrder(String.valueOf(oldRow));
                 viewModel.updateTask(taskNewPos.second);
+                for (int i = 0; i < mBoardView.getAdapter(toColumn).getItemList().size(); i++) {
+                    Pair<Long, PayloadTask> task = (Pair<Long, PayloadTask>) mBoardView.getAdapter(toColumn).getItemList().get(i);
+                    task.second.setPlanOrder(String.valueOf(mBoardView.getAdapter(toColumn).getPositionForItem(task)));
+                    Log.d(TAG, "onItemDragEnded: " + (mBoardView.getAdapter(toColumn).getPositionForItem(task)));
+//                    int min = Integer.parseInt(task.second.getPlanOrder());
+//                    if (min == Integer.parseInt(task.second.getPlanOrder())) {
+//                        min++;
+//                        taskNewPos.second.setPlanOrder(String.valueOf(min));
+//
+//                         viewModel.updateTask(task.second);
+//                     } else
+                         viewModel.updateTask(task.second);
+
+                }
+//                viewModel.updateTask(taskOldPos.second);
                 int estimatedTimeNew = 0;
                 int estimatedTimeOld = 0;
-                HourCounterView hourEstimatedOld = mBoardView.getHeaderView(oldColumn).findViewById(R.id.hour_counter_estimated);
-                HourCounterView hourEstimatedNew = mBoardView.getHeaderView(newColumn).findViewById(R.id.hour_counter_estimated);
-                ArrayList<Pair<Long, PayloadTask>> newTasks = mBoardView.getAdapter(newColumn).getItemList();
-                ArrayList<Pair<Long, PayloadTask>> oldTasks = mBoardView.getAdapter(oldColumn).getItemList();
+                HourCounterView hourEstimatedOld = mBoardView.getHeaderView(fromColumn).findViewById(R.id.hour_counter_estimated);
+                HourCounterView hourEstimatedNew = mBoardView.getHeaderView(toColumn).findViewById(R.id.hour_counter_estimated);
+                ArrayList<Pair<Long, PayloadTask>> newTasks = mBoardView.getAdapter(toColumn).getItemList();
+                ArrayList<Pair<Long, PayloadTask>> oldTasks = mBoardView.getAdapter(fromColumn).getItemList();
 
                 for (int i = 0; i < oldTasks.size(); i++) {
                     Pair<Long, PayloadTask> pair = oldTasks.get(i);
@@ -591,6 +642,11 @@ public class BoardFragment extends Fragment {
             }
 
             @Override
+            public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
+
+            }
+
+            @Override
             public void onItemChangedColumn(int oldColumn, int newColumn) {
 
             }
@@ -606,6 +662,7 @@ public class BoardFragment extends Fragment {
 //                    viewModel.getAllDbTaskByAssigneeDate(assignee.getId(), DateHelper.compareDate(mBoardView.getColumnCount()));
 //                    viewModel.getFilteredTaskListMutableLiveData().observe(getViewLifecycleOwner(), getFilteredTask);
 //                }
+
                 mBoardView.setLastColumn(newColumn);
 
 
@@ -664,11 +721,28 @@ public class BoardFragment extends Fragment {
         viewModel.getProjectMutableLiveData().observe(getViewLifecycleOwner(), getProjectEntity);
         viewModel.getDurationMutableLiveData().observe(getViewLifecycleOwner(), getDuration);
         viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
-        viewModel.downloadTasksByAssignee(user.getId());
+//        viewModel.downloadTasksByAssignee(user.getId());
         viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
         oldAssignee = assignee.getId();
     }
 
+    private Observer<List<TaskEntity>> getTaskEntity = taskEntityList -> {
+        Toast.makeText(getActivity(),String.valueOf(taskEntityList.size()), Toast.LENGTH_SHORT).show();
+        progressBar.setVisibility(View.VISIBLE);
+        mBoardView.setVisibility(View.GONE);
+        List<PayloadTask> taskList;
+        taskList = converter.fromTaskEntityToPayloadTaskList(taskEntityList);
+
+        payloadTaskList = new ArrayList<>();
+        for (int i = 0; i < taskList.size(); i++) {
+            if (taskList.get(i).getAssignee().equals(assignee.getId()))
+                payloadTaskList.add(taskList.get(i));
+        }
+        viewModel.getProjectMutableLiveData();
+
+        AsyncTask asyncTask = new AsyncTask();
+        asyncTask.execute(payloadTaskList);
+    };
 
     private void selectCurrentAssignee(View view) {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
@@ -710,7 +784,6 @@ public class BoardFragment extends Fragment {
             mItemArray.add(new Pair<Long, PayloadTask>(id, payloadTaskList.get(i)));
         }
 
-
         for (int j = 0; j < durationActualList.size(); j++) {
             if (Constants.dateColumnMap.get(columnNumber).equals(durationActualList.get(j).getDate()) && durationActualList.get(j).getPerson().equals(assignee.getId())) {
                 spentTime += (durationActualList.get(j).getValue());
@@ -726,9 +799,7 @@ public class BoardFragment extends Fragment {
         int finalEstimatedTime = estimatedTime;
         int finalSpentTime = spentTime;
 
-
         header.setOnClickListener(v -> {
-
             if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
                 return;
             } else {
@@ -741,10 +812,8 @@ public class BoardFragment extends Fragment {
                 mySheetDialog.setArguments(bundle);
                 FragmentManager fm = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
                 mySheetDialog.show(fm, "dayInfo");
-
             }
             mLastClickTime = SystemClock.elapsedRealtime();
-
         });
 
         ((TextView) header.findViewById(R.id.header_date)).setText(month);
@@ -802,19 +871,14 @@ public class BoardFragment extends Fragment {
         if (data != null && requestCode == 42) {
             PayloadTask task = data.getParcelableExtra("task");
             if (!assignee.getId().equals(oldAssignee)) {
-//                viewModel.getAllDbTaskByAssignee(assignee.getId());
-//                viewModel.downloadTasksByAssignee(assignee.getId());
-                viewModel.downloadTasks();
+                viewModel.getAllDbTaskByAssignee(assignee.getId());
                 viewModel.getAssigneeMutableLiveData();
-//                viewModel.getDbTaskById(task.getId());
-//                viewModel.taskMutableLiveData().observe(this, getTaskMutableData);
+//                addTask(task);
+//                viewModel.getTaskDbLiveDataByAssignee(assignee.getId());
             }
         }
     }
 
-    private Observer<PayloadTask> getTaskMutableData = task -> {
-        addTask(task);
-    };
     private void addTask(PayloadTask task, int column) {
         long id = sCreatedItems++;
         Pair item = new Pair<>(id, task);
@@ -830,6 +894,7 @@ public class BoardFragment extends Fragment {
                 column = entry.getKey();
             }
         }
+
         if (assignee.getId().equals(task.getAssignee())) {
             HourCounterView hourEstimatedNew = mBoardView.getHeaderView(column).findViewById(R.id.hour_counter_estimated);
             if (task.getDuration() % 60 == 0)
@@ -902,7 +967,7 @@ public class BoardFragment extends Fragment {
         @Override
         protected List<ArrayList<PayloadTask>> doInBackground(List<PayloadTask>... taskList) {
             if (taskList != null)
-                for (int i = 0; i < 40; i++) {
+                for (int i = 0; i < 100; i++) {
                     ArrayList<PayloadTask> plannedTask = new ArrayList<>();
                     for (int j = 0; j < taskList[0].size(); j++) {
                         if (taskList[0].get(j).getPlanDate() != null) {

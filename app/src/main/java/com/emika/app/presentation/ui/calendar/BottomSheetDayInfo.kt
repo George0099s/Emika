@@ -17,6 +17,7 @@ import com.emika.app.features.calendar.MemberItemDecoration
 import com.emika.app.presentation.adapter.calendar.DayInfoTaskAdapter
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel
+import com.emika.app.presentation.viewmodel.calendar.DayInfoViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.bottom_sheet_day_info.*
 import java.text.DecimalFormat
@@ -25,11 +26,10 @@ import javax.inject.Inject
 class BottomSheetDayInfo : BottomSheetDialogFragment() {
     @Inject
     lateinit var assigneeDi: Assignee
-
     @Inject
     lateinit var userDi: User
     private val token: String? = EmikaApplication.instance.sharedPreferences.getString("token", "")
-    private val viewModel: CalendarViewModel = CalendarViewModel(token)
+    private val viewModel: DayInfoViewModel = DayInfoViewModel(token!!)
     private val decor: MemberItemDecoration = MemberItemDecoration()
     private var date: String? = null
     private var estimatedTime: Int = 0
@@ -49,8 +49,6 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -59,10 +57,10 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
         date = arguments!!.getString("date")
         estimatedTime = arguments!!.getInt("estimatedTime")
         spentTime = arguments!!.getInt("spentTime")
-        viewModel.setFirstRun(false)
+//        viewModel.setFirstRun(false)
         viewModel.getAllDbTaskByAssignee(assigneeDi.id)
-        viewModel.getDbDurationsByAssignee(assigneeDi.id, date)
-        viewModel.tasks.observe(viewLifecycleOwner, getTask)
+        viewModel.getAllDbDurationByAssignee(assigneeDi.id, date)
+        viewModel.taskListMutableLiveData.observe(viewLifecycleOwner, getTask)
         viewModel.durationMutableLiveData.observe(viewLifecycleOwner, getDuration)
 
         dayInfoRecycler.setHasFixedSize(true)
@@ -75,16 +73,15 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
 
     private val getTask = Observer { taskList: List<PayloadTask> ->
         val tasks: MutableList<PayloadTask> = arrayListOf()
-
         this.taskList = taskList as MutableList<PayloadTask>
         for (duration in durations) {
             for (task in taskList)
                 if (task.id == duration.taskId)
                     tasks.add(task)
         }
+        viewModel.durationMutableLiveData
         val adapter = DayInfoTaskAdapter(tasks, context!!, assigneeDi, durations)
         dayInfoRecycler.adapter = adapter
-        viewModel.durationMutableLiveData
     }
 
     private val getDuration = Observer { durations: List<PayloadDurationActual> ->
@@ -93,7 +90,7 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
 //        for (duration in durations) {
 //            spentTime += duration.value
 //        }
-        viewModel.tasks
+        viewModel.taskListMutableLiveData
 
         if (estimatedTime % 60 == 0)
             dayInfoEstimatedTime.progress = (estimatedTime / 60).toString()

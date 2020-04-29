@@ -2,6 +2,9 @@ package com.emika.app.presentation.utils;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
@@ -57,9 +60,11 @@ public class Converter {
     }
 
     public List<TaskEntity> fromPayloadTaskToTaskEntityList(List<PayloadTask> taskList) {
+        taskEntities = new ArrayList<>();
         for (int i = 0; i < taskList.size(); i++) {
             TaskEntity taskEntity = new TaskEntity();
             taskEntity.setId(taskList.get(i).getId());
+            taskEntity.setPlanOrder(Integer.valueOf(taskList.get(i).getPlanOrder()));
             taskEntity.setAssignee(taskList.get(i).getAssignee());
             taskEntity.setCompanyId(taskList.get(i).getCompanyId());
             taskEntity.setCreatedAt(taskList.get(i).getCreatedAt());
@@ -102,6 +107,7 @@ public class Converter {
             payloadTask.setDurationActual(taskList.get(i).getDurationActual());
             payloadTask.setName(taskList.get(i).getName());
             payloadTask.setProjectId(taskList.get(i).getProjectId());
+            payloadTask.setPlanOrder(String.valueOf(taskList.get(i).getPlanOrder()));
             payloadTask.setSectionId(taskList.get(i).getSectionId());
             payloadTaskList.add(payloadTask);
         }
@@ -109,7 +115,7 @@ public class Converter {
     }
 
     public PayloadTask fromTaskEntityToPayloadTask(TaskEntity task) {
-        this.payloadTask = new PayloadTask();
+        PayloadTask payloadTask = new PayloadTask();
         payloadTask.setId(task.getId());
         payloadTask.setAssignee(task.getAssignee());
         payloadTask.setCompanyId(task.getCompanyId());
@@ -125,6 +131,7 @@ public class Converter {
         payloadTask.setDescription(task.getDescription());
         payloadTask.setDuration(task.getDuration());
         payloadTask.setPlanDate(task.getPlanDate());
+        payloadTask.setPlanOrder(String.valueOf(task.getPlanOrder()));
         payloadTask.setName(task.getName());
         return payloadTask;
     }
@@ -137,6 +144,7 @@ public class Converter {
         taskEntity.setCreatedAt(task.getCreatedAt());
         taskEntity.setCreatedBy(task.getCreatedBy());
         taskEntity.setPriority(task.getPriority());
+        taskEntity.setStatus(task.getStatus());
         taskEntity.setDeadlineDate(task.getDeadlineDate());
         taskEntity.setDeadlineEmika(task.getDeadlineEmika());
         taskEntity.setDeadlineTime(task.getDeadlineTime());
@@ -144,6 +152,9 @@ public class Converter {
         taskEntity.setDescription(task.getDescription());
         taskEntity.setDuration(task.getDuration());
         taskEntity.setPlanDate(task.getPlanDate());
+        taskEntity.setProjectId(task.getProjectId());
+        taskEntity.setSectionId(task.getSectionId());
+        taskEntity.setPlanOrder(Integer.valueOf(task.getPlanOrder()));
         taskEntity.setName(task.getName());
         return taskEntity;
     }
@@ -263,7 +274,7 @@ public class Converter {
     }
 
     public List<PayloadEpicLinks> fromEpicLinksEntityToPayloadEpicLinks(List<EpicLinksEntity> epicLinksEntityList) {
-
+        payloadEpicLinks = new ArrayList<>();
         for (int i = 0; i < epicLinksEntityList.size(); i++) {
             PayloadEpicLinks epicLinks = new PayloadEpicLinks();
             epicLinks.setId(epicLinksEntityList.get(i).getId());
@@ -359,6 +370,51 @@ public class Converter {
         Log.d(TAG, "fromEntityListDurationToPayloadListDuration: " + durationActuals.size() + " " + durationActualList.size());
         return durationActuals;
     }
+
+    public ActualDurationEntity fromPayloadDurationToDurationEntity(PayloadDurationActual durationActual) {
+    ActualDurationEntity actualDurationEntity = new ActualDurationEntity(
+            durationActual.getId(),
+            durationActual.getStatus(),
+            durationActual.getTaskId(),
+            durationActual.getProjectId(),
+            durationActual.getCompanyId(),
+            durationActual.getDate(),
+            durationActual.getPerson(),
+            durationActual.getValue(),
+            durationActual.getCreatedAt(),
+            durationActual.getCreatedBy());
+        return actualDurationEntity;
+    }
+
+    public MutableLiveData<List<PayloadTask>> fromTaskEntityToPayloadTaskList(LiveData<List<TaskEntity>> taskList) {
+        MutableLiveData<List<PayloadTask>> payloadTaskList = new MutableLiveData<>();
+        for (int i = 0; i < taskList.getValue().size(); i++) {
+            PayloadTask payloadTask = new PayloadTask();
+            payloadTask.setId(taskList.getValue().get(i).getId());
+            payloadTask.setAssignee(taskList.getValue().get(i).getAssignee());
+            payloadTask.setCompanyId(taskList.getValue().get(i).getCompanyId());
+            payloadTask.setCreatedAt(taskList.getValue().get(i).getCreatedAt());
+            payloadTask.setCreatedBy(taskList.getValue().get(i).getCreatedBy());
+            payloadTask.setPriority(taskList.getValue().get(i).getPriority());
+            payloadTask.setDeadlineDate(taskList.getValue().get(i).getDeadlineDate());
+            payloadTask.setDeadlineEmika(taskList.getValue().get(i).getDeadlineEmika());
+            payloadTask.setDeadlineTime(taskList.getValue().get(i).getDeadlineTime());
+            payloadTask.setDeadlinePeriod(taskList.getValue().get(i).getDeadlinePeriod());
+            payloadTask.setDescription(taskList.getValue().get(i).getDescription());
+            payloadTask.setStatus(taskList.getValue().get(i).getStatus());
+            payloadTask.setDuration(taskList.getValue().get(i).getDuration());
+            payloadTask.setPlanDate(taskList.getValue().get(i).getPlanDate());
+            payloadTask.setDurationActual(taskList.getValue().get(i).getDurationActual());
+            payloadTask.setName(taskList.getValue().get(i).getName());
+            payloadTask.setProjectId(taskList.getValue().get(i).getProjectId());
+            payloadTask.setPlanOrder(String.valueOf(taskList.getValue().get(i).getPlanOrder()));
+            payloadTask.setSectionId(taskList.getValue().get(i).getSectionId());
+            payloadTaskList.getValue().add(payloadTask);
+        }
+        return payloadTaskList;
+
+    }
+
 }
 
 

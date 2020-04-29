@@ -82,19 +82,29 @@ public class  SelectCurrentUserAdapter extends RecyclerView.Adapter<SelectCurren
                     assignee.setPictureUrl(member.getPictureUrl());
 
                     if (addTaskListViewModel == null && taskInfoViewModel == null) {
-                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
-//                        calendarViewModel.downloadTasksByAssignee(member.getId());
+//                        calendarViewModel.getAllDbTask();
+//                        calendarViewModel.getTaskDbLiveDataByAssignee(member.getId());
+//                        calendarViewModel.liveData();
                         calendarViewModel.getAssigneeMutableLiveData();
+//                        calendarViewModel.downloadTasksByAssignee(member.getId());
+                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                            calendarViewModel.downloadTasks();
+//                        calendarViewModel.downloadTasksByAssignee(member.getId());
                     } else if (addTaskListViewModel != null) {
                         addTaskListViewModel.getAssignee();
 //                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
 //                        calendarViewModel.getAssigneeMutableLiveData();
                     } else {
                         taskInfoViewModel.getAssigneeMutableLiveData();
-                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                        calendarViewModel.downloadTasks();
 //                        calendarViewModel.downloadTasksByAssignee(member.getId());
+//                        taskInfoViewModel.getAssigneeMutableLiveData();
+                        calendarViewModel.getAllDbTaskByAssignee(member.getId());
+//                        calendarViewModel.getTaskDbLiveDataByAssignee(member.getId());
+//                        calendarViewModel.downloadTasksByAssignee(member.getId());
+//                        calendarViewModel.liveData();
 
-                        calendarViewModel.getAssigneeMutableLiveData();
+//                        calendarViewModel.getAssigneeMutableLiveData();
                     }
                     bottomSheetCalendarSelectUser.dismiss();
                 });

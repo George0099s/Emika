@@ -49,6 +49,10 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
 
     private MutableLiveData<List<SubTask>> subTaskMutableLiveData;
 
+    public void setEpicLinksList(List<PayloadEpicLinks> epicLinksList) {
+        this.epicLinksList = epicLinksList;
+    }
+
     private List<PayloadEpicLinks>  epicLinksList;
     private Converter converter;
     private TaskInfoRepository taskInfoRepository;
@@ -143,8 +147,12 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
         dest.writeString(token);
     }
 
-    public MutableLiveData<List<EpicLinksEntity>> getEpicLinksMutableLiveData() {
+    public void getDbEpicLinks(){
         repository.getDbEpicLinks(this);
+    }
+
+    public MutableLiveData<List<EpicLinksEntity>> getEpicLinksMutableLiveData() {
+//        repository.getDbEpicLinks(this);
         return epicLinksMutableLiveData;
     }
 

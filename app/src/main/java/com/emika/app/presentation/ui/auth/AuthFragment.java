@@ -33,6 +33,8 @@ import com.emika.app.presentation.ui.MainActivity;
 import com.emika.app.presentation.ui.StartActivity;
 import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.viewModelFactory.auth.AuthViewModelFactory;
+import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
+import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.auth.AuthViewModel;
 
 public class AuthFragment extends Fragment {
@@ -45,6 +47,7 @@ public class AuthFragment extends Fragment {
     private FragmentManager fm;
     private TokenDbManager dbManager;
     private SharedPreferences sharedPreferences;
+    private StartActivityViewModel startActivityViewModel;
     private EmikaApplication emikaApplication = EmikaApplication.getInstance();
 
     public static AuthFragment newInstance() {
@@ -64,6 +67,7 @@ public class AuthFragment extends Fragment {
         sharedPreferences = emikaApplication.getSharedPreferences();
         token = sharedPreferences.getString("token","");
         mViewModel = new ViewModelProvider(this, new AuthViewModelFactory(token)).get(AuthViewModel.class);
+        startActivityViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
         restorePassBtn = view.findViewById(R.id.restore_pass);
         restorePassBtn.setOnClickListener(this::restorePass);
         fm = getParentFragmentManager();
@@ -91,7 +95,7 @@ public class AuthFragment extends Fragment {
     }
     private void restorePass(View view) {
         mViewModel.setEmail(email.getText().toString());
-        mViewModel.getRestorePassword().observe(getViewLifecycleOwner(), restorePass);
+        mViewModel.getRestorePassword(email.getText().toString()).observe(getViewLifecycleOwner(), restorePass);
     }
 
     private void signIn(View view) {
@@ -138,6 +142,7 @@ public class AuthFragment extends Fragment {
         if (auth.getOk() && auth.getPayload()){
             Intent intent = new Intent(getContext(), StartActivity.class);
             sharedPreferences.edit().putBoolean("logged in", true).apply();
+//            startActivityViewModel.fetchAllData();
             intent.putExtra("token", token);
             startActivity(intent);
         } else {

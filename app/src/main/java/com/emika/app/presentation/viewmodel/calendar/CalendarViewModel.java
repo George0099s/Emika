@@ -62,6 +62,7 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     User userDi;
     private MutableLiveData<List<PayloadTask>> taskListMutableLiveData;
     private MutableLiveData<List<PayloadTask>> filteredTaskListMutableLiveData;
+    private LiveData<List<TaskEntity>> taskEntity;
     private MutableLiveData<Boolean> currentColumn;
     private MutableLiveData<List<PayloadShortMember>> membersMutableLiveData;
     private MutableLiveData<Assignee> assigneeMutableLiveData;
@@ -100,8 +101,16 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         repository = new CalendarRepository(token);
         converter = new Converter();
         taskMutableLiveData = new MutableLiveData<>();
+        taskEntity = new MutableLiveData<>();
+    }
+    public LiveData<List<TaskEntity>> liveData(){
+        Log.d(TAG, "liveData: ");
+        return repository.getLiveDataTasks(EmikaApplication.getInstance().getDatabase().taskDao());
     }
 
+    public LiveData<List<TaskEntity>> getTaskDbLiveDataByAssignee(String assignee){
+        return repository.getLiveDataTasksByAssignee(EmikaApplication.getInstance().getDatabase().taskDao(), assignee);
+    }
 
     protected CalendarViewModel(Parcel in) {
         assignee = in.readParcelable(Assignee.class.getClassLoader());
@@ -131,23 +140,21 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     }
 
     public MutableLiveData<List<PayloadTask>> getListMutableLiveData() {
-//            repository.getDBTaskListById(this, assignee.getId());
             return taskListMutableLiveData;
     }
 
     public void getAllDbTaskByAssignee(String assignee){
-//        if (!firstRun)
+        Log.d(TAG, "getAllDbTaskByAssignee: " + assignee);
         repository.getDBTaskListById(this, assignee);
     }
 
     public void getDbTaskById(String id){
-//        if (!firstRun)
         repository.getDBTaskById(this, id);
     }
 
 
     public void downloadTasksByAssignee(String assignee){
-//        firstRun = false;
+        Log.d(TAG, "downloadTasksByAssignee:  "+ assignee);
         repository.downloadTasksByAssignee(this, assignee);
     }
 
@@ -160,7 +167,12 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         return taskListMutableLiveData;
     }
 
-
+    public void insertDbDuration(PayloadDurationActual durationActual){
+        repository.insertDbDurations(converter.fromPayloadDurationToDurationEntity(durationActual),this);
+    }
+    public void updateDbDuration(PayloadDurationActual durationActual){
+        repository.updateDbDurations(converter.fromPayloadDurationToDurationEntity(durationActual));
+    }
 
     public void updateTask(PayloadTask task) {
         repository.updateTask(task);
@@ -184,17 +196,16 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     @Override
     public void onTasksLoaded(List<TaskEntity> taskList) {
-            taskListMutableLiveData.postValue( converter.fromTaskEntityToPayloadTaskList(taskList));
+            taskListMutableLiveData.postValue(converter.fromTaskEntityToPayloadTaskList(taskList));
     }
 
     @Override
     public void onFilteredTasksLoaded(List<TaskEntity> taskList) {
-        filteredTaskListMutableLiveData.postValue(converter.fromTaskEntityToPayloadTaskList(taskList));
+        taskListMutableLiveData.postValue(converter.fromTaskEntityToPayloadTaskList(taskList));
     }
 
     @Override
     public void onOneTaskLoaded(TaskEntity taskEntity) {
-        Log.d(TAG, "onOneTaskLoaded: " + taskEntity.getName());
         taskMutableLiveData.postValue(converter.fromTaskEntityToPayloadTask(taskEntity));
     }
 

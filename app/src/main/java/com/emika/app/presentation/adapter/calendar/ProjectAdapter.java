@@ -63,7 +63,6 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
         else
             holder.memberCount.setText(String.format("%d members", project.getMembers().size()));
         holder.projectName.setText(project.getName());
-
         holder.item.setOnClickListener(v -> {
             holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
             projectDi.setProjectId(project.getId());

@@ -37,6 +37,7 @@ import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel;
 import com.emika.app.data.network.pojo.user.Payload;
+import com.emika.app.di.Assignee;
 import com.emika.app.di.CompanyDi;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
@@ -62,6 +63,8 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         CompanyDi companyDi;
         @Inject
         ProjectsDi projectsDagger;
+        @Inject
+        Assignee assignee;
         private String token;
         private CalendarRepository repository;
         private UserRepository userRepository;
@@ -113,6 +116,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
             for (int i = 0; i < sections.size(); i++) {
                 if (sections.get(i).getId().equals(projectDi.getProjectSectionId())) {
                     projectDi.setProjectSectionName(sections.get(i).getName());
+                    Log.d(TAG, "getSections: " + projectDi.getProjectSectionName());
                 }
             }
             repository.insertDbSections(converter.fromListPayloadSectionToSectionEntity(sections), this);
@@ -160,8 +164,14 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
 
         @Override
         public void getUserInfo(Payload userModel) {
-            if (userModel.getCompany_id() != null && userModel.getCompany_id().length() != 0)
+            if (userModel.getCompany_id() != null && userModel.getCompany_id().length() != 0) {
                 hasCompanyId.postValue(true);
+                assignee.setId(userModel.getId());
+                assignee.setFirstName(userModel.getFirstName());
+                assignee.setLastName(userModel.getLastName());
+                assignee.setPictureUrl(userModel.getPictureUrl());
+                assignee.setJobTitle(userModel.getJobTitle());
+            }
             else
                 hasCompanyId.postValue(false);
 
@@ -201,7 +211,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
         @Override
         public void onDurationLogDownloaded(List<PayloadDurationActual> durationActualList) {
             if (durationActualList != null)
-            repository.insertDbDurations(converter.fromPayloadListDurationToListDurationEntity(durationActualList), this);
+            repository.insertAllDbDurations(converter.fromPayloadListDurationToListDurationEntity(durationActualList), this);
             else repository.downloadDurationActualLog(this);
         }
 

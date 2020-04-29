@@ -52,10 +52,12 @@ public class AuthViewModel extends ViewModel implements AuthCallback, TokenCallb
     private void signUp(){
         authRepository.getModelSignUp(authCallback);
     }
-    private void restorePassword(){authRepository.restorePassword(this);}
+    private void restorePassword(String email){
+        authRepository.restorePassword(this, email);
+    }
 
-    public MutableLiveData<ModelAuth> getRestorePassword() {
-        restorePassword();
+    public MutableLiveData<ModelAuth> getRestorePassword(String email) {
+        restorePassword(email);
         return restorePassword;
     }
     public MutableLiveData<PayloadEmail> getTokenPayloadMutableLiveData() {

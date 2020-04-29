@@ -13,34 +13,44 @@
         android:layout_height="match_parent"
         >
 
-        <Button
-            android:id="@+id/add_task_back"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_back"
-            android:padding="10dp"
+        <LinearLayout
+            android:id="@+id/add_task_back_back_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="10dp"
+            android:paddingRight="30dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/add_task_back"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/ic_back"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
 
         <EditText
             android:id="@+id/add_task_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
             android:background="@android:color/transparent"
+            android:fontFamily="@font/roboto_medium"
             android:hint="@string/set_task_purpose"
             android:imeOptions="actionDone"
-            android:fontFamily="@font/roboto_medium"
             android:inputType="textMultiLine"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/add_task_back" />
+            app:layout_constraintTop_toBottomOf="@+id/add_task_back_back_layout" />
 
         <EditText
             android:id="@+id/add_task_description"

@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
 import com.emika.app.presentation.adapter.profile.ProfileContactAdapter;
 
-public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
-    private final ProfileContactAdapter mAdapter;
+public class SubTaskTouchHelperCallback extends ItemTouchHelper.Callback {
+    private final SubTaskAdapter mAdapter;
 
-    public SimpleItemTouchHelperCallback(ProfileContactAdapter adapter) {
+    public SubTaskTouchHelperCallback(SubTaskAdapter adapter) {
         mAdapter = adapter;
     }
 

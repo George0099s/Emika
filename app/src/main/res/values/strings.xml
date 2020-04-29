@@ -100,8 +100,10 @@
     <string name="invitation_activated">Invitation Activated</string>
     <string name="missing_email">Missing email</string>
     <string name="inbox">Inbox</string>
-    <string name="no_deadline">no_deadline_string</string>
+    <string name="no_deadline">No deadline</string>
     <string name="all_changes_saved">All changes saved</string>
     <string name="sub_task">Sub-task</string>
     <string name="dark_theme">Dark Theme</string>
+    <string name="first_name_optinal">First name (optional)</string>
+    <string name="last_name_optional">Last name (optional)</string>
 </resources>

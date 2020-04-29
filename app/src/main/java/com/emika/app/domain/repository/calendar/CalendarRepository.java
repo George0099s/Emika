@@ -3,12 +3,15 @@ package com.emika.app.domain.repository.calendar;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+
 import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
+import com.emika.app.data.db.dao.TaskDao;
 import com.emika.app.data.db.dbmanager.ActualDurationDbManager;
 import com.emika.app.data.db.dbmanager.EpicLinksDbManager;
 import com.emika.app.data.db.dbmanager.MemberDbManager;
@@ -39,6 +42,7 @@ import com.emika.app.presentation.utils.Converter;
 import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.viewmodel.StartActivityViewModel;
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
+import com.google.android.gms.tasks.Tasks;
 
 import org.json.JSONArray;
 
@@ -177,8 +181,11 @@ public class CalendarRepository {
         calendarNetworkManager.downLoadCompanyInfo(callback);
     }
 
-    public void insertDbDurations(List<ActualDurationEntity> durationEntities, ActualDurationDbCallback callback) {
+    public void insertAllDbDurations(List<ActualDurationEntity> durationEntities, ActualDurationDbCallback callback) {
         actualDurationDbManager.addAllDurations(durationEntities, callback);
+    }
+    public void insertDbDurations(ActualDurationEntity durationEntity, ActualDurationDbCallback callback) {
+        actualDurationDbManager.insertDurations(durationEntity, callback);
     }
 
     public void getAllDbDurations(ActualDurationDbCallback callback) {
@@ -203,4 +210,17 @@ public class CalendarRepository {
     public void downloadTasksByAssignee(TaskListCallback callback, String assignee) {
         calendarNetworkManager.downloadTaskByAssignee(callback, assignee);
     }
+
+    public void updateDbDurations(ActualDurationEntity actualDurationEntity) {
+        actualDurationDbManager.updateDbDuration(actualDurationEntity);
+    }
+
+    public LiveData<List<TaskEntity>> getLiveDataTasks(TaskDao taskDao){
+        return taskDao.getAllTaskLiveData();
+    }
+
+    public LiveData<List<TaskEntity>> getLiveDataTasksByAssignee(TaskDao taskDao, String assignee){
+        return taskDao.getAllTaskLiveDataByAssignee(assignee);
+    }
+
 }
