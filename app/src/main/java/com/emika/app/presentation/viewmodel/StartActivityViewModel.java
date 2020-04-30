@@ -91,7 +91,7 @@ public class StartActivityViewModel extends ViewModel implements ShortMemberCall
                             repository.sendRegistrationKey(key);
                         }
                     });
-//            userDbManager.dropAllTable();
+            userDbManager.dropAllTable();
             repository.downloadAllMembers(this);
             repository.downloadSections(this);
             repository.downloadAllProject(this);

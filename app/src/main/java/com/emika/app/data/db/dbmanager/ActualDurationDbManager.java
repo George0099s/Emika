@@ -9,6 +9,7 @@ import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.SectionEntity;
+import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class ActualDurationDbManager {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((io.reactivex.functions.Consumer<? super List<ActualDurationEntity>>) callback::onActualDurationLoaded);
     }
+
     @SuppressLint("CheckResult")
     public void getDurationsByAssignee(ActualDurationDbCallback callback, String assigneeId, String date) {
         db.actualDurationDao().getAllDurationByAssigneeDate(assigneeId, date)
@@ -53,13 +55,30 @@ public class ActualDurationDbManager {
 
             @Override
             public void onComplete() {
-                callback.onActualDurationLoaded(null);
+//                callback.onActualDurationLoaded(null);
                 Log.d(TAG, "onComplete: ");
             }
 
             @Override
             public void onError(Throwable e) {
-//                callback.onMembersLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+    public void addDuration(ActualDurationEntity actualDurationEntity) {
+        Completable.fromAction(() -> db.actualDurationDao().insert(actualDurationEntity)).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) { }
+
+            @Override
+            public void onComplete() {
+//                callback.onActualDurationLoaded(null);
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
                 Log.d(TAG, "onError: "+ e.toString());
             }
         });
@@ -120,6 +139,25 @@ public class ActualDurationDbManager {
             public void onError(Throwable e) {
 //                callback.onMembersLoaded(null);
                 Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+
+    public void deleteDuration(ActualDurationEntity durationActual) {
+        Completable.fromAction(() -> db.actualDurationDao().delete(durationActual)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: deleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e.toString());
             }
         });
     }

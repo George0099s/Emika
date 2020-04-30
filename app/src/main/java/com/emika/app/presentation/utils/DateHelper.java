@@ -1,5 +1,7 @@
 package com.emika.app.presentation.utils;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,18 +32,20 @@ public class DateHelper {
             try {
                 c.setTime(sdf.parse(date));
                 newDay = c.getTime().getDay();
+
+//                Log.d("1234", "getDate: " + newDay + " " + today);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
             // number of days to add
             if (date != null) {
-                if (today == newDay)
-                    date = "Today";
-                else if (today < newDay && newDay - today == 1)
-                    date = "Tomorrow";
-                else if (today > newDay && today - newDay == 1)
-                    date = "Yesterday";
-                else
+//                if (today == newDay)
+//                    date = "Today";
+//                else if (today < newDay && newDay - today == 1)
+//                    date = "Tomorrow";
+//                else if (today > newDay && today - newDay == 1)
+//                    date = "Yesterday";
+//                else
                 date = formatted.format(c.getTime());
             }
         }

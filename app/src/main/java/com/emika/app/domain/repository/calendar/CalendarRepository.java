@@ -34,6 +34,7 @@ import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
+import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
@@ -184,6 +185,12 @@ public class CalendarRepository {
     public void insertAllDbDurations(List<ActualDurationEntity> durationEntities, ActualDurationDbCallback callback) {
         actualDurationDbManager.addAllDurations(durationEntities, callback);
     }
+
+    public void insertDbDuration(ActualDurationEntity durationEntity) {
+        actualDurationDbManager.addDuration(durationEntity);
+    }
+
+
     public void insertDbDurations(ActualDurationEntity durationEntity, ActualDurationDbCallback callback) {
         actualDurationDbManager.insertDurations(durationEntity, callback);
     }
@@ -223,4 +230,7 @@ public class CalendarRepository {
         return taskDao.getAllTaskLiveDataByAssignee(assignee);
     }
 
+    public void deleteDuration(PayloadDurationActual durationActual) {
+        actualDurationDbManager.deleteDuration(converter.frompayload(durationActual));
+    }
 }

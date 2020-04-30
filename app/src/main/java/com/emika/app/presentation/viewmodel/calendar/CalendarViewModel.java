@@ -144,7 +144,6 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     }
 
     public void getAllDbTaskByAssignee(String assignee){
-        Log.d(TAG, "getAllDbTaskByAssignee: " + assignee);
         repository.getDBTaskListById(this, assignee);
     }
 
@@ -152,9 +151,12 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         repository.getDBTaskById(this, id);
     }
 
+    public void downloadDurationActualLog (){
+        repository.downloadDurationActualLog(this);
+    }
+
 
     public void downloadTasksByAssignee(String assignee){
-        Log.d(TAG, "downloadTasksByAssignee:  "+ assignee);
         repository.downloadTasksByAssignee(this, assignee);
     }
 
@@ -284,6 +286,7 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     @Override
     public void onActualDurationLoaded(List<ActualDurationEntity> actualDurationEntities) {
+        Log.d(TAG, "onActualDurationLoaded: " + actualDurationEntities.size());
         if (actualDurationEntities.size() == 0)
             repository.downloadDurationActualLog(this);
         else
@@ -331,5 +334,9 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     public MutableLiveData<PayloadTask> taskMutableLiveData() {
         return taskMutableLiveData;
+    }
+
+    public void deleteDuration(PayloadDurationActual durationActual) {
+        repository.deleteDuration(durationActual);
     }
 }

@@ -82,6 +82,13 @@ public class Migration {
                     "`createdBy` TEXT, PRIMARY KEY (`id`))");
         }
     };
+
+    public static final androidx.room.migration.Migration MIGRATION_11_12 = new androidx.room.migration.Migration(11, 12) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Task  ADD COLUMN `epicLinks` TEXT");
+        }
+    };
 }
 
 

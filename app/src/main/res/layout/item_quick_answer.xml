@@ -4,8 +4,11 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:text="Hello man"
-    android:textColor="@color/black"
-    android:padding="8dp"
+    android:textColor="#515151"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:paddingRight="12dp"
+    android:paddingLeft="12dp"
     android:layout_marginStart="16dp"
     android:background="@drawable/shape_suggestion"
     xmlns:tools="http://schemas.android.com/tools" />

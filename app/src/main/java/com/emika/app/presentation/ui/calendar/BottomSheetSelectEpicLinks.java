@@ -82,6 +82,7 @@ public class BottomSheetSelectEpicLinks extends BottomSheetDialogFragment {
             addTaskListViewModel.getEpicLinksMutableLiveData();
         if (taskInfoViewModel != null) {
             taskInfoViewModel.updateTask(task);
+//            taskInfoViewModel.updateDbTask(task);
         }
         dismiss();
     }

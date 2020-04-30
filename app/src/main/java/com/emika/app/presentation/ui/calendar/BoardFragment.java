@@ -71,6 +71,8 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -157,6 +159,7 @@ public class BoardFragment extends Fragment {
     private Emitter.Listener onCreateActualDuration = args -> Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
         String id, status, taskId, projectId, companyId, date, person, createdAt, createdBy;
         int value;
+        double estimatedTime = 0;
         JSONArray jsonArray = null;
         JSONObject jsonObject = new JSONObject();
         PayloadDurationActual durationActual = new PayloadDurationActual();
@@ -186,6 +189,23 @@ public class BoardFragment extends Fragment {
             for (int i = 0; i < mBoardView.getColumnCount(); i++) {
                 if (Constants.dateColumnMap.get(i).equals(date) && assignee.getId().equals(person)) {
                     HourCounterView spentHourCounterView = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_spent);
+                    HourCounterView estimatedTimeHourCounterView = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_estimated);
+                    estimatedTime = Double.parseDouble(estimatedTimeHourCounterView.getProgress());
+
+                    if (estimatedTime % 60 == 0) {
+                        if(estimatedTime - value / 60 < 0)
+                            estimatedTimeHourCounterView.setProgress(String.valueOf(0));
+                        else
+                            estimatedTimeHourCounterView.setProgress(String.valueOf(estimatedTime - value / 60));
+                    } else {
+                        if (estimatedTime - value / 60.0f < 0)
+                            estimatedTimeHourCounterView.setProgress("0");
+                            else {
+                            String s = df.format(estimatedTime - value / 60.0f);
+                            s = s.replace(',', '.');
+                            estimatedTimeHourCounterView.setProgress(s);
+                        }
+                    }
                     if (value % 60 == 0)
                         spentHourCounterView.setProgress(String.valueOf(Double.parseDouble(spentHourCounterView.getProgress()) + value / 60));
                     else {
@@ -205,11 +225,15 @@ public class BoardFragment extends Fragment {
         date = null;
         JSONArray jsonArray = null;
         JSONObject jsonObject = new JSONObject();
+        PayloadDurationActual durationActual = new PayloadDurationActual();
         try {
             jsonArray = new JSONArray(Arrays.toString(args));
             jsonObject = jsonArray.getJSONObject(0);
             id = jsonObject.getString("_id");
+            durationActual.setId(id);
             int spentTime = 0;
+            int taskSpentTime = 0;
+            double estimatedTime = 0;
             for (int i = 0; i < durationActualList.size(); i++) {
                 if (durationActualList.get(i).getId().equals(id)) {
                     date = durationActualList.get(i).getDate();
@@ -222,6 +246,7 @@ public class BoardFragment extends Fragment {
                         if (Objects.equals(Constants.dateColumnMap.get(i), durationActualList.get(j).getDate()) && durationActualList.get(j).getPerson().equals(assignee.getId())) {
                             spentTime += (durationActualList.get(j).getValue());
                         }
+
                         HourCounterView spentHourCounterView = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_spent);
                         if (spentTime % 60 == 0)
                             spentHourCounterView.setProgress(String.valueOf(spentTime / 60));
@@ -230,11 +255,26 @@ public class BoardFragment extends Fragment {
                             s = s.replace(',', '.');
                             spentHourCounterView.setProgress(s);
                         }
-//                            spentHourCounterView.setProgress(df.format(spentTime / 60.0f));
+                    }
+                }
+
+                if (Constants.dateColumnMap.get(i).equals(date)){
+                    HourCounterView estimatedTimeHourCounterView = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_estimated);
+                    for (int q = 0; q < mBoardView.getAdapter(i).getItemList().size(); q++) {
+                        Pair<Long, PayloadTask> task = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(q);
+                        estimatedTime += task.second.getDuration();
+                    }
+                    estimatedTime = estimatedTime / 60;
+                    if (estimatedTime % 60 == 0) {
+                        estimatedTimeHourCounterView.setProgress(String.valueOf(estimatedTime - spentTime / 60));
+                    } else {
+                        String s = df.format(estimatedTime - spentTime / 60.0f);
+                        s = s.replace(',', '.');
+                        estimatedTimeHourCounterView.setProgress(s);
                     }
                 }
             }
-
+            viewModel.deleteDuration(durationActual);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -243,6 +283,7 @@ public class BoardFragment extends Fragment {
         String id, value, status, taskId, projectId, companyId, date, person, createdAt, createdBy;
         JSONArray jsonArray = null;
         JSONObject jsonObject = new JSONObject();
+        double estimatedTime = 0;
         PayloadDurationActual durationActual = new PayloadDurationActual();
         try {
             jsonArray = new JSONArray(Arrays.toString(args));
@@ -257,15 +298,9 @@ public class BoardFragment extends Fragment {
             createdAt = jsonObject.getString("created_at");
             createdBy = jsonObject.getString("created_by");
             person = jsonObject.getString("person");
-            durationActual.setValue(Integer.valueOf(value));
-            durationActual.setCompanyId(companyId);
-            durationActual.setCreatedAt(createdAt);
-            durationActual.setCreatedBy(createdBy);
-            durationActual.setDate(date);
             durationActual.setId(id);
-            durationActual.setPerson(person);
-            durationActual.setProjectId(projectId);
-            durationActual.setTaskId(taskId);
+            durationActual.setDate(date);
+            durationActual.setValue(Integer.valueOf(value));
             for (int i = 0; i < durationActualList.size(); i++) {
                 if (durationActualList.get(i).getId().equals(id)) {
                     durationActualList.get(i).setValue(Integer.valueOf(value));
@@ -273,6 +308,7 @@ public class BoardFragment extends Fragment {
             }
             int spentTime = 0;
             for (int i = 0; i < mBoardView.getColumnCount(); i++) {
+
                 for (int j = 0; j < durationActualList.size(); j++) {
                     if (Objects.equals(Constants.dateColumnMap.get(i), date) && durationActualList.get(j).getPerson().equals(assignee.getId())) {
                         if (durationActualList.get(j).getId().equals(id)) {
@@ -281,6 +317,9 @@ public class BoardFragment extends Fragment {
                         if (Objects.equals(Constants.dateColumnMap.get(i), durationActualList.get(j).getDate()) && durationActualList.get(j).getPerson().equals(assignee.getId())) {
                             spentTime += (durationActualList.get(j).getValue());
                         }
+
+                        Log.d(TAG, ":  " + spentTime);
+
                         HourCounterView spentHourCounterView = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_spent);
                         if (spentTime % 60 == 0)
                             spentHourCounterView.setProgress(String.valueOf(spentTime / 60));
@@ -288,6 +327,29 @@ public class BoardFragment extends Fragment {
                             String s = df.format(spentTime / 60.0f);
                             s = s.replace(',', '.');
                             spentHourCounterView.setProgress(s);
+                        }
+                    }
+                }
+
+                if (Constants.dateColumnMap.get(i).equals(date)) {
+                    HourCounterView estimatedTimeHourCounterView = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_estimated);
+                    for (int q = 0; q < mBoardView.getAdapter(i).getItemList().size(); q++) {
+                        Pair<Long, PayloadTask> task = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(q);
+                        estimatedTime += task.second.getDuration();
+                    }
+
+                    if (estimatedTime % 60 < 0) {
+                        if (estimatedTime /60 - spentTime == 0)
+                            estimatedTimeHourCounterView.setProgress(String.valueOf(0));
+                        else
+                        estimatedTimeHourCounterView.setProgress(String.valueOf(estimatedTime /60 - spentTime));
+                    } else {
+                        if (estimatedTime / 60.0f - spentTime / 60.0f < 0)
+                            estimatedTimeHourCounterView.setProgress("0");
+                        else {
+                            String s = df.format(estimatedTime / 60.0f - spentTime / 60.0f);
+                            s = s.replace(',', '.');
+                            estimatedTimeHourCounterView.setProgress(s);
                         }
                     }
                 }
@@ -301,10 +363,10 @@ public class BoardFragment extends Fragment {
 
     private Observer<List<PayloadTask>> getTask = taskList -> {
 //       Toast.makeText(getContext(), String.valueOf(taskList.size()), Toast.LENGTH_SHORT).show();
-//
 //        for (int i = 0; i < taskList.size(); i++) {
 //            Log.d(TAG, ": "  + taskList.get(i).getName() +  " " + taskList.get(i).getAssignee() + " " + taskList.get(i).getStatus() + " " + taskList.get(i).getPlanDate());
 //        }
+
         progressBar.setVisibility(View.VISIBLE);
         mBoardView.setVisibility(View.GONE);
         payloadTaskList = new ArrayList<>();
@@ -376,7 +438,7 @@ public class BoardFragment extends Fragment {
                 task2.setPlanOrder(String.valueOf(row));
                 task2.setDescription(description);
                 task2.setStatus(status);
-                Log.d(TAG, ":  " + row);
+                Log.d(TAG, ":row   " + row);
                 for (int i = 0; i < mBoardView.getColumnCount(); i++) {
                     for (int j = 0; j < mBoardView.getAdapter(i).getItemCount(); j++) {
                         Pair<Long, PayloadTask> taskNewPos = (Pair<Long, PayloadTask>) mBoardView.getAdapter(i).getItemList().get(j);
@@ -394,7 +456,9 @@ public class BoardFragment extends Fragment {
                             taskNewPos.second.setSectionId(sectionId);
                             taskNewPos.second.setPriority(priority);
                             taskNewPos.second.setStatus(status);
+                            Log.d(TAG, ":  " + taskNewPos.second.getEpicLinks().size());
                             mBoardView.replaceItem(i, j, taskNewPos, false);
+                            mBoardView.getAdapter(i).notifyItemInserted(j);
                             if (date.equals("null")) {
                                 taskNewPos.second.setPlanDate(null);
                                 viewModel.updateDbTask(taskNewPos.second);
@@ -409,30 +473,72 @@ public class BoardFragment extends Fragment {
                                     viewModel.updateDbTask(taskNewPos.second);
                                     mBoardView.removeItem(i, j);
                                 } else if (taskNewPos.second.getPlanDate().equals(planDate)) {
-                                    if (row > 0)
-                                    mBoardView.getAdapter(i).swapItems(j, row);
-                                    else if (row == 0)
-                                        mBoardView.getAdapter(i).swapItems(j, row);
-                                    else if (row < 0)
-                                        mBoardView.getAdapter(i).swapItems(j, 0);
-
+                                    if (!taskNewPos.second.getPlanOrder().equals(row)) {
+                                        taskNewPos.second.setPlanOrder(String.valueOf(row));
+                                        Collections.sort(mBoardView.getAdapter(i).getItemList(), (Comparator<Pair<Long, PayloadTask>>) (lhs, rhs) -> {
+                                            if ((Integer.parseInt(lhs.second.getPlanOrder()) == Integer.parseInt(rhs.second.getPlanOrder()) )) {
+                                                return 0;
+                                            } else if ((Integer.parseInt(lhs.second.getPlanOrder()) < Integer.parseInt(rhs.second.getPlanOrder()) )) {
+                                                return -1;
+                                            } else {
+                                                return 1;
+                                            }
+                                        });
+                                        mBoardView.getAdapter(i).notifyDataSetChanged();
+                                    }
                                     mBoardView.invalidate();
                                     viewModel.updateDbTask(taskNewPos.second);
                                 } else if (!taskNewPos.second.getPlanDate().equals(planDate)) {
+                                    taskNewPos.second.setPlanOrder(String.valueOf(row));
                                     for (int k = 0; k < mBoardView.getColumnCount(); k++) {
                                         if (!Constants.dateColumnMap.containsValue(planDate)){
                                             mBoardView.getAdapter(i).getItemList().remove(taskNewPos);
                                         }
-
                                             if (planDate.equals(Constants.dateColumnMap.get(k))) {
-                                            taskNewPos.second.setPlanDate(planDate);
-                                                if (row > 0)
-                                            mBoardView.moveItem(i, j, k, row-1, false);
-                                            else
-                                                mBoardView.moveItem(i, j, k, 0, false);
-                                            mBoardView.invalidate();
-                                        }
+                                                taskNewPos.second.setPlanDate(planDate);
+//                                                if (row > 0)
+//                                                    mBoardView.moveItem(i, j, k, row-1, false);
+//                                                else
+                                                    mBoardView.moveItem(i, j, k, 0, false);
+                                                mBoardView.getAdapter(k).notifyDataSetChanged();
+                                                Collections.sort(mBoardView.getAdapter(k).getItemList(), (Comparator<Pair<Long, PayloadTask>>) (lhs, rhs) -> {
+                                                    if ((Integer.parseInt(lhs.second.getPlanOrder()) == Integer.parseInt(rhs.second.getPlanOrder()) )) {
+                                                        return 0;
+                                                    } else if ((Integer.parseInt(lhs.second.getPlanOrder()) < Integer.parseInt(rhs.second.getPlanOrder()) )) {
+                                                        return -1;
+                                                    } else {
+                                                        return 1;
+                                                    }
+                                                });
+                                                int estimatedTimeNew = 0;
+                                                int estimatedTimeOld = 0;
+                                                HourCounterView hourEstimatedOld = mBoardView.getHeaderView(i).findViewById(R.id.hour_counter_estimated);
+                                                HourCounterView hourEstimatedNew = mBoardView.getHeaderView(k).findViewById(R.id.hour_counter_estimated);
+                                                ArrayList<Pair<Long, PayloadTask>> oldTasks = mBoardView.getAdapter(i).getItemList();
+                                                ArrayList<Pair<Long, PayloadTask>> newTasks = mBoardView.getAdapter(k).getItemList();
+                                                Log.d(TAG, ": " + oldTasks.size() + " " + newTasks.size());
+                                                    for (int m = 0; m < oldTasks.size(); m++) {
+                                                        Pair<Long, PayloadTask> pair = oldTasks.get(m);
+                                                        PayloadTask task = pair.second;
+                                                        estimatedTimeOld += task.getDuration();
+                                                    }
 
+                                                    if (estimatedTimeOld % 60 == 0)
+                                                        hourEstimatedOld.setProgress(String.valueOf(estimatedTimeOld / 60));
+                                                    else
+                                                        hourEstimatedOld.setProgress(df.format(estimatedTimeOld / 60.0f));
+
+                                                    for (int p = 0; p < newTasks.size(); p++) {
+                                                        Pair<Long, PayloadTask> pair = newTasks.get(p);
+                                                        PayloadTask task = pair.second;
+                                                        estimatedTimeNew += task.getDuration();
+                                                    }
+                                                    if (estimatedTimeNew % 60 == 0)
+                                                        hourEstimatedNew.setProgress(String.valueOf(estimatedTimeNew / 60));
+                                                    else
+                                                        hourEstimatedNew.setProgress(df.format(estimatedTimeNew / 60.0f));
+                                                    taskNewPos.second.setPlanDate(planDate);
+                                        }
                                     }
                                 }
                             }
@@ -447,64 +553,22 @@ public class BoardFragment extends Fragment {
                         task.setDurationActual(Integer.valueOf(spentTime));
                         task.setDuration(Integer.valueOf(estimatedTime));
                         task.setDeadlineDate(deadlineDate);
+                        task.setPlanDate(planDate);
                         task.setProjectId(projectId);
                         task.setSectionId(sectionId);
-                        task.setPlanDate(planDate);
+                        task.setEpicLinks(epicLinkList);
                         task.setAssignee(assignee);
                         task.setPriority(priority);
                         task.setPlanOrder(String.valueOf(row));
                         task.setStatus(status);
                         if (!status.equals("deleted") && !status.equals("archived"))
                         addTask(task);
-                        viewModel.updateDbTask(task2);
-                        viewModel.addDbTask(task2);
+                        viewModel.updateDbTask(task);
+                        viewModel.addDbTask(task);
                     }
                 viewModel.updateDbTask(task2);
                 viewModel.addDbTask(task2);
             }
-//                        if (taskNewPos.second.getId().equals(id)) {
-//                            hasTask = true;
-//                            taskNewPos.second.setName(name);
-//                            taskNewPos.second.setDurationActual(Integer.valueOf(spentTime));
-//                            taskNewPos.second.setDuration(Integer.valueOf(estimatedTime));
-//                            taskNewPos.second.setDeadlineDate(deadlineDate);
-//                            taskNewPos.second.setPlanOrder(String.valueOf(row));
-//                            taskNewPos.second.setPlanDate(planDate);
-//                            taskNewPos.second.setAssignee(assignee);
-//                            taskNewPos.second.setEpicLinks(epicLinkList);
-//                            taskNewPos.second.setProjectId(projectId);
-//                            taskNewPos.second.setDescription(description);
-//                            if (sectionId != null)
-//                            taskNewPos.second.setSectionId(sectionId);
-//                            taskNewPos.second.setPriority(priority);
-//                            taskNewPos.second.setStatus(status);
-//                            if (date.equals("null") || status.equals("deleted") || !assignee.equals(this.assignee.getId())) {
-//                                taskNewPos.second.setPlanDate(null);
-//                                viewModel.updateDbTask(taskNewPos.second);
-//                                mBoardView.removeItem(i, j);
-//                            } else if (taskNewPos.second.getPlanDate().equals(date)) {
-//                                mBoardView.getAdapter(i).swapItems(j, row);
-//                                viewModel.updateDbTask(taskNewPos.second);
-//                                mBoardView.invalidate();
-//                            } else
-//                                for (int k = 0; k < mBoardView.getColumnCount(); k++) {
-//                                    if (planDate.equals(Constants.dateColumnMap.get(k))) {
-//                                        taskNewPos.second.setPlanDate(planDate);
-//                                        viewModel.updateDbTask(taskNewPos.second);
-//                                        mBoardView.moveItem(i, j, k, row - 1, false);
-//                                    }
-//                                }
-//                        }
-//                    }
-//                }
-//             if (!date.equals("null"))
-//                 if (!hasTask) {
-//                     viewModel.addDbTask(task);
-//                     if (assignee.equals(this.assignee.getId())) {
-//                         addTask(task);
-//                     }
-//                 }
-//                viewModel.updateDbTask(task);
             catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -522,7 +586,7 @@ public class BoardFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 40; i++) {
             Constants.dateColumnMap.put(i, DateHelper.compareDate(i));
         }
         converter = new Converter();
@@ -531,7 +595,6 @@ public class BoardFragment extends Fragment {
         animLeft = AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left_anim);
         animOutLeft = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_left_anim);
         animOutRight = AnimationUtils.loadAnimation(getContext(), R.anim.slide_out_right_anim);
-
         df = new DecimalFormat("#.#");
 
         app.getComponent().inject(this);
@@ -556,7 +619,8 @@ public class BoardFragment extends Fragment {
 //        profileViewModel.getDbUserData();
         profileViewModel.getUserMutableLiveData().observe(getViewLifecycleOwner(), userInfo);
 //        viewModel.getAllDbTask();
-        viewModel.getAllDbDurations();
+//        viewModel.getAllDbDurations();
+        viewModel.downloadDurationActualLog();
         viewModel.downloadTasksByAssignee(user.getId());
 //        viewModel.getAllDbTaskByAssignee(user.getId());
         fabUserName = view.findViewById(R.id.fab_user_name);
@@ -598,20 +662,13 @@ public class BoardFragment extends Fragment {
                 for (int i = 0; i < mBoardView.getAdapter(toColumn).getItemList().size(); i++) {
                     Pair<Long, PayloadTask> task = (Pair<Long, PayloadTask>) mBoardView.getAdapter(toColumn).getItemList().get(i);
                     task.second.setPlanOrder(String.valueOf(mBoardView.getAdapter(toColumn).getPositionForItem(task)));
-                    Log.d(TAG, "onItemDragEnded: " + (mBoardView.getAdapter(toColumn).getPositionForItem(task)));
-//                    int min = Integer.parseInt(task.second.getPlanOrder());
-//                    if (min == Integer.parseInt(task.second.getPlanOrder())) {
-//                        min++;
-//                        taskNewPos.second.setPlanOrder(String.valueOf(min));
-//
-//                         viewModel.updateTask(task.second);
-//                     } else
                          viewModel.updateTask(task.second);
 
                 }
-//                viewModel.updateTask(taskOldPos.second);
                 int estimatedTimeNew = 0;
                 int estimatedTimeOld = 0;
+                int spentTimeNew = 0;
+                int spentTimeOld = 0;
                 HourCounterView hourEstimatedOld = mBoardView.getHeaderView(fromColumn).findViewById(R.id.hour_counter_estimated);
                 HourCounterView hourEstimatedNew = mBoardView.getHeaderView(toColumn).findViewById(R.id.hour_counter_estimated);
                 ArrayList<Pair<Long, PayloadTask>> newTasks = mBoardView.getAdapter(toColumn).getItemList();
@@ -621,24 +678,27 @@ public class BoardFragment extends Fragment {
                     Pair<Long, PayloadTask> pair = oldTasks.get(i);
                     PayloadTask task = pair.second;
                     estimatedTimeOld += task.getDuration();
+                    spentTimeOld += task.getDurationActual();
                 }
 
                 if (estimatedTimeOld % 60 == 0)
-                    hourEstimatedOld.setProgress(String.valueOf(estimatedTimeOld / 60));
+                    hourEstimatedOld.setProgress(String.valueOf(estimatedTimeOld / 60 - spentTimeOld / 60));
                 else
-                    hourEstimatedOld.setProgress(df.format(estimatedTimeOld / 60.0f));
+                    hourEstimatedOld.setProgress(df.format(estimatedTimeOld / 60.0f - spentTimeOld / 60.0f));
 
 
                 for (int i = 0; i < newTasks.size(); i++) {
                     Pair<Long, PayloadTask> pair = newTasks.get(i);
                     PayloadTask task = pair.second;
                     estimatedTimeNew += task.getDuration();
+                    spentTimeNew += task.getDurationActual();
+
                 }
 
                 if (estimatedTimeNew % 60 == 0)
-                    hourEstimatedNew.setProgress(String.valueOf(estimatedTimeNew / 60));
+                    hourEstimatedNew.setProgress(String.valueOf(estimatedTimeNew / 60 - spentTimeNew / 60));
                 else
-                    hourEstimatedNew.setProgress(df.format(estimatedTimeNew / 60.0f));
+                    hourEstimatedNew.setProgress(df.format(estimatedTimeNew / 60.0f - spentTimeNew / 60.0f));
             }
 
             @Override
@@ -721,7 +781,7 @@ public class BoardFragment extends Fragment {
         viewModel.getProjectMutableLiveData().observe(getViewLifecycleOwner(), getProjectEntity);
         viewModel.getDurationMutableLiveData().observe(getViewLifecycleOwner(), getDuration);
         viewModel.getMembersMutableLiveData().observe(getViewLifecycleOwner(), shortMembers);
-//        viewModel.downloadTasksByAssignee(user.getId());
+//      viewModel.downloadTasksByAssignee(user.getId());
         viewModel.getListMutableLiveData().observe(getViewLifecycleOwner(), getTask);
         oldAssignee = assignee.getId();
     }
@@ -770,12 +830,18 @@ public class BoardFragment extends Fragment {
     }
 
     private void addColumn(String month, String day, List<PayloadTask> payloadTaskList, int columnNumber) {
+
         final ArrayList<Pair<Long, PayloadTask>> mItemArray = new ArrayList<>();
         int estimatedTime = 0;
         int spentTime = 0;
+        int tasSpentTime = 0;
         String date = Constants.dateColumnMap.get(columnNumber);
         for (int i = 0; i < payloadTaskList.size(); i++) {
             estimatedTime += payloadTaskList.get(i).getDuration();
+        }
+
+        for (int i = 0; i < payloadTaskList.size(); i++) {
+            tasSpentTime += payloadTaskList.get(i).getDurationActual();
         }
 
         int addItems = payloadTaskList.size();
@@ -796,6 +862,11 @@ public class BoardFragment extends Fragment {
         listAdapter.setmLayoutId(R.layout.column_item);
         listAdapter.setmGrabHandleId(R.id.item_layout);
         final View header = View.inflate(getActivity(), R.layout.column_header, null);
+
+        estimatedTime = estimatedTime - tasSpentTime;
+        if (estimatedTime < 0)
+            estimatedTime = 0;
+
         int finalEstimatedTime = estimatedTime;
         int finalSpentTime = spentTime;
 
@@ -839,6 +910,8 @@ public class BoardFragment extends Fragment {
         }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+//        layoutManager.setStackFromEnd(true);
+//        layoutManager.setReverseLayout(true);
         ColumnProperties columnProperties = ColumnProperties.Builder.newBuilder(listAdapter)
                 .setLayoutManager(layoutManager)
                 .setHasFixedItemSize(false)
@@ -901,7 +974,8 @@ public class BoardFragment extends Fragment {
                 hourEstimatedNew.setProgress(String.valueOf(Double.parseDouble(hourEstimatedNew.getProgress()) + task.getDuration() / 60));
             else
                 hourEstimatedNew.setProgress(df.format(Double.parseDouble(hourEstimatedNew.getProgress()) + task.getDuration() / 60.0f));
-            mBoardView.addItem(column, 0, item, false);
+            mBoardView.addItem(column, mBoardView.getAdapter(column).getItemCount(), item, false);
+            mBoardView.getAdapter(column).notifyDataSetChanged();
         } else {
 
         }

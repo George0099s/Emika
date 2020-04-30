@@ -60,6 +60,7 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
 //        viewModel.setFirstRun(false)
         viewModel.getAllDbTaskByAssignee(assigneeDi.id)
         viewModel.getAllDbDurationByAssignee(assigneeDi.id, date)
+//        viewModel.getDurations()
         viewModel.taskListMutableLiveData.observe(viewLifecycleOwner, getTask)
         viewModel.durationMutableLiveData.observe(viewLifecycleOwner, getDuration)
 

@@ -3,6 +3,12 @@ package com.emika.app.data.db.entity;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
+import com.emika.app.data.db.utils.EpicLinksTypeConverter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity(tableName = "Task")
@@ -36,6 +42,8 @@ public class TaskEntity {
     private String createdAt;
     private String parentTaskId;
     private String sectionId;
+    @TypeConverters({EpicLinksTypeConverter.class})
+    private List<String> epicLinks = new ArrayList<>();
 
     @NonNull
     public String getId() {
@@ -265,5 +273,13 @@ public class TaskEntity {
     private String durationLogged;
 
     public TaskEntity() {
+    }
+
+    public List<String> getEpicLinks() {
+        return epicLinks;
+    }
+
+    public void setEpicLinks(List<String> epicLinks) {
+        this.epicLinks = epicLinks;
     }
 }

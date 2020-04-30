@@ -12,7 +12,7 @@ import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.domain.repository.calendar.CalendarRepository
 import com.emika.app.presentation.utils.Converter
 
-class DayInfoViewModel(private val token: String):ViewModel(), TaskDbCallback, ActualDurationDbCallback{
+class DayInfoViewModel(private val token: String):ViewModel(), TaskDbCallback, ActualDurationDbCallback, DurationActualCallback{
     val taskListMutableLiveData: MutableLiveData<List<PayloadTask>> = MutableLiveData()
     val durationMutableLiveData: MutableLiveData<List<PayloadDurationActual>> = MutableLiveData()
 
@@ -33,6 +33,9 @@ class DayInfoViewModel(private val token: String):ViewModel(), TaskDbCallback, A
     fun getAllDbTaskByAssignee(assignee: String?) {
         repository.getDBTaskListById(this, assignee)
     }
+    fun getDurations() {
+        repository.downloadDurationActualLog(this)
+    }
 
     fun getAllDbDurationByAssignee(assignee: String?, date: String?) {
         repository.getAllDbDurationsByAssignee(this,assignee, date);
@@ -40,6 +43,10 @@ class DayInfoViewModel(private val token: String):ViewModel(), TaskDbCallback, A
 
     override fun onActualDurationLoaded(actualDurationEntities: MutableList<ActualDurationEntity>?) {
         durationMutableLiveData.postValue(converter.fromEntityListDurationToPayloadListDuration(actualDurationEntities))
+    }
+
+    override fun onDurationLogDownloaded(durationActualList: MutableList<PayloadDurationActual>?) {
+        durationMutableLiveData.postValue(durationActualList)
     }
 
 }

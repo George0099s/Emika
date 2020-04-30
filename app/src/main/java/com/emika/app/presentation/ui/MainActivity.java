@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        socket.emit("server_create_connection", tokenJson);
         networkManager = new UserNetworkManager(token);
         main = findViewById(R.id.main);
         fragmentManager = getSupportFragmentManager();
@@ -95,6 +96,13 @@ public class MainActivity extends AppCompatActivity {
                     else
                         navigationView.setVisibility(View.VISIBLE);
                 });
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        socket.emit("server_create_connection", tokenJson);
     }
 
     @Override

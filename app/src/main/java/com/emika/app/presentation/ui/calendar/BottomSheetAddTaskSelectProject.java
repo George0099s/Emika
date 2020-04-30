@@ -135,6 +135,7 @@ public class BottomSheetAddTaskSelectProject extends BottomSheetDialogFragment i
         if (taskInfoViewModel != null) {
             task.setProjectId(projectDi.getProjectId());
             task.setSectionId(projectDi.getProjectSectionId());
+            task.setEpicLinks(new ArrayList<>());
             taskInfoViewModel.setTask(task);
             taskInfoViewModel.getEpicLinksMutableLiveData().setValue(new ArrayList<>());
             taskInfoViewModel.getTaskMutableLiveData();

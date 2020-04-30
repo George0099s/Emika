@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Editable;
@@ -53,6 +54,7 @@ import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Assignee;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.di.User;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
@@ -81,6 +83,8 @@ public class TaskInfoActivity extends AppCompatActivity {
     EpicLinks epicLinksDi;
     @Inject
     Project projectDi;
+    @Inject
+    ProjectsDi projectsDagger;
     Calendar dateAndTime = Calendar.getInstance();
     private EmikaApplication app = EmikaApplication.getInstance();
     private PayloadTask task;
@@ -94,6 +98,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     private LinearLayout selectProject;
     private Assignee assignee;
     private LinearLayout backLayout;
+    private Boolean canceled = false;
     private CalendarViewModel calendarViewModel, boardViewModel;
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
@@ -134,6 +139,8 @@ public class TaskInfoActivity extends AppCompatActivity {
             estimatedTime.setText(String.format("%sh", df.format(dayMinutes / 60.0f)));
         task.setDuration(dayMinutes);
         calendarViewModel.updateTask(task);
+        calendarViewModel.updateDbTask(task);
+
     };
     TimePickerDialog.OnTimeSetListener spentTimeListener = (view, hourOfDay, minute) -> {
         dateAndTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -145,6 +152,7 @@ public class TaskInfoActivity extends AppCompatActivity {
             spentTime.setText(String.format("%sh", df.format(dayMinutes / 60.0f)));
         task.setDurationActual(hourOfDay * 60 + minute);
 
+        calendarViewModel.updateDbTask(task);
         calendarViewModel.updateTask(task);
     };
 
@@ -156,6 +164,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     private Calendar c;
     private Observer<Assignee> setAssignee = assignee1 -> {
         assignee = assignee1;
+        task.setAssignee(assignee.getId());
         userName.setText(String.format("%s %s", assignee1.getFirstName(), assignee1.getLastName()));
         if (assignee1.getPictureUrl() != null)
             Glide.with(this).load(assignee1.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(userImg);
@@ -305,12 +314,12 @@ public class TaskInfoActivity extends AppCompatActivity {
         taskInfoViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(TaskInfoViewModel.class);
         calendarViewModel = new ViewModelProvider(this, new TokenViewModelFactory(token)).get(CalendarViewModel.class);
 
+        taskInfoViewModel.getAssigneeMutableLiveData().observe(this, setAssignee);
         taskInfoViewModel.setTask(task);
         taskInfoViewModel.getTaskMutableLiveData().observe(this, getTask);
         taskInfoViewModel.getDbEpicLinks();
         taskInfoViewModel.getEpicLinksMutableLiveData().observe(this, setTaskEpicLinks);
         taskInfoViewModel.getSubTaskMutableLiveData(task.getId()).observe(this, getSubTask);
-        taskInfoViewModel.getAssigneeMutableLiveData().observe(this, setAssignee);
         calendarViewModel.getProjectMutableLiveData().observe(this, getProjects);
         calendarViewModel.getSectionListMutableLiveData().observe(this, getSections);
         taskInfoViewModel.getProjectMutableLiveData().observe(this, getProjectsMutable);
@@ -319,7 +328,7 @@ public class TaskInfoActivity extends AppCompatActivity {
     }
 
     private Observer<String> getAddedSubTaskId = subTaskId -> {
-        adapter.getTaskList().get(0).setId(subTaskId);
+        adapter.getTaskList().get(adapter.getItemCount()-1).setId(subTaskId);
     };
 
     private Observer<Project> getProjectsMutable = project1 -> {
@@ -390,6 +399,7 @@ public class TaskInfoActivity extends AppCompatActivity {
         calendarViewModel.updateTask(task);
         taskDone.setVisibility(View.VISIBLE);
         taskDone.setChecked(false);
+        canceled = false;
         taskCanceled.setVisibility(View.GONE);
         taskName.setTextColor(getResources().getColor(R.color.black));
         taskName.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
@@ -411,10 +421,16 @@ public class TaskInfoActivity extends AppCompatActivity {
                 taskCanceled.setChecked(true);
                 taskDone.setVisibility(View.GONE);
                 calendarViewModel.updateTask(task);
+                canceled = true;
                 taskName.setTextColor(getResources().getColor(R.color.task_name_done));
                 taskName.setPaintFlags(taskName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
-
+            if (projectsDagger.getSections() != null && task.getSectionId() != null)
+            for (int i = 0; i < projectsDagger.getSections().size(); i++) {
+                if (task.getSectionId().equals(projectsDagger.getSections().get(i).getId())) {
+                    section.setText(projectsDagger.getSections().get(i).getName());
+                }
+            }
             switch (task.getPriority()) {
                 case "low":
                     priority.setText("Low");
@@ -484,9 +500,11 @@ public class TaskInfoActivity extends AppCompatActivity {
         if (task.getStatus().equals("done")) {
             task.setStatus("wip");
             taskInfoViewModel.updateTask(task);
+            canceled = false;
         } else {
             task.setStatus("done");
             taskInfoViewModel.updateTask(task);
+            canceled = false;
         }
     }
 
@@ -496,15 +514,25 @@ public class TaskInfoActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
-        menu.add(0, 1, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_cancel_task), getResources().getString(R.string.cancel_task)));
+        invalidateOptionsMenu();
+        if (!canceled) {
+            menu.add(0, 1, 1, menuIconWithText(getResources().getDrawable(R.drawable.ic_cancel_task), getResources().getString(R.string.cancel_task)));
+        }
         menu.add(0, 2, 2, menuIconWithText(getResources().getDrawable(R.drawable.ic_rename_task), getResources().getString(R.string.rename_task)));
         menu.add(0, 3, 3, menuIconWithText(getResources().getDrawable(R.drawable.ic_move_task), getResources().getString(R.string.move_task)));
         menu.add(0, 4, 4, menuIconWithText(getResources().getDrawable(R.drawable.ic_duplicate_task), getResources().getString(R.string.duplicate_task)));
-        if (task.getStatus().equals("canceled"))
+        if (canceled)
             menu.add(0, 5, 5, menuIconWithText(getResources().getDrawable(R.drawable.ic_archive), getResources().getString(R.string.archieve_task)));
         return super.onCreateOptionsMenu(menu);
     }
+
+
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//
+//            invalidateOptionsMenu();
+//        return super.onPrepareOptionsMenu(menu);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -513,6 +541,7 @@ public class TaskInfoActivity extends AppCompatActivity {
                 task.setStatus("canceled");
                 taskCanceled.setVisibility(View.VISIBLE);
                 taskCanceled.setChecked(true);
+                canceled = true;
                 taskDone.setVisibility(View.GONE);
                 calendarViewModel.updateTask(task);
                 taskName.setTextColor(getResources().getColor(R.color.task_name_done));
@@ -630,7 +659,6 @@ public class TaskInfoActivity extends AppCompatActivity {
                     dateAndTime.get(Calendar.MONTH),
                     dateAndTime.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.setTitle("Set deadline date");
-            datePickerDialog.getDatePicker().setMaxDate(c.getTimeInMillis());
             datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
             datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date", (dialog, which) -> {
                 deadlineDate.setText(getResources().getString(R.string.no_deadline));

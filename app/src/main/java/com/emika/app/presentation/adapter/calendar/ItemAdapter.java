@@ -48,6 +48,7 @@ import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -71,30 +72,16 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
     public ItemAdapter(ArrayList<Pair<Long, PayloadTask>> list, int layoutId, int grabHandleId, boolean dragOnLongPress,
                        Context context, String token, List<EpicLinksEntity> epicLinksEntities, List<ProjectEntity> projectEntities, CalendarViewModel calendarViewModel) {
 
-        for (int i = 0; i < list.size(); i++) {
-        /*Предполагаем, что первый элемент (в каждом
-           подмножестве элементов) является минимальным */
-        if (!list.get(i).second.getPlanOrder().equals("null")) {
-            int min = Integer.parseInt(list.get(i).second.getPlanOrder());
-            int min_i = i;
-        /*В оставшейся части подмножества ищем элемент,
-           который меньше предположенного минимума*/
-            for (int j = i + 1; j < list.size(); j++) {
-                //Если находим, запоминаем его индекс
-                if (Integer.parseInt(list.get(j).second.getPlanOrder()) < min) {
-                    min = Integer.parseInt(list.get(j).second.getPlanOrder());
-                    min_i = j;
-                }
-            }
-        /*Если нашелся элемент, меньший, чем на текущей позиции,
-          меняем их местами*/
-            if (i != min_i) {
-                int tmp = Integer.parseInt(list.get(i).second.getPlanOrder());
+        Collections.sort(list, (Comparator<Pair<Long, PayloadTask>>) (lhs, rhs) -> {
 
-                Collections.swap(list, i, min_i);
+            if ((Integer.parseInt(lhs.second.getPlanOrder()) == Integer.parseInt(rhs.second.getPlanOrder()) )) {
+                return 0;
+            } else if ((Integer.parseInt(lhs.second.getPlanOrder()) < Integer.parseInt(rhs.second.getPlanOrder()) )) {
+                return -1;
+            } else {
+                return 1;
             }
-        }
-        }
+        });
         EmikaApplication.getInstance().getComponent().inject(this);
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
@@ -236,11 +223,11 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                 for (int i = 0; i < task.getEpicLinks().size(); i++) {
                     for (int j = 0; j < epicLinksDi.getEpicLinksList().size(); j++) {
                         if (task.getEpicLinks().get(i).equals(epicLinksDi.getEpicLinksList().get(j).getId())) {
-                            if (task.getEpicLinks().size() > 1)
-                                holder.epicLink.setText(String.format("%s+%d", epicLinksDi.getEpicLinksList().get(j).getName(), task.getEpicLinks().size() - 1));
-                            else
+                            holder.epicLink.setVisibility(View.VISIBLE);
+                            if (task.getEpicLinks().size() > 1) {
+                            holder.epicLink.setText(String.format("%s+%d", epicLinksDi.getEpicLinksList().get(j).getName(), task.getEpicLinks().size() - 1));
+                            }else
                                 holder.epicLink.setText(epicLinksDi.getEpicLinksList().get(j).getName());
-
                         }
                     }
                 }
@@ -252,7 +239,6 @@ public class ItemAdapter extends DragItemAdapter<Pair<Long, String>, ItemAdapter
                         holder.project.setText(projectEntities.get(i).getName());
                     }
             }
-
 
             holder.priority.setText(Constants.priority.get(task.getPriority()));
             if (task.getDeadlineDate() != null && !task.getDeadlineDate().equals("null"))

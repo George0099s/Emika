@@ -112,6 +112,9 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     public void updateTask(PayloadTask task){
         repository.updateTask(task);
     }
+    public void updateDbTask(PayloadTask task){
+        repository.updateDbTask(task);
+    }
 
     public void setTask(PayloadTask task) {
         this.task = task;

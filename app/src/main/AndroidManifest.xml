@@ -12,10 +12,13 @@
         android:allowBackup="true"
         android:icon="@mipmap/id_emika_foreground"
         android:label="@string/app_name"
-
         android:roundIcon="@mipmap/id_emika_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".data.MyIntentService"
+            android:exported="false"></service>
+
         <activity
             android:name=".presentation.ui.calendar.Inbox"
             android:screenOrientation="portrait" />
@@ -31,8 +34,8 @@
         <activity
             android:name=".presentation.ui.calendar.AddTaskActivity"
             android:noHistory="true"
-            android:windowSoftInputMode="stateAlwaysVisible"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysVisible" />
         <activity
             android:name=".presentation.ui.profile.EditProfileActivity"
             android:screenOrientation="portrait"

@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 @Entity
-public class PayloadTask implements Parcelable{
+public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
     @PrimaryKey
     @NonNull
     @SerializedName("_id")
@@ -471,5 +471,16 @@ public class PayloadTask implements Parcelable{
         dest.writeString(sectionId);
         dest.writeString(durationLogged);
         dest.writeStringList(subTaskList);
+    }
+
+    @Override
+    public int compareTo(PayloadTask o) {
+        if (this.planOrder == o.planOrder) {
+            return 0;
+        } else if (Integer.parseInt(this.planOrder) < Integer.parseInt(o.planOrder)) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 }

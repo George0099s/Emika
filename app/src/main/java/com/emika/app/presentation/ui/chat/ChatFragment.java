@@ -1,6 +1,7 @@
 package com.emika.app.presentation.ui.chat;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,8 +128,17 @@ public class ChatFragment extends Fragment {
             message.setIsEmika(isEmika);
             message.setText(text);
             message.setCreatedAt(createdAt);
-            adapter.update(message);
-//            viewModel.updateMessage(message);
+//            if (message.getId().equals("emika"))
+//            new Thread(()->{
+//                adapter.update(message);
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }).start();
+//            else
+                adapter.update(message);
             chatRecycler.scrollToPosition(0);
 
             if(chatFragment.isVisible())

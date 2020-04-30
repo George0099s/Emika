@@ -64,6 +64,7 @@ public class EmikaApplication extends Application {
                 .addMigrations(Migration.MIGRATION_8_9)
                 .addMigrations(Migration.MIGRATION_9_10)
                 .addMigrations(Migration.MIGRATION_10_11)
+                .addMigrations(Migration.MIGRATION_11_12)
 //                .fallbackToDestructiveMigration()
                 .build();
         component = DaggerUserComponent

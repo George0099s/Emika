@@ -508,18 +508,15 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     }
 
     public void moveItem(int fromColumn, int fromRow, int toColumn, int toRow, boolean scrollToItem) {
-        Log.d(TAG, "moveItem: onne");
-
         if (!isDragging() && mLists.size() > fromColumn && mLists.get(fromColumn).getAdapter().getItemCount() > fromRow
                 && mLists.size() > toColumn && mLists.get(toColumn).getAdapter().getItemCount() >= toRow) {
-            Log.d(TAG, "moveItem: two");
-
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(fromColumn).getAdapter();
             Pair item = adapter.removeItem(fromRow);
             adapter = (DragItemAdapter) mLists.get(toColumn).getAdapter();
-            adapter.addItem(toRow, item);
-            Log.d(TAG, "moveItem: yeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-
+            if (toRow <= mLists.get(toColumn).getAdapter().getItemCount())
+                adapter.addItem(toRow, item);
+            else
+                adapter.addItem(mLists.get(toColumn).getAdapter().getItemCount(), item);
             if (scrollToItem) {
                 scrollToItem(toColumn, toRow, false);
             }
@@ -527,13 +524,10 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     }
 
     public void moveItem(long itemId, int toColumn, int toRow, boolean scrollToItem) {
-
-
         for (int i = 0; i < mLists.size(); i++) {
             RecyclerView.Adapter adapter = mLists.get(i).getAdapter();
             final int count = adapter.getItemCount();
             for (int j = 0; j < count; j++) {
-
                 long id = adapter.getItemId(j);
                 if (id == itemId) {
                     moveItem(i, j, toColumn, toRow, scrollToItem);
@@ -548,6 +542,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(column).getAdapter();
             adapter.removeItem(row);
             adapter.addItem(row, item);
+            adapter.notifyItemInserted(row);
             if (scrollToItem) {
                 scrollToItem(column, row, false);
             }

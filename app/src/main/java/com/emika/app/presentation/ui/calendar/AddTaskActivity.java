@@ -44,6 +44,7 @@ import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog;
 
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
@@ -69,6 +70,8 @@ public class AddTaskActivity extends AppCompatActivity {
     Calendar dateAndTime = Calendar.getInstance();
     @Inject
     Project projectDi;
+    @Inject
+    ProjectsDi projectsDagger;
     DatePickerDialog.OnDateSetListener deadlineDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
@@ -238,10 +241,17 @@ public class AddTaskActivity extends AppCompatActivity {
         project = findViewById(R.id.add_task_project);
         section = findViewById(R.id.add_task_project_section);
         project.setText(projectDi.getProjectName());
+        if (projectDi.getProjectSectionName() != null)
         section.setText(projectDi.getProjectSectionName());
+        else
+            for (int i = 0; i < projectsDagger.getSections().size(); i++) {
+                if (projectsDagger.getSections().get(i).getId().equals(projectDi.getProjectSectionId())) {
+                    projectDi.setProjectSectionName(projectsDagger.getSections().get(i).getName());
+                    section.setText(projectDi.getProjectSectionName());
+                }
+            }
         selectProject = findViewById(R.id.add_task_select_project);
         selectProject.setOnClickListener(this::selectProject);
-
         epicLinks = findViewById(R.id.add_task_epic_links);
         epicLinks.setOnClickListener(this::selectEpicLinks);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);

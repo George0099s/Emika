@@ -77,6 +77,7 @@ public class Converter {
             taskEntity.setDeadlinePeriod(taskList.get(i).getDeadlinePeriod());
             taskEntity.setDescription(taskList.get(i).getDescription());
             taskEntity.setDuration(taskList.get(i).getDuration());
+            taskEntity.setEpicLinks(taskList.get(i).getEpicLinks());
             taskEntity.setDurationActual(taskList.get(i).getDurationActual());
             taskEntity.setPlanDate(taskList.get(i).getPlanDate());
             taskEntity.setName(taskList.get(i).getName());
@@ -106,6 +107,7 @@ public class Converter {
             payloadTask.setPlanDate(taskList.get(i).getPlanDate());
             payloadTask.setDurationActual(taskList.get(i).getDurationActual());
             payloadTask.setName(taskList.get(i).getName());
+            payloadTask.setEpicLinks(taskList.get(i).getEpicLinks());
             payloadTask.setProjectId(taskList.get(i).getProjectId());
             payloadTask.setPlanOrder(String.valueOf(taskList.get(i).getPlanOrder()));
             payloadTask.setSectionId(taskList.get(i).getSectionId());
@@ -132,6 +134,7 @@ public class Converter {
         payloadTask.setDuration(task.getDuration());
         payloadTask.setPlanDate(task.getPlanDate());
         payloadTask.setPlanOrder(String.valueOf(task.getPlanOrder()));
+        payloadTask.setEpicLinks(task.getEpicLinks());
         payloadTask.setName(task.getName());
         return payloadTask;
     }
@@ -151,7 +154,9 @@ public class Converter {
         taskEntity.setDeadlinePeriod(task.getDeadlinePeriod());
         taskEntity.setDescription(task.getDescription());
         taskEntity.setDuration(task.getDuration());
+        taskEntity.setDurationActual(task.getDurationActual());
         taskEntity.setPlanDate(task.getPlanDate());
+        taskEntity.setEpicLinks(task.getEpicLinks());
         taskEntity.setProjectId(task.getProjectId());
         taskEntity.setSectionId(task.getSectionId());
         taskEntity.setPlanOrder(Integer.valueOf(task.getPlanOrder()));
@@ -415,6 +420,15 @@ public class Converter {
 
     }
 
+    public ActualDurationEntity frompayload(PayloadDurationActual durationActual) {
+        ActualDurationEntity actualDuration = new ActualDurationEntity(
+                durationActual.getId(), durationActual.getStatus(),
+                durationActual.getTaskId(),durationActual.getProjectId(),
+                durationActual.getCompanyId(), durationActual.getDate(), durationActual.getPerson(),
+                durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy()
+        );
+        return actualDuration;
+    }
 }
 
 
