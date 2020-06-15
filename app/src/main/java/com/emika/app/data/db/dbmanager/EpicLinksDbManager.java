@@ -6,20 +6,15 @@ import android.util.Log;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
-import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.dao.EpicLinksDao;
 import com.emika.app.data.db.entity.EpicLinksEntity;
-import com.emika.app.data.db.entity.MemberEntity;
-import com.emika.app.di.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class EpicLinksDbManager {
@@ -27,7 +22,7 @@ public class EpicLinksDbManager {
     private AppDatabase db;
     private EpicLinksDao epicLinksDao;
     public EpicLinksDbManager() {
-        db = EmikaApplication.getInstance().getDatabase();
+        db = EmikaApplication.instance.getDatabase();
         epicLinksDao = db.epicLinksDao();
     }
 

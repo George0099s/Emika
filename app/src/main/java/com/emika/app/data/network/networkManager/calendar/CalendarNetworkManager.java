@@ -66,7 +66,7 @@ public class CalendarNetworkManager {
     public CalendarNetworkManager(String token) {
         this.token = token;
         tokenJson = new JSONObject();
-        socket = EmikaApplication.getInstance().getSocket();
+        socket = EmikaApplication.instance.getSocket();
         socket.on("create_connection_successful", onConnectSuccess);
         socket.on("create_connection_failed", onConnectfailed);
         converter = new Converter();
@@ -89,7 +89,8 @@ public class CalendarNetworkManager {
                     List<PayloadTask> taskList = model.getPayloadTask();
                     if (taskList != null)
                         callback.setTaskList(taskList);
-                    else callback.setTaskList(new ArrayList<>());
+                    else
+                        callback.setTaskList(new ArrayList<>());
                 }
             }
 
@@ -281,7 +282,8 @@ public class CalendarNetworkManager {
                     List<PayloadEpicLinks> epicLinks = model.getPayload();
                     if (epicLinks != null)
                         callback.onEpicLinksDownloaded(epicLinks);
-                    else callback.onEpicLinksDownloaded(new ArrayList<>());
+                    else
+                        callback.onEpicLinksDownloaded(new ArrayList<>());
                 }
             }
 
@@ -294,7 +296,6 @@ public class CalendarNetworkManager {
 
     public void downLoadDurationLog(DurationActualCallback callback) {
         Retrofit retrofit = NetworkService.getInstance().getRetrofit();
-
         CalendarApi service = retrofit.create(CalendarApi.class);
         Call<ModelDurationActual> call = service.fetchDurationLogs(token);
         call.enqueue(new Callback<ModelDurationActual>() {
@@ -304,7 +305,6 @@ public class CalendarNetworkManager {
                     ModelDurationActual model = response.body();
 
                     List<PayloadDurationActual> durationActualList = model.getPayload();
-                    Log.d(TAG, "onResponse: " + durationActualList.size());
                     if (durationActualList != null)
                         callback.onDurationLogDownloaded(durationActualList);
                     else
@@ -376,7 +376,8 @@ public class CalendarNetworkManager {
                     List<SubTask> subTasks = payloadSubTask.getSubTasks();
                     if (subTasks != null)
                         callback.onSubTaskListLoaded(subTasks);
-                    else callback.onSubTaskListLoaded(new ArrayList<>());
+                    else
+                        callback.onSubTaskListLoaded(new ArrayList<>());
                 }
             }
 

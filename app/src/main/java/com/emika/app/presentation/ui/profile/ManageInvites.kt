@@ -18,7 +18,7 @@ import org.json.JSONObject
 
 class ManageInvites : AppCompatActivity() {
 
-    private var token: String? = EmikaApplication.getInstance().sharedPreferences.getString("token", null)
+    private var token: String? = EmikaApplication.instance.sharedPreferences?.getString("token", null)
     private val viewModel: ManageInviteViewModel = ManageInviteViewModel(token)
     private var adapter: InvitesAdapter? = null
 
@@ -41,7 +41,7 @@ class ManageInvites : AppCompatActivity() {
     private fun sendInvites(v: View) {
         val invite: JSONObject? = JSONObject()
         val invites: JSONArray? = JSONArray()
-        if (!invite_email.text.isEmpty()) {
+        if (invite_email.text.isEmpty()) {
             invite!!.put("email", invite_email.text.toString())
             invite.put("first_name", invite_first_name.text.toString())
             invite.put("last_name", invite_last_name.text.toString())
@@ -62,7 +62,7 @@ class ManageInvites : AppCompatActivity() {
             invite_email.setText("")
             invite_first_name.setText("")
             invite_last_name.setText("")
-            invite_is_manager.setChecked(false)
+            invite_is_manager.isChecked = false
             viewModel.invites
         } else {
             val snack = Snackbar.make(rootView, "Something went wrong", Snackbar.LENGTH_LONG)

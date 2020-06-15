@@ -6,13 +6,8 @@ import android.util.Log;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
-import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.dao.MemberDao;
-import com.emika.app.data.db.dao.ProjectDao;
 import com.emika.app.data.db.entity.MemberEntity;
-import com.emika.app.data.db.entity.ProjectEntity;
-import com.emika.app.data.model.Member;
-import com.emika.app.di.User;
 
 import java.util.List;
 
@@ -20,12 +15,11 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 public class MemberDbManager {
     private AppDatabase db;
-    private EmikaApplication app = EmikaApplication.getInstance();
+    private EmikaApplication app = EmikaApplication.instance;
     private static final String TAG = "MemberDbManager";
     private MemberDao memberDao;
     public MemberDbManager() {

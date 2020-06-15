@@ -17,21 +17,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
-import com.emika.app.data.network.callback.TokenCallback;
-import com.emika.app.domain.repository.auth.AuthRepository;
 import com.emika.app.data.network.pojo.singIn.ModelAuth;
 import com.emika.app.data.network.pojo.PayloadEmail;
 import com.emika.app.data.network.pojo.singUp.ModelSignUp;
-import com.emika.app.presentation.ui.MainActivity;
 import com.emika.app.presentation.ui.StartActivity;
-import com.emika.app.presentation.utils.Constants;
 import com.emika.app.presentation.utils.viewModelFactory.auth.AuthViewModelFactory;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.StartActivityViewModel;
@@ -48,7 +43,7 @@ public class AuthFragment extends Fragment {
     private TokenDbManager dbManager;
     private SharedPreferences sharedPreferences;
     private StartActivityViewModel startActivityViewModel;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
 
     public static AuthFragment newInstance() {
         return new AuthFragment();
@@ -90,12 +85,25 @@ public class AuthFragment extends Fragment {
     }
 
     private void checkEmail(View view) {
-        mViewModel.setEmail(email.getText().toString());
-        mViewModel.getTokenPayloadMutableLiveData().observe(getViewLifecycleOwner(), checkEmail);
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()) {
+            mViewModel.setEmail(email.getText().toString());
+            mViewModel.getTokenPayloadMutableLiveData().observe(getViewLifecycleOwner(), checkEmail);
+            email.clearFocus();
+        } else {
+            email.requestFocus();
+            email.setError("Invalid email");
+        }
     }
+
     private void restorePass(View view) {
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches()) {
         mViewModel.setEmail(email.getText().toString());
         mViewModel.getRestorePassword(email.getText().toString()).observe(getViewLifecycleOwner(), restorePass);
+        email.clearFocus();
+        } else {
+            email.requestFocus();
+            email.setError("Invalid email");
+        }
     }
 
     private void signIn(View view) {
@@ -142,7 +150,6 @@ public class AuthFragment extends Fragment {
         if (auth.getOk() && auth.getPayload()){
             Intent intent = new Intent(getContext(), StartActivity.class);
             sharedPreferences.edit().putBoolean("logged in", true).apply();
-//            startActivityViewModel.fetchAllData();
             intent.putExtra("token", token);
             startActivity(intent);
         } else {

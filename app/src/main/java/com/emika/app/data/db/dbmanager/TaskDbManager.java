@@ -9,7 +9,6 @@ import com.emika.app.data.db.dao.TaskDao;
 import com.emika.app.data.db.dao.TaskTransactionDao;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
-import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.presentation.utils.Converter;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ import rx.schedulers.Schedulers;
 public class TaskDbManager {
     private static final String TAG = "TaskDbManager";
     private AppDatabase db;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
     private TaskDao taskDao;
     private TaskTransactionDao dao;
     private List<TaskEntity> payloadTaskList = new ArrayList<>();
@@ -60,6 +59,7 @@ public class TaskDbManager {
                 .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
                 .subscribe((io.reactivex.functions.Consumer<? super TaskEntity>) callback::onOneTaskLoaded);
     }
+
     @SuppressLint("CheckResult")
     public void getAllDbTaskByDateId(TaskDbCallback callback, String assignee, String planDate) {
         db.taskDao().getAllTaskByDateAssignee(assignee, planDate)

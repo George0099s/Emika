@@ -6,10 +6,7 @@ import android.util.Log;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
-import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.entity.ActualDurationEntity;
-import com.emika.app.data.db.entity.SectionEntity;
-import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 
 import java.util.List;
 
@@ -21,7 +18,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ActualDurationDbManager {
     private AppDatabase db;
-    private EmikaApplication app = EmikaApplication.getInstance();
+    private EmikaApplication app = EmikaApplication.instance;
     private static final String TAG = "ActualDurationDb";
 
     public ActualDurationDbManager() {

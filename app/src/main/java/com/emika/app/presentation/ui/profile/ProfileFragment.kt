@@ -1,5 +1,6 @@
 package com.emika.app.presentation.ui.profile
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
@@ -10,6 +11,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.ImageSpan
 import android.view.*
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
@@ -37,6 +39,7 @@ import com.emika.app.presentation.ui.profile.EditProfileActivity
 import com.emika.app.presentation.utils.NetworkState
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel
+import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.android.synthetic.main.fragment_profile.view.*
 import java.util.*
 import javax.inject.Inject
@@ -74,7 +77,7 @@ class ProfileFragment : Fragment(), TokenCallback {
     private var coWorkersAdapter: AllMembersAdapter? = null
     private var viewModel: ProfileViewModel? = null
     private var memberList: List<PayloadShortMember> = ArrayList()
-    private val app = EmikaApplication.getInstance()
+    private val app = EmikaApplication.instance
     private val getMembers = Observer { members: List<PayloadShortMember> ->
         memberList = members
         companyMemberCount!!.text = String.format("%s %s", memberList.size, resources.getString(R.string.members_string))
@@ -104,7 +107,6 @@ class ProfileFragment : Fragment(), TokenCallback {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
-        //        getActivity().setActionBar(view.findViewById(R.id.profile_toolbar));
         initView(view)
         return view
     }
@@ -112,6 +114,8 @@ class ProfileFragment : Fragment(), TokenCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)
         super.onCreate(savedInstanceState)
+//        enterTransition = MaterialFadeThrough.create()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -143,10 +147,10 @@ class ProfileFragment : Fragment(), TokenCallback {
     }
 
     private fun initView(view: View) {
-        app.component.inject(this)
-        sharedPreferences = EmikaApplication.getInstance().sharedPreferences
-        token = EmikaApplication.getInstance().sharedPreferences.getString("token", "")
-        view.darkThemeMode.isChecked = EmikaApplication.instance.sharedPreferences.getBoolean("darkMode", true)
+        app.component?.inject(this)
+        sharedPreferences = EmikaApplication.instance.sharedPreferences
+        token = EmikaApplication.instance.sharedPreferences?.getString("token", "")
+        view.darkThemeMode.isChecked = EmikaApplication.instance.sharedPreferences!!.getBoolean("darkMode", true)
         userDbManager = UserDbManager()
         networkManager = AuthNetworkManager(token)
         userName = view.findViewById(R.id.profile_user_name)
@@ -177,10 +181,10 @@ class ProfileFragment : Fragment(), TokenCallback {
         view.darkThemeMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                EmikaApplication.instance.sharedPreferences.edit().putBoolean("darkMode", true).apply()
+                EmikaApplication.instance.sharedPreferences!!.edit().putBoolean("darkMode", true).apply()
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                EmikaApplication.instance.sharedPreferences.edit().putBoolean("darkMode", false).apply()
+                EmikaApplication.instance.sharedPreferences!!.edit().putBoolean("darkMode", false).apply()
             }
         }
     }
@@ -235,9 +239,14 @@ class ProfileFragment : Fragment(), TokenCallback {
         intent.putExtra("memberId", user!!.id)
         startActivity(intent)
     }
-
+    //TODO: Use the progressBar
     private fun logOut(view: View?) {
         if (NetworkState.getInstance(context).isOnline) {
+            ProgressDialog(context).apply {
+                setMessage(resources.getString(R.string.log_out))
+                setCancelable(false)
+                show()
+            }
             userDbManager!!.dropAllTable()
             networkManager!!.logOut()
             sharedPreferences!!.edit().remove("token").apply()
@@ -256,10 +265,11 @@ class ProfileFragment : Fragment(), TokenCallback {
     override fun getToken(token: String) {
         val intent = Intent(context, AuthActivity::class.java)
         intent.putExtra("token", token)
-        val sharedPreferences = EmikaApplication.getInstance().sharedPreferences
-        sharedPreferences.edit().putBoolean("logged in", false).apply()
-        sharedPreferences.edit().putString("token", token).apply()
+        val sharedPreferences = EmikaApplication.instance.sharedPreferences
+        sharedPreferences!!.edit().putBoolean("logged in", false).apply()
+        sharedPreferences!!.edit().putString("token", token).apply()
         startActivity(intent)
+        viewModel!!.userMutableLiveData.value = Payload()
     }
 
     companion object {

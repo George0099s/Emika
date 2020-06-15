@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.animation.LayoutAnimationController;
 
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -231,6 +232,11 @@ public class DragItemRecyclerView extends RecyclerView implements com.emika.app.
         if (!(layout instanceof LinearLayoutManager)) {
             throw new RuntimeException("Layout must be an instance of LinearLayoutManager");
         }
+    }
+
+    @Override
+    public void setLayoutAnimation(LayoutAnimationController controller) {
+        super.setLayoutAnimation(controller);
     }
 
     @Override

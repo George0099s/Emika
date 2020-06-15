@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -15,12 +16,18 @@
         android:roundIcon="@mipmap/id_emika_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".data.MyIntentService"
-            android:exported="false"></service>
-
+        <activity android:name=".presentation.adapter.calendar.Comments"></activity>
+        <activity android:name=".presentation.ui.calendar.Cal" />
+        <activity android:name=".presentation.ui.profile.ProfileActivity" />
+        <activity android:name=".presentation.ui.calendar.CalendarActivity" />
+        <activity android:name=".presentation.ui.chat.ChatActivity" />
+        <activity android:name=".presentation.ui.calendar.Main2Activity" />
+        <activity android:name=".presentation.ui.calendar.TaskInfoActivity" />
         <activity
-            android:name=".presentation.ui.calendar.Inbox"
+            android:name=".deprecated.InboxActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="presentation.ui.calendar.AddTaskActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.ui.profile.MemberActivity"
@@ -35,14 +42,15 @@
             android:name=".presentation.ui.calendar.AddTaskActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysVisible" />
+            android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
         <activity
             android:name=".presentation.ui.profile.EditProfileActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".presentation.ui.calendar.TaskInfoActivity"
-            android:screenOrientation="portrait" />
+            android:name=".deprecated.TaskInfoActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysVisible|adjustPan" />
         <activity
             android:name=".presentation.ui.auth.AuthActivity"
             android:noHistory="true"
@@ -60,7 +68,15 @@
         <activity
             android:name=".presentation.ui.MainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
 
         <meta-data
             android:name="preloaded_fonts"

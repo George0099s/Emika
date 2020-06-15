@@ -30,7 +30,6 @@ class AutoScroller {
 
     interface AutoScrollListener {
         void onAutoScrollPositionBy(int dx, int dy);
-
         void onAutoScrollColumnBy(int columns);
     }
 
@@ -97,12 +96,7 @@ class AutoScroller {
     private void autoScrollPositionBy(final int dx, final int dy) {
         if (mIsAutoScrolling) {
             mListener.onAutoScrollPositionBy(dx, dy);
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    autoScrollPositionBy(dx, dy);
-                }
-            }, AUTO_SCROLL_UPDATE_DELAY);
+            mHandler.postDelayed(() -> autoScrollPositionBy(dx, dy), AUTO_SCROLL_UPDATE_DELAY);
         }
     }
 
@@ -122,12 +116,7 @@ class AutoScroller {
                 mListener.onAutoScrollColumnBy(0);
             }
 
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    autoScrollColumnBy(columns);
-                }
-            }, AUTO_SCROLL_UPDATE_DELAY);
+            mHandler.postDelayed(() -> autoScrollColumnBy(columns), AUTO_SCROLL_UPDATE_DELAY);
         }
     }
 }

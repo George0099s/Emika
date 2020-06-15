@@ -16,19 +16,15 @@ import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
-import com.emika.app.data.db.dbmanager.ActualDurationDbManager;
 import com.emika.app.data.db.entity.ActualDurationEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.db.entity.TaskEntity;
-import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
-import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
-import com.emika.app.data.network.pojo.chat.Message;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.PayloadSection;
@@ -39,22 +35,13 @@ import com.emika.app.di.Assignee;
 import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.presentation.utils.Converter;
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.Manager;
-import com.github.nkzawa.socketio.client.Socket;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
 public class CalendarViewModel extends ViewModel implements TaskListCallback, TaskDbCallback,
-        TaskCallback, MemberDbCallback,  EpicLinksDbCallback, ProjectDbCallback, ActualDurationDbCallback, DurationActualCallback, SectionDbCallback, Parcelable {
+        TaskCallback, MemberDbCallback,  EpicLinksDbCallback, ProjectDbCallback, ActualDurationDbCallback, DurationActualCallback, SectionDbCallback, Parcelable{
     private static final String TAG = "CalendarViewModel";
     @Inject
     Assignee assignee;
@@ -70,20 +57,31 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     private MutableLiveData<List<ProjectEntity>> projectMutableLiveData;
     private MutableLiveData<List<PayloadSection>> sectionListMutableLiveData;
     private MutableLiveData<PayloadTask> taskMutableLiveData;
-
-
+    private LiveData<List<TaskEntity>> taskLiveData;
     private MutableLiveData<List<PayloadDurationActual>> durationMutableLiveData;
     private CalendarRepository repository;
     private String token;
     private Context context;
     private Converter converter;
 
+    public static final Creator<CalendarViewModel> CREATOR = new Creator<CalendarViewModel>() {
+        @Override
+        public CalendarViewModel createFromParcel(Parcel in) {
+            return new CalendarViewModel(in);
+        }
+
+        @Override
+        public CalendarViewModel[] newArray(int size) {
+            return new CalendarViewModel[size];
+        }
+    };
+
     public void setFirstRun(Boolean firstRun) {
         this.firstRun = firstRun;
     }
 
     private Boolean firstRun = true;
-    EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    EmikaApplication emikaApplication = EmikaApplication.instance;
 
 
     public CalendarViewModel(String token) {
@@ -102,14 +100,16 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         converter = new Converter();
         taskMutableLiveData = new MutableLiveData<>();
         taskEntity = new MutableLiveData<>();
+        taskLiveData = new MutableLiveData<>();
     }
-    public LiveData<List<TaskEntity>> liveData(){
+    public LiveData<List<TaskEntity>> liveData(String assignee){
         Log.d(TAG, "liveData: ");
-        return repository.getLiveDataTasks(EmikaApplication.getInstance().getDatabase().taskDao());
+        return repository.getLiveDataTasksByAssignee(EmikaApplication.instance.getDatabase().taskDao(), assignee);
     }
 
-    public LiveData<List<TaskEntity>> getTaskDbLiveDataByAssignee(String assignee){
-        return repository.getLiveDataTasksByAssignee(EmikaApplication.getInstance().getDatabase().taskDao(), assignee);
+    public void getTaskDbLiveDataByAssignee(String assignee){
+        taskLiveData  = new MutableLiveData<>();
+        taskLiveData = repository.getLiveDataTasksByAssignee(EmikaApplication.instance.getDatabase().taskDao(), assignee);
     }
 
     protected CalendarViewModel(Parcel in) {
@@ -119,17 +119,7 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         firstRun = tmpFirstRun == 0 ? null : tmpFirstRun == 1;
     }
 
-    public static final Creator<CalendarViewModel> CREATOR = new Creator<CalendarViewModel>() {
-        @Override
-        public CalendarViewModel createFromParcel(Parcel in) {
-            return new CalendarViewModel(in);
-        }
 
-        @Override
-        public CalendarViewModel[] newArray(int size) {
-            return new CalendarViewModel[size];
-        }
-    };
 
     public void getAllDbTask(){
         repository.getDbTaskList(this);
@@ -177,6 +167,10 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
     }
 
     public void updateTask(PayloadTask task) {
+        repository.updateTask(task);
+    }
+
+    public void updateSocketTask(PayloadTask task) {
         repository.updateTask(task);
     }
 
@@ -286,10 +280,10 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
 
     @Override
     public void onActualDurationLoaded(List<ActualDurationEntity> actualDurationEntities) {
-        Log.d(TAG, "onActualDurationLoaded: " + actualDurationEntities.size());
-        if (actualDurationEntities.size() == 0)
-            repository.downloadDurationActualLog(this);
-        else
+//        Log.d(TAG, "onActualDurationLoaded: " + actualDurationEntities.size());
+//        if (actualDurationEntities.size() == 0)
+//            repository.downloadDurationActualLog(this);
+//        else
         durationMutableLiveData.postValue(converter.fromEntityListDurationToPayloadListDuration(actualDurationEntities));
     }
 
@@ -320,6 +314,24 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         this.filteredTaskListMutableLiveData = filteredTaskListMutableLiveData;
     }
 
+
+
+    public MutableLiveData<PayloadTask> taskMutableLiveData() {
+        return taskMutableLiveData;
+    }
+
+    public void deleteDuration(PayloadDurationActual durationActual) {
+        repository.deleteDuration(durationActual);
+    }
+
+    public LiveData<List<TaskEntity>> getTaskLiveData() {
+        return taskLiveData;
+    }
+
+    public void setTaskLiveData(LiveData<List<TaskEntity>> taskLiveData) {
+        this.taskLiveData = taskLiveData;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -330,13 +342,5 @@ public class CalendarViewModel extends ViewModel implements TaskListCallback, Ta
         dest.writeParcelable(assignee, flags);
         dest.writeString(token);
         dest.writeByte((byte) (firstRun == null ? 0 : firstRun ? 1 : 2));
-    }
-
-    public MutableLiveData<PayloadTask> taskMutableLiveData() {
-        return taskMutableLiveData;
-    }
-
-    public void deleteDuration(PayloadDurationActual durationActual) {
-        repository.deleteDuration(durationActual);
     }
 }

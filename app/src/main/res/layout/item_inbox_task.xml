@@ -19,15 +19,16 @@
             card_view:cardElevation="2dp"
             card_view:cardPreventCornerOverlap="true"
             card_view:cardUseCompatPadding="true">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/item_inbox_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/custom_inbox_item"
                 android:gravity="center_vertical"
-                android:padding="12dp">
-
+                android:paddingTop="8dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="7dp"
+                android:paddingBottom="6dp"
+                android:background="@drawable/custom_inbox_item">
                 <LinearLayout
                     android:id="@+id/linearLayout5"
                     android:layout_width="0dp"
@@ -56,7 +57,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
-                        android:background="@drawable/shape_priority_low"
                         android:drawablePadding="4dp"
                         android:padding="4dp"
                         android:textSize="12sp"
@@ -70,7 +70,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
-                        android:background="@drawable/shape_deadline"
                         card_view:layout_constraintStart_toStartOf="@+id/text"
                         card_view:layout_constraintTop_toBottomOf="@+id/text"
                         tools:text="5 days left" />
@@ -81,6 +80,8 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
+                        android:drawablePadding="5dp"
+                        android:drawableLeft="@drawable/shape_project_cicle"
                         android:layout_marginEnd="10dp"
                         card_view:layout_constraintStart_toStartOf="@+id/text"
                         card_view:layout_constraintTop_toBottomOf="@+id/text"
@@ -141,9 +142,11 @@
                         android:id="@+id/inbox_task_estimated_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_gravity="end"
+                        android:layout_marginBottom="4dp"
                         android:background="@drawable/shape_estimated_time"
                         android:gravity="center"
+                        android:fontFamily="@font/consolab"
                         android:text="1h"
                         android:textColor="@color/blue"
                         android:textSize="10sp"
@@ -152,11 +155,13 @@
 
                     <TextView
                         android:id="@+id/inbox_task_spent_time"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="end"
                         android:background="@drawable/shape_spent_time"
                         android:gravity="center"
                         android:text="1h"
+                        android:fontFamily="@font/consolab"
                         android:textColor="@color/green"
                         android:textSize="10sp"
                         card_view:layout_constraintBottom_toBottomOf="parent"

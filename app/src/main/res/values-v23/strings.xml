@@ -46,6 +46,18 @@
     <string name="all_changes_saved">All changes saved</string>
     <string name="sub_task">Sub-task</string>
     <string name="dark_theme">Dark Theme</string>
-    <string name="first_name_optinal">First name (optional)</string>
+    <string name="first_name_optional">First name (optional)</string>
     <string name="last_name_optional">Last name (optional)</string>
+    <string name="low_priority">Low</string>
+    <string name="normal_priority">Normal</string>
+    <string name="high_priority">High</string>
+    <string name="logged_time">logged</string>
+    <string name="assigned_to">Assigned to</string>
+    <string name="planning_date">Planning Date</string>
+    <string name="set_date">Set date</string>
+    <string name="priority">Priority</string>
+    <string name="estimated_time">Estimated Time</string>
+    <string name="actual_spent_time">Actual Spent Time</string>
+    <string name="create_task">Create Task</string>
+    <string name="comments">Comments</string>
 </resources>

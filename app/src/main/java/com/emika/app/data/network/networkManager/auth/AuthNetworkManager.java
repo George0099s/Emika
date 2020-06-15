@@ -5,10 +5,8 @@ import android.util.Log;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dao.TokenDao;
-import com.emika.app.data.db.dao.UserDao;
 import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.db.entity.TokenEntity;
-import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.AuthCallback;
 import com.emika.app.data.network.api.AuthApi;
 import com.emika.app.data.network.callback.TokenCallback;
@@ -35,7 +33,7 @@ public class AuthNetworkManager {
     private static final String TAG = "AuthNetworkManager";
     private String token, password, email;
     private AppDatabase db;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
     private TokenDao tokenDao;
     private TokenDbManager tokenDbManager;
 

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,12 +22,10 @@ import com.emika.app.data.network.callback.TokenCallback;
 import com.emika.app.data.network.pojo.ModelToken;
 import com.emika.app.data.network.pojo.TokenPayload;
 import com.emika.app.presentation.ui.auth.AuthActivity;
-import com.emika.app.presentation.utils.Constants;
+import com.emika.app.presentation.ui.calendar.Cal;
 import com.emika.app.presentation.utils.NetworkState;
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory;
 import com.emika.app.presentation.viewmodel.StartActivityViewModel;
-import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
-import com.emika.app.presentation.viewmodel.profile.ProfileViewModel;
 
 import java.util.concurrent.Callable;
 
@@ -36,21 +33,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class StartActivity extends AppCompatActivity implements TokenCallback {
     private static final String TAG = "StartActivity";
     private String token;
     private SharedPreferences sharedPreferences;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
     private TokenDbManager tokenDbManager;
     private StartActivityViewModel startActivityViewModel;
     private ProjectDbManager projectDbManager;
     private LifecycleOwner lifecycleOwner;
     private Boolean taskLoaded = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +62,6 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
 //            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 //        else
 //            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-
         if (NetworkState.getInstance(getApplication()).isOnline())
             if (!sharedPreferences.getBoolean("logged in", false))
                 Observable.fromCallable((new CallableGetToken()))
@@ -74,7 +69,6 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
                         .subscribe();
             else {
                 validateToken(sharedPreferences.getString("token", ""));
-//                tokenDbManager.getToken(this);
             }
         else {
             startActivity(new Intent(this, MainActivity.class));
@@ -83,10 +77,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
     }
 
     private Boolean validateToken(String token) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASIC_URL) // Адрес сервера
-                .addConverterFactory(GsonConverterFactory.create()) // говорим ретрофиту что для сериализации необходимо использовать GSON
-                .build();
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
 
         AuthApi service = retrofit.create(AuthApi.class);
         Call<ModelToken> call = service.validateToken(token);
@@ -96,39 +87,33 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
                 ModelToken model = response.body();
                 if (model.getOk()) {
                     startActivityViewModel = new ViewModelProvider((ViewModelStoreOwner) lifecycleOwner, new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
-//                    tokenDbManager.insertToken(token);
                     sharedPreferences.edit().putString("token", token).apply();
                     startActivityViewModel.setToken(token);
                     if (sharedPreferences.getBoolean("logged in", false)) {
                         startActivityViewModel.getHasCompanyId().observe(lifecycleOwner, hasCompanyId);
                     } else {
                         Intent intent = new Intent(StartActivity.this, AuthActivity.class);
+                        intent.putExtra("continue", false);
                         startActivity(intent);
                     }
                 } else {
-                    Toast.makeText(StartActivity.this, "Wrong token", Toast.LENGTH_SHORT).show();
-                    Observable.fromCallable((new CallableGetToken()))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe();
+
+                    createToken();
                 }
             }
 
             @Override
             public void onFailure(Call<ModelToken> call, Throwable t) {
-                Log.d(TAG, "onResponse:123 signUp fail " + t.getMessage());
-
+                Log.d(TAG, "onResponse: signUp fail " + t.getMessage());
             }
         });
         return true;
     }
 
     private Observer<Boolean> hasCompanyId = has -> {
-
-        if (has) {
-            Intent intent = new Intent(StartActivity.this, MainActivity.class);
+        if (has && sharedPreferences.getBoolean("logged in", false)) {
+            Intent intent = new Intent(StartActivity.this, Cal.class);
             intent.putExtra("token", startActivityViewModel.getToken());
-            startActivityViewModel.fetchAllData();
             startActivity(intent);
         } else {
             Intent intent = new Intent(StartActivity.this, AuthActivity.class);
@@ -150,11 +135,7 @@ public class StartActivity extends AppCompatActivity implements TokenCallback {
                 if (model.getOk()) {
                     TokenPayload payload = model.getTokenPayload();
                     token = payload.getToken();
-
-                    Observable.fromCallable((new CallableValidateToken(token)))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe();
+                    validateToken(token);
                 } else {
                     Toast.makeText(StartActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
 

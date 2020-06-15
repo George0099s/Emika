@@ -20,8 +20,6 @@ import com.emika.app.presentation.viewmodel.profile.AllMembersViewModel;
 
 import java.util.List;
 
-import javax.security.auth.callback.PasswordCallback;
-
 public class AllMembersActivity extends AppCompatActivity {
 
     private RecyclerView allMembersRecycler;
@@ -41,7 +39,7 @@ public class AllMembersActivity extends AppCompatActivity {
 
     private void initView() {
         packageManager = getPackageManager();
-        token = EmikaApplication.getInstance().getSharedPreferences().getString("token", "");
+        token = EmikaApplication.instance.getSharedPreferences().getString("token", "");
         memberId = getIntent().getStringExtra("memberId");
         back = findViewById(R.id.all_members_back);
         back.setOnClickListener(this::onBackPressed);

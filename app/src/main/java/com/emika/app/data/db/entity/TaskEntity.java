@@ -1,5 +1,8 @@
 package com.emika.app.data.db.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -12,7 +15,7 @@ import java.util.List;
 
 
 @Entity(tableName = "Task")
-public class TaskEntity {
+public class TaskEntity implements Parcelable {
     @PrimaryKey
     @NonNull
     private String id;
@@ -44,6 +47,69 @@ public class TaskEntity {
     private String sectionId;
     @TypeConverters({EpicLinksTypeConverter.class})
     private List<String> epicLinks = new ArrayList<>();
+
+    protected TaskEntity(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        if (in.readByte() == 0) {
+            order = null;
+        } else {
+            order = in.readInt();
+        }
+        description = in.readString();
+        type = in.readString();
+        status = in.readString();
+        assignee = in.readString();
+        priority = in.readString();
+        createdBy = in.readString();
+        planDate = in.readString();
+        byte tmpPlanEmika = in.readByte();
+        planEmika = tmpPlanEmika == 0 ? null : tmpPlanEmika == 1;
+        planPeriod = in.readString();
+        planTime = in.readString();
+        if (in.readByte() == 0) {
+            planOrder = null;
+        } else {
+            planOrder = in.readInt();
+        }
+        deadlineDate = in.readString();
+        byte tmpDeadlineEmika = in.readByte();
+        deadlineEmika = tmpDeadlineEmika == 0 ? null : tmpDeadlineEmika == 1;
+        deadlinePeriod = in.readString();
+        deadlineTime = in.readString();
+        if (in.readByte() == 0) {
+            duration = null;
+        } else {
+            duration = in.readInt();
+        }
+        if (in.readByte() == 0) {
+            durationActual = null;
+        } else {
+            durationActual = in.readInt();
+        }
+        byte tmpEpicLinksEmika = in.readByte();
+        epicLinksEmika = tmpEpicLinksEmika == 0 ? null : tmpEpicLinksEmika == 1;
+        companyId = in.readString();
+        projectId = in.readString();
+        updatedAt = in.readString();
+        createdAt = in.readString();
+        parentTaskId = in.readString();
+        sectionId = in.readString();
+        epicLinks = in.createStringArrayList();
+        durationLogged = in.readString();
+    }
+
+    public static final Creator<TaskEntity> CREATOR = new Creator<TaskEntity>() {
+        @Override
+        public TaskEntity createFromParcel(Parcel in) {
+            return new TaskEntity(in);
+        }
+
+        @Override
+        public TaskEntity[] newArray(int size) {
+            return new TaskEntity[size];
+        }
+    };
 
     @NonNull
     public String getId() {
@@ -281,5 +347,63 @@ public class TaskEntity {
 
     public void setEpicLinks(List<String> epicLinks) {
         this.epicLinks = epicLinks;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        if (order == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(order);
+        }
+        dest.writeString(description);
+        dest.writeString(type);
+        dest.writeString(status);
+        dest.writeString(assignee);
+        dest.writeString(priority);
+        dest.writeString(createdBy);
+        dest.writeString(planDate);
+        dest.writeByte((byte) (planEmika == null ? 0 : planEmika ? 1 : 2));
+        dest.writeString(planPeriod);
+        dest.writeString(planTime);
+        if (planOrder == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(planOrder);
+        }
+        dest.writeString(deadlineDate);
+        dest.writeByte((byte) (deadlineEmika == null ? 0 : deadlineEmika ? 1 : 2));
+        dest.writeString(deadlinePeriod);
+        dest.writeString(deadlineTime);
+        if (duration == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(duration);
+        }
+        if (durationActual == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(durationActual);
+        }
+        dest.writeByte((byte) (epicLinksEmika == null ? 0 : epicLinksEmika ? 1 : 2));
+        dest.writeString(companyId);
+        dest.writeString(projectId);
+        dest.writeString(updatedAt);
+        dest.writeString(createdAt);
+        dest.writeString(parentTaskId);
+        dest.writeString(sectionId);
+        dest.writeStringList(epicLinks);
+        dest.writeString(durationLogged);
     }
 }

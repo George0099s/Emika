@@ -7,14 +7,14 @@ import com.emika.app.domain.repository.calendar.CalendarRepository
 
 class InboxViewModel(token: String) : ViewModel() {
     val taskList: MutableList<PayloadTask> = arrayListOf()
-     var addedTaskList: List<PayloadTask> = arrayListOf()
-        set(value) {
-            field = value
-        }
+     var addedTaskList: MutableList<PayloadTask> = ArrayList()
 
     private var repository: CalendarRepository? = CalendarRepository(token)
-    private var taskListMutableLiveData: MutableLiveData<List<PayloadTask>>? = MutableLiveData()
+    var taskListMutableLiveData: MutableLiveData<MutableList<PayloadTask>>? = MutableLiveData()
 
+    init{
+        taskListMutableLiveData = MutableLiveData()
+    }
     var date: String? = null
         set(value) {
             field = value

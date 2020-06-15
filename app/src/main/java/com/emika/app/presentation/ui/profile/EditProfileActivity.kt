@@ -73,8 +73,8 @@ class EditProfileActivity : AppCompatActivity(), TokenCallback {
     }
 
     private fun initView() {
-        EmikaApplication.getInstance().component.inject(this)
-        sharedPreferences = EmikaApplication.getInstance().sharedPreferences
+        EmikaApplication.instance.component?.inject(this)
+        sharedPreferences = EmikaApplication.instance.sharedPreferences
         token = sharedPreferences!!.getString("token", "")
         userDbManager = UserDbManager()
         networkManager = AuthNetworkManager(token)
@@ -215,9 +215,9 @@ class EditProfileActivity : AppCompatActivity(), TokenCallback {
     override fun getToken(token: String) {
         val intent = Intent(this, AuthActivity::class.java)
         intent.putExtra("token", token)
-        val sharedPreferences = EmikaApplication.getInstance().sharedPreferences
-        sharedPreferences.edit().putBoolean("logged in", false).apply()
-        sharedPreferences.edit().putString("token", token).apply()
+        val sharedPreferences = EmikaApplication.instance.sharedPreferences
+        sharedPreferences?.edit()?.putBoolean("logged in", false)!!.apply()
+        sharedPreferences?.edit()?.putString("token", token)!!.apply()
         startActivity(intent)
     }
 

@@ -69,9 +69,10 @@ public class ChatAdapterOld extends RecyclerView.Adapter<ChatAdapterOld.ViewHold
     }
 
     public void update(Message message) {
-        if (mMessages != null && message != null)
+        if (mMessages != null && message != null) {
             mMessages.add(0, message);
-        notifyDataSetChanged();
+            notifyItemInserted(0);
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

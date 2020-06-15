@@ -82,6 +82,7 @@ public class Converter {
             taskEntity.setPlanDate(taskList.get(i).getPlanDate());
             taskEntity.setName(taskList.get(i).getName());
             taskEntity.setProjectId(taskList.get(i).getProjectId());
+            taskEntity.setSectionId(taskList.get(i).getSectionId());
             taskEntities.add(taskEntity);
         }
         return taskEntities;
@@ -161,10 +162,11 @@ public class Converter {
         taskEntity.setSectionId(task.getSectionId());
         taskEntity.setPlanOrder(Integer.valueOf(task.getPlanOrder()));
         taskEntity.setName(task.getName());
-        return taskEntity;
+        return this.taskEntity;
     }
 
     public List<PayloadProject> fromProjectEntityToPayloadProjectList(List<ProjectEntity> projectEntities) {
+        payloadProjects = new ArrayList<>();
         for (int i = 0; i < projectEntities.size(); i++) {
             PayloadProject project = new PayloadProject();
             project.setId(projectEntities.get(i).getId());

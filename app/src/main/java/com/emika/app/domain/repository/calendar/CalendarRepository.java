@@ -1,6 +1,8 @@
 package com.emika.app.domain.repository.calendar;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -50,7 +52,7 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CalendarRepository {
+public class CalendarRepository implements Parcelable {
 
     private List<PayloadTask> payloadTaskList;
     private TaskDbManager taskDbManager;
@@ -78,6 +80,26 @@ public class CalendarRepository {
         sectionDbManager = new SectionDbManager();
         actualDurationDbManager = new ActualDurationDbManager();
     }
+
+    protected CalendarRepository(Parcel in) {
+        payloadTaskList = in.createTypedArrayList(PayloadTask.CREATOR);
+        token = in.readString();
+        byte tmpFirstRun = in.readByte();
+        firstRun = tmpFirstRun == 0 ? null : tmpFirstRun == 1;
+    }
+
+    public static final Creator<CalendarRepository> CREATOR = new Creator<CalendarRepository>() {
+        @Override
+        public CalendarRepository createFromParcel(Parcel in) {
+            return new CalendarRepository(in);
+        }
+
+        @Override
+        public CalendarRepository[] newArray(int size) {
+            return new CalendarRepository[size];
+        }
+    };
+
     public void downloadTasks(TaskListCallback taskListCallback) {
 //        if(NetworkState.getInstance(context).isOnline() && firstRun) {
             calendarNetworkManager.getAllTask(taskListCallback);
@@ -92,6 +114,11 @@ public class CalendarRepository {
         calendarNetworkManager.updateTask(task);
         taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
     }
+
+    public void updateSocketTask(PayloadTask task){
+        calendarNetworkManager.updateTask(task);
+    }
+
      public void updateDbTask(PayloadTask task){
         taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
     }
@@ -232,5 +259,17 @@ public class CalendarRepository {
 
     public void deleteDuration(PayloadDurationActual durationActual) {
         actualDurationDbManager.deleteDuration(converter.frompayload(durationActual));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(payloadTaskList);
+        dest.writeString(token);
+        dest.writeByte((byte) (firstRun == null ? 0 : firstRun ? 1 : 2));
     }
 }

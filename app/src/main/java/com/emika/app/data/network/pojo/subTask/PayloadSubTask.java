@@ -19,7 +19,7 @@ public class PayloadSubTask  {
     private List<SubTask> subTasks = null;
     @SerializedName("comments")
     @Expose
-    private List<Object> comments = null;
+    private List<Comment> comments = null;
 
     public PayloadTask getTask() {
         return task;
@@ -37,11 +37,11 @@ public class PayloadSubTask  {
         this.subTasks = subTasks;
     }
 
-    public List<Object> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(List<Object> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 

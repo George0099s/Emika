@@ -31,7 +31,7 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
     private CalendarRepository repository;
     private String projectId;
     private Converter converter;
-    private EmikaApplication app = EmikaApplication.getInstance();
+    private EmikaApplication app = EmikaApplication.instance;
     @Inject
     Project projectDi;
     @Inject
@@ -41,8 +41,8 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
         projectListMutableLiveData = new MutableLiveData<>();
         sectionListMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
-        repository.downloadAllProject(this);
-        repository.downloadSections(this);
+        repository.getAllProjects(this);
+        repository.getAllSections(this);
         converter = new Converter();
         app.getComponent().inject(this);
     }
@@ -64,9 +64,6 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
 
     @Override
     public void getProjects(List<PayloadProject> projects) {
-//        projectsDagger.setProjects(projects
-//        logd);
-        Log.d(TAG, "getProjects: " + projects.size());
         projectsDagger.setProjects(projects);
         projectListMutableLiveData.postValue(projects);
     }
@@ -105,13 +102,14 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
 
     @Override
     public void onProjectLoaded(List<ProjectEntity> projectEntities) {
+        projectsDagger.setProjects(converter.fromProjectEntityToPayloadProjectList(projectEntities));
         projectListMutableLiveData.postValue(converter.fromProjectEntityToPayloadProjectList(projectEntities));
     }
 
     @Override
     public void onSectionLoaded(List<SectionEntity> sections) {
-        sectionListMutableLiveData.postValue(converter.fromListEntitySectionToPayloadSection(sections));
-    }
+        projectsDagger.setSections(converter.fromListEntitySectionToPayloadSection(sections));
+        sectionListMutableLiveData.postValue(converter.fromListEntitySectionToPayloadSection(sections));    }
 
     public String getProjectId() {
         return projectId;

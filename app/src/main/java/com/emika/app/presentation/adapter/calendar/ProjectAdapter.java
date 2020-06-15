@@ -1,7 +1,6 @@
 package com.emika.app.presentation.adapter.calendar;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,16 +8,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.task.PayloadTask;
-import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
-import com.emika.app.di.ProjectsDi;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
 
 import java.util.List;
@@ -32,7 +28,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
 
     private List<PayloadProject> projects;
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
     private PayloadTask task;
     public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task) {
         emikaApplication.getComponent().inject(this);

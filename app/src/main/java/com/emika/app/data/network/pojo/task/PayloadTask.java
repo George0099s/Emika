@@ -2,6 +2,7 @@ package com.emika.app.data.network.pojo.task;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
@@ -13,7 +14,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 @Entity
-public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
+public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
     @PrimaryKey
     @NonNull
     @SerializedName("_id")
@@ -107,31 +108,7 @@ public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
     @Expose
     private String durationLogged;
 
-    public static final Creator<PayloadTask> CREATOR = new Creator<PayloadTask>() {
-        @Override
-        public PayloadTask createFromParcel(Parcel in) {
-            return new PayloadTask(in);
-        }
-
-        @Override
-        public PayloadTask[] newArray(int size) {
-            return new PayloadTask[size];
-        }
-    };
-
-    public List<String> getSubTaskList() {
-        return subTaskList;
-    }
-
-    public void setSubTaskList(List<String> subTaskList) {
-        this.subTaskList = subTaskList;
-    }
-
-    @SerializedName("sub_task")
-    @Expose
-    private List<String> subTaskList;
-
-    public PayloadTask(Parcel in) {
+    protected PayloadTask(Parcel in) {
         id = in.readString();
         name = in.readString();
         description = in.readString();
@@ -173,7 +150,34 @@ public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
         parentTaskId = in.readString();
         sectionId = in.readString();
         durationLogged = in.readString();
+        subTaskList = in.createStringArrayList();
     }
+
+    public static final Creator<PayloadTask> CREATOR = new Creator<PayloadTask>() {
+        @Override
+        public PayloadTask createFromParcel(Parcel in) {
+            return new PayloadTask(in);
+        }
+
+        @Override
+        public PayloadTask[] newArray(int size) {
+            return new PayloadTask[size];
+        }
+    };
+
+    public List<String> getSubTaskList() {
+        return subTaskList;
+    }
+
+    public void setSubTaskList(List<String> subTaskList) {
+        this.subTaskList = subTaskList;
+    }
+
+    @SerializedName("sub_task")
+    @Expose
+    private List<String> subTaskList;
+
+
 
 
 
@@ -293,7 +297,7 @@ public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
     }
 
     public String getDeadlineDate() {
-     return deadlineDate;
+        return deadlineDate;
     }
 
     public void setDeadlineDate(String deadlineDate) {
@@ -334,7 +338,7 @@ public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
 
     public Integer getDurationActual() {
         if (durationActual!=null)
-        return durationActual;
+            return durationActual;
         else
             return 0;
     }
@@ -423,6 +427,19 @@ public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
         this.durationLogged = durationLogged;
     }
 
+
+
+    @Override
+    public int compareTo(PayloadTask o) {
+        if (this.planOrder.equals(o.planOrder)) {
+            return 0;
+        } else if (Integer.parseInt(this.planOrder) < Integer.parseInt(o.planOrder)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -471,16 +488,5 @@ public class PayloadTask implements Parcelable, Comparable<PayloadTask> {
         dest.writeString(sectionId);
         dest.writeString(durationLogged);
         dest.writeStringList(subTaskList);
-    }
-
-    @Override
-    public int compareTo(PayloadTask o) {
-        if (this.planOrder == o.planOrder) {
-            return 0;
-        } else if (Integer.parseInt(this.planOrder) < Integer.parseInt(o.planOrder)) {
-            return -1;
-        } else {
-            return 1;
-        }
     }
 }

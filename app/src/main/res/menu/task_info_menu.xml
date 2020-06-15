@@ -1,15 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_cancel_task"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+
+    <item
+        android:id="@+id/menu_cancel_task"
         android:title="@string/cancel_task"
+        android:iconTint="@color/mainTextColor"
+        android:iconTintMode="@color/mainTextColor"
         android:icon="@drawable/ic_cancel_task" />
-    <item android:id="@+id/menu_rename_task"
+    <item
+        android:id="@+id/menu_rename_task"
         android:title="@string/rename_task"/>
-    <item android:id="@+id/menu_move_task"
-        android:title="@string/move_task"/>
-    <item android:id="@+id/menu_duplicate_task"
-        android:title="@string/duplicate_task"/>
-    <item android:id="@+id/menu_copy_task"
-        android:title="@string/copy_task"/>
+    <item
+        android:id="@+id/menu_move_task"
+        android:title="@string/move_task" />
+    <item
+        android:id="@+id/menu_duplicate_task"
+        android:title="@string/duplicate_task"
+        android:icon="@drawable/ic_duplicate_task"/>
+
+    <item
+        android:id="@+id/menu_done_task"
+        android:icon="@drawable/ic_task_done"
+        app:showAsAction="ifRoom"
+        android:iconTint="@color/mainTextColor"
+        tools:ignore="MenuTitle" />
+    <item
+        android:id="@+id/menu_recover_task"
+        android:icon="@drawable/ic_task_recover"
+        app:showAsAction="ifRoom"
+        android:iconTint="@color/mainTextColor"
+        tools:ignore="MenuTitle" />
+    <item
+        android:id="@+id/menu_delete_task"
+        android:icon="@drawable/ic_task_delete"
+        app:showAsAction="ifRoom"
+        android:iconTint="@color/mainTextColor"
+        tools:ignore="MenuTitle" />
 </menu>

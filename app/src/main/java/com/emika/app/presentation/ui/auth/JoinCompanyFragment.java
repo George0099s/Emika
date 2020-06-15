@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
-import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.pojo.company.Invitation;
 import com.emika.app.presentation.adapter.auth.InvitationAdapter;
 import com.emika.app.presentation.utils.viewModelFactory.auth.JoinCompanyViewModelFactory;
@@ -58,12 +57,12 @@ public class JoinCompanyFragment extends Fragment {
 
     private void initView(View view) {
         fm = getParentFragmentManager();
-        sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        sharedPreferences = EmikaApplication.instance.getSharedPreferences();
         token = sharedPreferences.getString("token", "");
         viewModel = new ViewModelProvider(this, new JoinCompanyViewModelFactory(token)).get(JoinCompanyViewModel.class);
         logout = view.findViewById(R.id.join_company_log_out);
         logout.setOnClickListener(this::logOut);
-        sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        sharedPreferences = EmikaApplication.instance.getSharedPreferences();
         invitationRecycler = view.findViewById(R.id.invitation_recycler);
         createCompany = view.findViewById(R.id.create_company);
         createCompany.setOnClickListener(this::goToCreateCompany);

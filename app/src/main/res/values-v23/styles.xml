@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
         <item name="background">@color/white</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="actionMenuTextColor">@color/mainTextColor</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:fontFamily">@font/roboto_regular</item>
-        <item name="android:statusBarColor">@color/white</item>
-        <item name="android:navigationBarColor">#171717</item>
+        <item name="android:statusBarColor">@color/green</item>
+        <item name="android:navigationBarColor">@color/white</item>
     </style>
-    
+
+    <style name="toolBarStyle">
+        <item name="background">@color/green</item>
+        <item name="android:textColorSecondary">@color/mainTextColor</item>
+        <item name="colorControlNormal">@color/white</item>
+    </style>
+
     <style name="TimePicker" >
         <item name="android:timePickerMode">clock</item>
     </style>
+
     <style name="MyTimePickerWidgetStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:headerBackground">#ffe082</item>
         <item name="android:numbersTextColor">#b71c1c</item>
@@ -90,8 +100,8 @@
         <item name="bottomSheetStyle">@style/BottomSheetStyle</item>
     </style>
     <style name="BottomSheetStyle" >
-        <!--        <item name="android:windowIsFloating">false</item>-->
-        <item name="android:background">@drawable/shape_bottom_sheet</item>
+                <item name="android:windowIsFloating">false</item>
+        <item name="android:background">@drawable/bottom_sheet_drawable</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 

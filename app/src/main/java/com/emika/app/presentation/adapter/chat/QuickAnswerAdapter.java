@@ -32,7 +32,7 @@ public class QuickAnswerAdapter extends RecyclerView.Adapter<QuickAnswerAdapter.
         this.suggestions = suggestions;
         this.viewModel = viewModel;
         this.adapter = adapter;
-        EmikaApplication.getInstance().getComponent().inject(this);
+        EmikaApplication.instance.getComponent().inject(this);
     }
 
     @NonNull

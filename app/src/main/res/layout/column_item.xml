@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_layout"
     android:layout_marginBottom="4dp"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -16,9 +18,10 @@
         android:duplicateParentState="true"
         card_view:cardBackgroundColor="@color/taskItemBackground"
         card_view:cardElevation="2dp"
-        card_view:cardCornerRadius="12dp"
+        card_view:cardCornerRadius="4dp"
         card_view:cardPreventCornerOverlap="false"
-        card_view:cardUseCompatPadding="true">
+        card_view:cardUseCompatPadding="true"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/calendar_task_item"
@@ -44,10 +47,9 @@
                     android:id="@+id/calendar_task_canceled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
                     android:layout_marginEnd="10dp"
-                    android:visibility="gone"
-                    android:drawableLeft="@drawable/ic_canceled"
+                    android:paddingHorizontal="4dp"
+                    android:drawableStart="@drawable/ic_canceled"
                     android:drawablePadding="5dp"
                     style="@style/TaskParams"
                     android:textColor="#506378"
@@ -108,16 +110,16 @@
                 <CheckBox
                     android:id="@+id/task_done"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingVertical="15dp"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="10dp"
                     android:button="@drawable/custom_checkboks"
-                    android:textColorHighlight="@color/grey" />
-                <CheckBox
+                    />
+                <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/task_refresh"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColorHighlight="@color/grey"
-                    android:paddingVertical="15dp"
+                    android:paddingVertical="10dp"
                     android:visibility="gone"
                     android:button="@drawable/custom_refresh_checkbox"
                     />

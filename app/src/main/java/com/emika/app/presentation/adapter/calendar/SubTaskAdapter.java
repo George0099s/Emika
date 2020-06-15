@@ -122,7 +122,6 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
     public void addSubTask(SubTask subTask) {
         subTask.setNewTask(true);
         taskList.add(getItemCount(), subTask);
-
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -160,6 +159,6 @@ public class SubTaskAdapter extends RecyclerView.Adapter<SubTaskAdapter.ViewHold
         }
         taskList.remove(position);
         notifyItemRemoved(position);
-//        notifyDataSetChanged();
+        notifyItemRangeChanged(position, getItemCount());
     }
 }

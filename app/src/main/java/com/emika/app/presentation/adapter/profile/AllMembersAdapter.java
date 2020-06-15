@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,7 +22,6 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.user.Contact;
 import com.emika.app.di.User;
-import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
 import com.emika.app.presentation.ui.profile.MemberActivity;
 
 import java.util.ArrayList;
@@ -48,7 +46,7 @@ public class AllMembersAdapter extends RecyclerView.Adapter<AllMembersAdapter.Vi
         this.members = members;
         this.memberId = memberId;
         this.packageManager = packageManager;
-        EmikaApplication.getInstance().getComponent().inject(this);
+        EmikaApplication.instance.getComponent().inject(this);
         for (int i = 0; i < this.members.size(); i++) {
             if (this.members.get(i).getId().equals("emika"))
                 this.members.remove(i);

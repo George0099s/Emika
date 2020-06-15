@@ -2,7 +2,6 @@ package com.emika.app.presentation.viewmodel.calendar;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -15,15 +14,15 @@ import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.project.PayloadSection;
+import com.emika.app.data.network.pojo.subTask.Comment;
 import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
-import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.Assignee;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
+import com.emika.app.di.ProjectsDi;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.domain.repository.calendar.TaskInfoRepository;
-import com.emika.app.features.calendar.swipe.ListSwipeHelper;
 import com.emika.app.presentation.utils.Converter;
 
 import java.util.ArrayList;
@@ -31,8 +30,20 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLinksDbCallback, SubTaskCallback, MemberDbCallback {
+public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLinksDbCallback, SubTaskCallback, MemberDbCallback {
     private MutableLiveData<PayloadTask> taskMutableLiveData;
+
+    public static final Creator<TaskInfoViewModel> CREATOR = new Creator<TaskInfoViewModel>() {
+        @Override
+        public TaskInfoViewModel createFromParcel(Parcel in) {
+            return new TaskInfoViewModel(in);
+        }
+
+        @Override
+        public TaskInfoViewModel[] newArray(int size) {
+            return new TaskInfoViewModel[size];
+        }
+    };
 
     public PayloadTask getTask() {
         return task;
@@ -48,6 +59,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     private List<String> taskEpicLinks;
 
     private MutableLiveData<List<SubTask>> subTaskMutableLiveData;
+    private MutableLiveData<List<Comment>> commentsMutableLiveData;
 
     public void setEpicLinksList(List<PayloadEpicLinks> epicLinksList) {
         this.epicLinksList = epicLinksList;
@@ -65,10 +77,12 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     @Inject
     Project projectDi;
     @Inject
+    ProjectsDi projectsDagger;
+    @Inject
     EpicLinks epicLinksDi;
     public TaskInfoViewModel(String token) {
         this.token = token;
-        EmikaApplication.getInstance().getComponent().inject(this);
+        EmikaApplication.instance.getComponent().inject(this);
         repository = new CalendarRepository(token);
         getMembers();
         taskMutableLiveData = new MutableLiveData<>();
@@ -78,6 +92,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
         epicLinksList = new ArrayList<>();
         converter = new Converter();
         taskEpicLinks =  new ArrayList<>();
+        commentsMutableLiveData = new MutableLiveData<>();
         subTaskMutableLiveData = new MutableLiveData<>();
         memberEntities = new ArrayList<>();
         subTaskIdMutableLiveData = new MutableLiveData<>();
@@ -87,21 +102,13 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
         token = in.readString();
     }
 
-    public static final Creator<TaskInfoViewModel> CREATOR = new Creator<TaskInfoViewModel>() {
-        @Override
-        public TaskInfoViewModel createFromParcel(Parcel in) {
-            return new TaskInfoViewModel(in);
-        }
-
-        @Override
-        public TaskInfoViewModel[] newArray(int size) {
-            return new TaskInfoViewModel[size];
-        }
-    };
-
     public MutableLiveData<List<SubTask>> getSubTaskMutableLiveData(String taskId) {
         repository.getSubTask(taskId, this);
         return subTaskMutableLiveData;
+    }
+
+    public MutableLiveData<List<Comment>> getCommentsMutableLiveData() {
+        return commentsMutableLiveData;
     }
 
     public MutableLiveData<PayloadTask> getTaskMutableLiveData() {
@@ -113,7 +120,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
         repository.updateTask(task);
     }
     public void updateDbTask(PayloadTask task){
-        repository.updateDbTask(task);
+        repository.updateSocketTask(task);
     }
 
     public void setTask(PayloadTask task) {
@@ -131,7 +138,7 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
 
 
     public MutableLiveData<Assignee> getAssigneeMutableLiveData() {
-        assigneeMutableLiveData.setValue(assignee);
+         assigneeMutableLiveData.setValue(assignee);
         return assigneeMutableLiveData;
     }
 
@@ -139,30 +146,19 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
         repository.getAllDbMembers(this);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(task, flags);
-        dest.writeString(token);
-    }
-
     public void getDbEpicLinks(){
         repository.getDbEpicLinks(this);
     }
 
     public MutableLiveData<List<EpicLinksEntity>> getEpicLinksMutableLiveData() {
-//        repository.getDbEpicLinks(this);
+          repository.getDbEpicLinks(this);
         return epicLinksMutableLiveData;
     }
 
     public MutableLiveData<Project> getProjectMutableLiveData() {
-        projectDi.setProjectId(task.getProjectId());
-        projectDi.setProjectSectionId(task.getSectionId());
-        projectMutableLiveData.setValue(projectDi);
+            projectDi.setProjectId(task.getProjectId());
+            projectDi.setProjectSectionId(task.getSectionId());
+            projectMutableLiveData.setValue(projectDi);
         return projectMutableLiveData;
     }
 
@@ -189,6 +185,12 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
     }
 
     @Override
+    public void onCommentListLoaded(List<Comment> comments) {
+        commentsMutableLiveData.postValue(comments);
+//        repository.insertAllComments(comments);
+    }
+
+    @Override
     public void onSubTaskLoaded(String id) {
         subTaskIdMutableLiveData.postValue(id);
     }
@@ -209,6 +211,19 @@ public class TaskInfoViewModel extends ViewModel implements Parcelable, EpicLink
 
     public MutableLiveData<String>  getSubTaskIdMutableLiveData() {
         return subTaskIdMutableLiveData;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(task, flags);
+        dest.writeStringList(taskEpicLinks);
+        dest.writeString(token);
+        dest.writeParcelable(assignee, flags);
     }
 }
 

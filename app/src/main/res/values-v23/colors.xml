@@ -18,11 +18,15 @@
     <color name="mainTextColor">#000</color>
     <color name="taskDoneTextColor">#6F85A2</color>
     <color name="task_name_done">#6F85A2</color>
-    <color name="addTaskBackground">#FFF</color>
+    <color name="addTaskBackground">#F0F2F5</color>
     <color name="profileBackground">#FFF</color>
     <color name="profileNameText">#585858</color>
     <color name="profileTitleText">#424242</color>
     <color name="leftChatText">#525252</color>
     <color name="bottomNavView">#171717</color>
 
+    <color name="priority_low">#7F8188</color>
+    <color name="priority_normal">#819DBE</color>
+    <color name="priority_high">#BF9040</color>
+    <color name="priority_urgent">#E43A5A</color>
 </resources>

@@ -5,14 +5,10 @@ import android.util.Log;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
-import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.chat.MessagesDbCallback;
-import com.emika.app.data.db.dao.EpicLinksDao;
 import com.emika.app.data.db.dao.MessagesDao;
-import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MessageEntity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
@@ -27,7 +23,7 @@ public class ChatDbManager {
     private MessagesDao messagesDao;
 
     public ChatDbManager() {
-        db = EmikaApplication.getInstance().getDatabase();
+        db = EmikaApplication.instance.getDatabase();
         messagesDao = db.messagesDao();
     }
 

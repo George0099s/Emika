@@ -202,26 +202,11 @@ public abstract class DragItemAdapter<T, VH extends com.emika.app.features.calen
                 });
             }
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemClicked(view);
-                }
-            });
+            itemView.setOnClickListener(view -> onItemClicked(view));
 
             if (itemView != mGrabView) {
-                itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        return onItemLongClicked(view);
-                    }
-                });
-                itemView.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View view, MotionEvent event) {
-                        return onItemTouch(view, event);
-                    }
-                });
+                itemView.setOnLongClickListener(view -> onItemLongClicked(view));
+                itemView.setOnTouchListener((view, event) -> onItemTouch(view, event));
             }
         }
 
@@ -231,6 +216,7 @@ public abstract class DragItemAdapter<T, VH extends com.emika.app.features.calen
 
         public void onItemClicked(View view) {
         }
+
 
         public boolean onItemLongClicked(View view) {
             return false;

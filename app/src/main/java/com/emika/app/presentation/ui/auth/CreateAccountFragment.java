@@ -22,7 +22,6 @@ import android.widget.Toast;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
-import com.emika.app.data.db.dbmanager.TokenDbManager;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.di.User;
 import com.emika.app.domain.repository.auth.CreateUserRepository;
@@ -63,11 +62,11 @@ public class CreateAccountFragment extends Fragment{
     }
 
     private void initViews(View view) {
-        sharedPreferences = EmikaApplication.getInstance().getSharedPreferences();
+        sharedPreferences = EmikaApplication.instance.getSharedPreferences();
         token = sharedPreferences.getString("token", "");
         Log.d(TAG, "initViews: " + token);
         viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token)).get(CreateAccountViewModel.class);
-        emikaApplication = EmikaApplication.getInstance();
+        emikaApplication = EmikaApplication.instance;
         emikaApplication.getComponent().inject(this);
         db = emikaApplication.getDatabase();
         fm = getParentFragmentManager();

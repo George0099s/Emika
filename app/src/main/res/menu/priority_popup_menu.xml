@@ -3,17 +3,17 @@
     <item
         android:id="@+id/low"
         android:icon="@drawable/ic_priority_low"
-        android:title="Low"/>
+        android:title="@string/low_priority"/>
     <item
         android:id="@+id/normal"
-        android:title="Normal"
+        android:title="@string/normal_priority"
         />
     <item
         android:id="@+id/high"
-        android:title="High"
+        android:title="@string/high_priority"
         android:icon="@drawable/ic_priority_high"/>
     <item
         android:id="@+id/urgent"
-        android:title="Urgent"
+        android:title="@string/urgent_priority"
         android:icon="@drawable/ic_task_urgent"/>
 </menu>

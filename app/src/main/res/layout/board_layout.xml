@@ -7,26 +7,87 @@
     android:layout_height="match_parent"
     android:background="@color/calendarBackground"
     android:fitsSystemWindows="true">
-
-    <ProgressBar
-        android:id="@+id/board_progress_bar"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/main_toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/green"
+        android:icon="@color/mainTextColor"
+        style="@style/toolBarStyle"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-        <com.emika.app.features.calendar.BoardView
-            android:id="@+id/board_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:boardEdges="5dp"
-            app:columnSpacing="20dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_part"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/profile"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_mail"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/day_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/chat"
+                app:layout_constraintStart_toEndOf="@+id/profile"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/main_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:layout_marginBottom="2dp"
+                    android:textSize="20dp"
+                    />
+
+                <TextView
+                    android:id="@+id/main_day"
+                    android:layout_width="match_parent"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:drawableRight="@drawable/ic_arrow_down"
+                    android:drawablePadding="2dp"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/chat"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/emika_gif"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <com.emika.app.features.calendar.BoardView
+        android:id="@+id/board_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:boardEdges="12dp"
+        app:columnSpacing="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_toolbar"
+        app:layout_constraintVertical_bias="1.0" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_task"
@@ -43,19 +104,18 @@
         app:layout_constraintTop_toTopOf="@+id/select_current_user"
         />
 
-    <Button
+    <ImageButton
         android:id="@+id/left_scroll_to_current_date"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@drawable/ic_scroll_left"
         android:visibility="gone"
-
         android:animateLayoutChanges="true"
         android:layout_marginBottom="140dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
+    <ImageButton
         android:id="@+id/right_scroll_to_current_date"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -86,27 +146,38 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_user" />
 
-        <TextView
-            android:id="@+id/fab_user_name"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/mainTextColor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/fab_job_title"
-            app:layout_constraintTop_toTopOf="@+id/fab_img"
-            tools:text="George Ter-g" />
-
-        <TextView
-            android:id="@+id/fab_job_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:gravity="start"
-            android:paddingEnd="5dp"
+            android:orientation="vertical"
             android:layout_marginStart="5dp"
+            app:layout_constraintBottom_toBottomOf="@+id/fab_img"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/fab_img"
-            app:layout_constraintTop_toBottomOf="@+id/fab_user_name"
-            tools:text="Backend developer" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/fab_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:paddingEnd="5dp"
+                android:textColor="@color/mainTextColor"
+                app:layout_constraintStart_toStartOf="@+id/fab_job_title"
+                app:layout_constraintTop_toTopOf="@+id/fab_img"
+                tools:text="George Ter-g" />
+
+            <TextView
+                android:id="@+id/fab_job_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="5dp"
+                android:textSize="12sp"
+                app:layout_constraintStart_toEndOf="@+id/fab_img"
+                app:layout_constraintTop_toBottomOf="@+id/fab_user_name"
+                tools:text="Backend developer" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

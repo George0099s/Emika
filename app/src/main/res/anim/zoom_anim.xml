@@ -2,7 +2,9 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android" android:fillAfter="true" >
     <scale
         xmlns:android="http://schemas.android.com/apk/res/android"
-
-        android:toYScale="1" >
+        android:fromXScale="0"
+        android:fromYScale="0"
+        android:toYScale="1"
+        android:toXScale="1">
     </scale>
 </set>

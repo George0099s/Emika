@@ -17,7 +17,7 @@
             <item
                 android:width="7dp"
                 android:height="7dp"
-                android:top="8dp"
+                android:top="8.5dp"
                 android:left="8.5dp">
 
                         <shape android:shape="oval">

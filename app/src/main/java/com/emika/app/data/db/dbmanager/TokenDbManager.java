@@ -1,8 +1,5 @@
 package com.emika.app.data.db.dbmanager;
 
-import android.media.session.MediaSession;
-import android.util.Log;
-
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.dao.TokenDao;
@@ -12,7 +9,6 @@ import com.emika.app.data.network.callback.TokenCallback;
 import java.util.concurrent.Callable;
 
 import rx.Observable;
-import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -20,7 +16,7 @@ public class TokenDbManager {
     private static final String TAG = "TokenDbManager";
     private AppDatabase db;
     private String token;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
     private TokenDao tokenDao;
     private TokenCallback tokenCallback;
     public TokenDbManager(){

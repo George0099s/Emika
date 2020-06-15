@@ -35,8 +35,8 @@ class CreateContactDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.create_contact_dialog_fragment, container, false)
-        EmikaApplication.instance.component.inject(this)
-        token = EmikaApplication.instance.sharedPreferences.getString("token", token)
+        EmikaApplication.instance.component?.inject(this)
+        token = EmikaApplication.instance.sharedPreferences?.getString("token", token)
         cancel = rootView.findViewById(R.id.createContactCancel) as Button
         contactType = rootView.findViewById(R.id.createContactType) as TextView
         contact.type = arguments!!.getString("type","")

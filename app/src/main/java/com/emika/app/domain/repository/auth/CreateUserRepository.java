@@ -25,7 +25,7 @@ public class CreateUserRepository {
     User userDi;
 
     public CreateUserRepository(String token, String firstName, String lastName, String jobTitle, String bio){
-        EmikaApplication.getInstance().getComponent().inject(this);
+        EmikaApplication.instance.getComponent().inject(this);
         this.token = token;
         this.firstName = firstName;
         this.lastName = lastName;

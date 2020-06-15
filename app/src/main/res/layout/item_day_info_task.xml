@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+
     <View
         android:id="@+id/view4"
         android:layout_width="1dp"
@@ -42,12 +43,11 @@
         android:layout_marginTop="4dp"
         android:textColor="@color/grey"
         android:textSize="18sp"
-        android:layout_marginBottom="8dp"
-        card_view:layout_constraintBottom_toBottomOf="parent"
         card_view:layout_constraintEnd_toEndOf="@+id/card"
         card_view:layout_constraintStart_toStartOf="@+id/card"
         card_view:layout_constraintTop_toBottomOf="@+id/card"
         tools:text="George Avakyan" />
+
     <!--    <TextView-->
 <!--        android:id="@+id/day_info_completed_type"-->
 <!--        android:layout_width="0dp"-->
@@ -59,6 +59,21 @@
 <!--        card_view:layout_constraintStart_toStartOf="@+id/day_info_task_completed_by"-->
 <!--        card_view:layout_constraintTop_toBottomOf="@+id/day_info_task_completed_by"-->
 <!--        tools:text="George Avakyan" />-->
+
+    <TextView
+        android:id="@+id/day_info_task_logged_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_medium"
+        android:textColor="@color/mainTextColor"
+        android:textSize="18sp"
+        android:paddingBottom="10dp"
+        card_view:layout_constraintBottom_toBottomOf="parent"
+        card_view:layout_constraintEnd_toEndOf="@+id/day_info_task_completed_by"
+        card_view:layout_constraintHorizontal_bias="0.0"
+        card_view:layout_constraintStart_toStartOf="@+id/day_info_task_completed_by"
+        card_view:layout_constraintTop_toBottomOf="@+id/day_info_task_completed_by"
+        tools:text="George Avakyan" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -130,7 +145,7 @@
                     android:background="@drawable/shape_task_canceled"
                     android:drawableLeft="@drawable/ic_canceled"
                     android:drawablePadding="5dp"
-                    android:padding="4dp"
+                    android:paddingHorizontal="4dp"
                     android:text="Canceled"
                     android:textColor="#506378"
                     android:visibility="gone" />
@@ -185,9 +200,17 @@
                     android:layout_height="wrap_content"
                     android:enabled="false"
                     android:button="@drawable/custom_checkboks"
-                    android:paddingVertical="15dp"
+                    android:paddingVertical="10dp"
                     android:textColorHighlight="@color/grey" />
-
+                <CheckBox
+                    android:id="@+id/day_info_task_refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColorHighlight="@color/grey"
+                    android:paddingVertical="10dp"
+                    android:visibility="gone"
+                    android:button="@drawable/custom_refresh_checkbox"
+                    />
             </LinearLayout>
 
             <TextView

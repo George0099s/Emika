@@ -3,37 +3,24 @@ package com.emika.app.data.db.dbmanager;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
-import androidx.annotation.MainThread;
-
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.dao.ProjectDao;
 import com.emika.app.data.db.entity.ProjectEntity;
-import com.emika.app.data.network.callback.calendar.ProjectsCallback;
-import com.emika.app.data.network.pojo.project.PayloadProject;
-import com.emika.app.di.Project;
-import com.emika.app.di.User;
-import com.emika.app.features.calendar.swipe.ListSwipeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeObserver;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class ProjectDbManager {
     private AppDatabase db;
-    private EmikaApplication app = EmikaApplication.getInstance();
+    private EmikaApplication app = EmikaApplication.instance;
     private static final String TAG = "ProjectDbManager";
     private ProjectDao projectDao;
     public ProjectDbManager() {

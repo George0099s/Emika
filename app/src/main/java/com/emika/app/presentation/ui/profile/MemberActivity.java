@@ -2,12 +2,13 @@ package com.emika.app.presentation.ui.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -71,12 +72,15 @@ public class MemberActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_member);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.ttt);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         initView();
     }
 
     private void initView() {
-        EmikaApplication.getInstance().getComponent().inject(this);
-        token = EmikaApplication.getInstance().getSharedPreferences().getString("token", "");
+        EmikaApplication.instance.getComponent().inject(this);
+        token = EmikaApplication.instance.getSharedPreferences().getString("token", "");
         memberId = getIntent().getStringExtra("memberId");
         memberImg = findViewById(R.id.member_profile_user_img);
         memberName = findViewById(R.id.member_profile_user_name);

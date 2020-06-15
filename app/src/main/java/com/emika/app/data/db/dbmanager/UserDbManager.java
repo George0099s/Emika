@@ -5,15 +5,10 @@ import android.util.Log;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
-import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.UserDbCallback;
-import com.emika.app.data.db.dao.ProjectDao;
 import com.emika.app.data.db.dao.UserDao;
-import com.emika.app.data.db.entity.ProjectEntity;
-import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.entity.UserEntity;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
@@ -25,7 +20,7 @@ import rx.Observable;
 
 public class UserDbManager {
     private AppDatabase db;
-    private EmikaApplication app = EmikaApplication.getInstance();
+    private EmikaApplication app = EmikaApplication.instance;
     private static final String TAG = "ProjectDbManager";
     private UserDao userDao;
     public UserDbManager() {

@@ -1,9 +1,12 @@
 package com.emika.app.data.network.pojo.durationActualLog;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class PayloadDurationActual {
+public class PayloadDurationActual implements Parcelable {
 
     @SerializedName("_id")
     @Expose
@@ -53,6 +56,35 @@ public class PayloadDurationActual {
     public PayloadDurationActual() {
 
     }
+
+    protected PayloadDurationActual(Parcel in) {
+        id = in.readString();
+        status = in.readString();
+        taskId = in.readString();
+        projectId = in.readString();
+        companyId = in.readString();
+        date = in.readString();
+        person = in.readString();
+        if (in.readByte() == 0) {
+            value = null;
+        } else {
+            value = in.readInt();
+        }
+        createdAt = in.readString();
+        createdBy = in.readString();
+    }
+
+    public static final Creator<PayloadDurationActual> CREATOR = new Creator<PayloadDurationActual>() {
+        @Override
+        public PayloadDurationActual createFromParcel(Parcel in) {
+            return new PayloadDurationActual(in);
+        }
+
+        @Override
+        public PayloadDurationActual[] newArray(int size) {
+            return new PayloadDurationActual[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -132,5 +164,29 @@ public class PayloadDurationActual {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(status);
+        dest.writeString(taskId);
+        dest.writeString(projectId);
+        dest.writeString(companyId);
+        dest.writeString(date);
+        dest.writeString(person);
+        if (value == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(value);
+        }
+        dest.writeString(createdAt);
+        dest.writeString(createdBy);
     }
 }

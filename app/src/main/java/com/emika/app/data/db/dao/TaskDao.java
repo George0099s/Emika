@@ -24,7 +24,7 @@ public interface TaskDao {
     @Query("SELECT * FROM Task")
     Maybe<List<TaskEntity>> getAllTask();
 
-    @Query("SELECT * FROM Task WHERE assignee = :assignee")
+    @Query("SELECT * FROM Task WHERE assignee = :assignee ")
     Maybe<List<TaskEntity>> getAllTaskByAssignee(String assignee);
 
     @Query("SELECT * FROM Task WHERE id = :id")

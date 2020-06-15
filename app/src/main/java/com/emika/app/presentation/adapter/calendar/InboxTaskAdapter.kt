@@ -28,7 +28,7 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
     private var df: DecimalFormat? = null
     init {
         df = DecimalFormat("#.#")
-
+        addedTask = ArrayList()
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_inbox_task, parent, false)
@@ -38,33 +38,43 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val inbox = taskList[position]
         holder.taskName.text = inbox.name
-
-
         if (inbox.duration % 60 == 0)
             holder.estimatedTime.text = String.format("%sh", (inbox.duration / 60).toString())
-        else
-            holder.estimatedTime.text = String.format("%sh", df!!.format(inbox.duration / 60.0f.toDouble()))
-
+        else {
+            var s = String.format("%sh", df!!.format(inbox.duration / 60.0f.toDouble()))
+            s = s.replace(',', '.')
+            holder.estimatedTime.text = s
+        }
         if (inbox.durationActual % 60 == 0)
             holder.spentTime.text = String.format("%sh", (inbox.durationActual / 60).toString())
-        else
-            holder.spentTime.text = String.format("%sh", df!!.format(inbox.durationActual / 60.0f.toDouble()))
+        else {
+                var s = String.format("%sh", df!!.format(inbox.durationActual / 60.0f.toDouble()))
+                s = s.replace(',', '.')
+                holder.spentTime.text = s
 
+        }
+        if (!viewModel!!.addedTaskList.contains(inbox)) {
+            holder.item.background = context.resources.getDrawable(R.drawable.shape_item_inbox_unchecked)
+            holder.add.setImageDrawable(context.getDrawable(R.drawable.ic_add_inbox))
+        } else if (viewModel.addedTaskList.contains(inbox)) {
+            holder.item.background = context.resources.getDrawable(R.drawable.shape_item_inbox_checked)
+            holder.add.setImageDrawable(context.getDrawable(R.drawable.ic_added_inbox))
+        }
 
         holder.item.setOnClickListener {
-            v: View? ->
-            if (addedTask.contains(inbox)) {
-                addedTask.remove(inbox)
-//                viewModel?.addedTaskList.value!!.toMutableList().remove(inbox)
+            if (viewModel!!.addedTaskList.contains(inbox)) {
                 holder.item.background = context.resources.getDrawable(R.drawable.shape_item_inbox_unchecked)
                 holder.add.setImageDrawable(context.getDrawable(R.drawable.ic_add_inbox))
-            } else if (!addedTask.contains(inbox)) {
-                addedTask.add(inbox)
-//                viewModel.addedTaskList.value!!.toMutableList().add(inbox)
+                viewModel.addedTaskList.remove(inbox)
+//                addedTask.remove(inbox)
+            } else if (!viewModel.addedTaskList.contains(inbox)) {
                 holder.item.background = context.resources.getDrawable(R.drawable.shape_item_inbox_checked)
                 holder.add.setImageDrawable(context.getDrawable(R.drawable.ic_added_inbox))
-
+                viewModel.addedTaskList.add(inbox)
+//                addedTask.add(inbox)
             }
+                viewModel.taskListMutableLiveData!!.value = viewModel.addedTaskList
+            println(addedTask.size)
         }
 
         for (i in projectEntities.indices) {
@@ -100,6 +110,14 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
         }
     }
 
+    override fun getItemId(position: Int): Long {
+        return super.getItemId(position)
+    }
+
+    override fun setHasStableIds(hasStableIds: Boolean) {
+        super.setHasStableIds(true)
+    }
+
     override fun getItemCount(): Int {
         return taskList.size
     }
@@ -130,9 +148,5 @@ class InboxTaskAdapter(private val taskList: List<PayloadTask>, private val cont
 
     companion object {
         private const val TAG = "InboxTaskAdapter"
-    }
-
-    init {
-        addedTask = ArrayList()
     }
 }

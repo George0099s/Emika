@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -14,7 +13,6 @@ import com.emika.app.data.db.callback.calendar.UserDbCallback;
 import com.emika.app.data.db.entity.UserEntity;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
-import com.emika.app.data.network.callback.user.MemberCallback;
 import com.emika.app.data.network.callback.user.UserInfoCallback;
 import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
@@ -24,9 +22,7 @@ import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.domain.repository.profile.UserRepository;
 import com.emika.app.presentation.utils.Converter;
-import com.emika.app.presentation.utils.NetworkState;
 
-import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -46,7 +42,7 @@ public class ProfileViewModel extends ViewModel implements UserInfoCallback, Use
     private MutableLiveData<PayloadCompanyInfo> companyInfoMutableLiveData;
     private MutableLiveData<User> user;
     public ProfileViewModel(String token) {
-        EmikaApplication.getInstance().getComponent().inject(this);
+        EmikaApplication.instance.getComponent().inject(this);
         this.token = token;
         repository = new UserRepository(token);
         userMutableLiveData = new MutableLiveData<>();

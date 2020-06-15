@@ -1,10 +1,11 @@
 package com.emika.app.presentation.ui.calendar
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,10 +21,21 @@ import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModel
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel
 import com.emika.app.presentation.viewmodel.calendar.InboxViewModel
 import kotlinx.android.synthetic.main.activity_inbox.*
+import kotlinx.android.synthetic.main.activity_inbox.view.*
 import java.util.*
 import javax.inject.Inject
 
-class Inbox : AppCompatActivity() {
+/**
+ * A simple [Fragment] subclass.
+ */
+class Inbox : DialogFragment() {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        val view = inflater.inflate(R.layout.activity_inbox, container, false)
+        initView(view)
+        return view
+    }
     private var viewModel: CalendarViewModel? = null
     private var inboxViewModel: InboxViewModel? = null
     private var inboxRecycler: RecyclerView? = null
@@ -33,71 +45,83 @@ class Inbox : AppCompatActivity() {
     private var date: String = ""
     private val decor: MemberItemDecoration = MemberItemDecoration()
     private var projects: List<ProjectEntity> = arrayListOf()
-    @JvmField
     @Inject
-    var userDi: User? = null
+    lateinit var userDi: User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_inbox)
-        initView()
+        setStyle(STYLE_NORMAL, R.style.FullScreenDialogStyle)
     }
 
-    private fun initView() {
-        EmikaApplication.getInstance().component.inject(this)
-        inboxText.text = "Unplanned tasks assigned to "+ userDi!!.firstName +" and tasks created by " +userDi!!.firstName + " with no assignee"
-        token = EmikaApplication.getInstance().sharedPreferences.getString("token", "")
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        dialog!!.window!!.attributes.windowAnimations = R.style.DialogAnimation
+    }
+
+    private fun initView(view: View) {
+        EmikaApplication.instance.component?.inject(this)
+        view.inboxText.text = "Unplanned tasks assigned to "+ userDi!!.firstName +" and tasks created by " +userDi!!.firstName + " with no assignee"
+        token = EmikaApplication.instance.sharedPreferences?.getString("token", "")
         inboxTaskList = ArrayList()
         viewModel = ViewModelProvider(this, TokenViewModelFactory(token)).get(CalendarViewModel::class.java)
         inboxViewModel = ViewModelProvider(this, TokenViewModelFactory(token)).get(InboxViewModel::class.java)
-        viewModel!!.projectMutableLiveData.observe(this, getProjectLiveData)
-        inbox_recycler.setHasFixedSize(true)
-        inbox_recycler.addItemDecoration(decor)
-        inbox_recycler.setLayoutManager(LinearLayoutManager(this))
-        add_task_back.setOnClickListener(this::onBackPressed)
-        date = intent.getStringExtra("date")
-        viewModel!!.setContext(this)
+        viewModel!!.projectMutableLiveData.observe(viewLifecycleOwner, getProjectLiveData)
+        view.inbox_recycler.setHasFixedSize(false)
+        view.inbox_recycler.addItemDecoration(decor)
+        view.inbox_recycler.layoutManager = LinearLayoutManager(context)
+        view.add_task_back.setOnClickListener(this::onBackPressed)
+        date = arguments!!.getString("date", null)
+        viewModel!!.setContext(context)
         viewModel!!.getAllDbTask()
-        viewModel!!.listMutableLiveData.observe(this, getTask)
+        viewModel!!.listMutableLiveData.observe(viewLifecycleOwner, getTask)
+        inboxViewModel!!.taskListMutableLiveData!!.observe(viewLifecycleOwner, addedTaskCount)
 //        inboxViewModel!!.addedTaskList.observe(this, getAddedTask)
-        inbox_add.setOnClickListener(this::addTasks)
+        view.inbox_add.setOnClickListener(this::addTasks)
     }
 
     fun onBackPressed(v: View) {
-        super.onBackPressed()
+        dismiss()
     }
 
     private val getProjectLiveData = Observer<List<ProjectEntity>> { projects ->
         this.projects = projects
     }
+    private val addedTaskCount = Observer<List<PayloadTask>> { tasks ->
+        val str = resources.getString(R.string.add)
+        val size = tasks.size
+            if(size > 0)
+                view!!.inbox_add.text = "$str($size)"
+            else
+                view!!.inbox_add.text = "$str"
+
+    }
 
     private val getAddedTask = Observer<List<PayloadTask>> { tasks ->
         if (tasks.size > 0)
-        inbox_add.text = "add(" + tasks.size+ ")"
+            inbox_add.text = "add(" + tasks.size+ ")"
         else
             inbox_add.text = "add"
     }
+
     private fun addTasks(v: View) {
         inboxViewModel!!.date = this.date
-        inboxViewModel!!.addTaskFromBacklog(adapter!!.getAddedTask())
-        finish()
+//        inboxViewModel!!.addTaskFromBacklog(adapter!!.getAddedTask())
+        inboxViewModel!!.addTaskFromBacklog(inboxViewModel!!.addedTaskList)
+        dismiss()
     }
-    private fun goToAddTask(v: View) {
-        val intent = Intent(this, AddTaskActivity::class.java)
-        intent.putExtra("date", date)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        startActivity(intent)
-    }
+
+
 
     private val getTask = Observer { taskList: List<PayloadTask> ->
 
         for (inboxTask in taskList) {
-            if (inboxTask.planDate == null && inboxTask.assignee == userDi!!.id)
+            if (inboxTask.planDate == null && inboxTask.assignee == userDi.id)
                 inboxTaskList!!.add(inboxTask)
         }
-        adapter = InboxTaskAdapter(inboxTaskList!!, this, inboxViewModel!!, projects)
+        adapter = InboxTaskAdapter(inboxTaskList!!, context!!, inboxViewModel!!, projects)
         inbox_recycler!!.adapter = adapter
     }
+
 
     companion object {
         private const val TAG = "Inbox"

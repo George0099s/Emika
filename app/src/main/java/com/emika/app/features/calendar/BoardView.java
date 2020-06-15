@@ -31,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -129,7 +130,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         } else {
             mColumnWidth = (int) (res.getDisplayMetrics().density * 320);
         }
-
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         mScroller = new Scroller(getContext(), new DecelerateInterpolator(1.1f));
         mAutoScroller = new AutoScroller(getContext(), this);
@@ -138,10 +138,8 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         mDragItem = new DragItem(getContext());
         mDragColumn = new DragItem(getContext());
         mDragColumn.setSnapToTouch(false);
-
         mRootLayout = new FrameLayout(getContext());
         mRootLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
-
         mColumnLayout = new LinearLayout(getContext());
         mColumnLayout.setOrientation(LinearLayout.HORIZONTAL);
         mColumnLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
@@ -165,7 +163,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
             post(() -> {
 
             });
-
         }
         if (firstRun) {
             if (getColumnCount() > 15) {
@@ -611,6 +608,13 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         }
         reload = true;
     }
+    public void clearItems() {
+        int count = mLists.size();
+        for (int i = count - 1; i >= 0; i--) {
+            mLists.remove(i);
+        }
+        reload = true;
+    }
     public void removeAllColumn(){
         for (int i = 0; i < getColumnCount(); i++) {
             removeColumn(i);
@@ -893,7 +897,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         if (index > getColumnCount()) {
             throw new IllegalArgumentException("Index is out of bounds");
         }
-
         final DragItemRecyclerView recyclerView = (DragItemRecyclerView) LayoutInflater.from(getContext()).inflate(R.layout.drag_item_recycler_view, this, false);
         recyclerView.setId(getColumnCount());
         recyclerView.setHorizontalScrollBarEnabled(false);
@@ -910,7 +913,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         for (int i = 0; i < itemDecorations.size(); i++) {
             recyclerView.addItemDecoration(itemDecorations.get(i));
         }
-
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setDragItemListener(new DragItemRecyclerView.DragItemListener() {
             @Override
@@ -1012,7 +1014,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     private void updateBoardSpaces() {
         int columnCount = getColumnCount();
         int oneSideIntervalSpace = mColumnSpacing / 2;
-
         for (int childPosition = 0; childPosition < columnCount; childPosition++) {
             View child = mColumnLayout.getChildAt(childPosition);
             MarginLayoutParams layoutParams = (LinearLayout.LayoutParams) child.getLayoutParams();

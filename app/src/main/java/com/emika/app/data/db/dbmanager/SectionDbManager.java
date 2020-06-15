@@ -5,11 +5,8 @@ import android.util.Log;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
-import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
-import com.emika.app.data.db.dao.MemberDao;
 import com.emika.app.data.db.dao.SectionDao;
-import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.SectionEntity;
 
 import java.util.List;
@@ -22,7 +19,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SectionDbManager {
     private AppDatabase db;
-    private EmikaApplication app = EmikaApplication.getInstance();
+    private EmikaApplication app = EmikaApplication.instance;
     private static final String TAG = "SectionDbManager";
     private SectionDao sectionDao;
 

@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
-import com.emika.app.data.network.pojo.company.Payload;
 import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Project;
@@ -29,7 +28,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionV
     Project projectDi;
     private List<PayloadSection> sections;
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
-    private EmikaApplication emikaApplication = EmikaApplication.getInstance();
+    private EmikaApplication emikaApplication = EmikaApplication.instance;
     @Inject
     ProjectsDi projectsDagger;
     private String defaultSection;

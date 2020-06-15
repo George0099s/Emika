@@ -94,6 +94,7 @@ public class ProfileContactAdapter extends RecyclerView.Adapter<ProfileContactAd
     public void onItemDismiss(int position) {
         contacts.remove(position);
         notifyItemRemoved(position);
+        notifyItemRangeChanged(position+1, getItemCount());
         notifyDataSetChanged();
     }
 

@@ -62,7 +62,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     }
 
     private void initView(View view) {
-        emikaApplication = EmikaApplication.getInstance();
+        emikaApplication = EmikaApplication.instance;
         sharedPreferences = emikaApplication.getSharedPreferences();
         token =sharedPreferences.getString("token", "");
         networkManager = new CompanyNetworkManager(token);
