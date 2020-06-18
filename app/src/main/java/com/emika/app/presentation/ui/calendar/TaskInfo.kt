@@ -41,7 +41,7 @@ import com.emika.app.di.Project
 import com.emika.app.di.ProjectsDi
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter
-import com.emika.app.presentation.adapter.profile.ItemTouchHelper.SubTaskTouchHelperCallback
+import com.emika.app.presentation.adapter.ItemTouchHelper.SubTaskTouchHelperCallback
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel
@@ -344,7 +344,7 @@ class TaskInfo : Fragment() {
         }
     }
     private var mLastClickTime: Long = 0
-    private val getSubTask = androidx.lifecycle.Observer { subTask: List<SubTask?>? ->
+    private val getSubTask = androidx.lifecycle.Observer { subTask: List<SubTask> ->
         adapter = SubTaskAdapter(subTask, null, taskInfoViewModel)
         subTaskRecycler!!.adapter = adapter
         val callback: ItemTouchHelper.Callback = SubTaskTouchHelperCallback(adapter)
@@ -357,7 +357,7 @@ class TaskInfo : Fragment() {
 
     }
 
-    private val getAddedSubTaskId = androidx.lifecycle.Observer<String> { subTaskId: String? -> adapter!!.taskList[adapter!!.itemCount - 1].id = subTaskId }
+    private val getAddedSubTaskId = androidx.lifecycle.Observer<String> { subTaskId: String? -> adapter!!.taskList[adapter!!.itemCount - 1]!!.id = subTaskId }
 
     private val getProjectsMutable = androidx.lifecycle.Observer { project1: Project? ->
 
@@ -392,18 +392,18 @@ class TaskInfo : Fragment() {
             adapter!!.notifyItemInserted(adapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(adapter!!.itemCount)
             for (i in adapter!!.taskList.indices) {
-                subTasks.add(adapter!!.taskList[i].name)
+                subTasks.add(adapter!!.taskList[i]!!.name)
             }
             task.subTaskList = subTasks
             taskInfoViewModel.updateTask(task)
             taskInfoViewModel.addSubTask(subTask)
             subTaskRecycler!!.requestFocus(adapter!!.itemCount - 1)
-        } else if (!adapter!!.taskList[adapter!!.itemCount - 1].name.isEmpty()) {
+        } else if (!adapter!!.taskList[adapter!!.itemCount - 1]!!.name.isEmpty()) {
             adapter!!.addSubTask(subTask)
             adapter!!.notifyItemInserted(adapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(adapter!!.itemCount)
             for (i in adapter!!.taskList.indices) {
-                subTasks.add(adapter!!.taskList[i].name)
+                subTasks.add(adapter!!.taskList[i]!!.name)
             }
             task.subTaskList = subTasks
             taskInfoViewModel.updateTask(task)

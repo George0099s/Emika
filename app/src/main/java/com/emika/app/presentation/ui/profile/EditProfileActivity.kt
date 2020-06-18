@@ -30,7 +30,7 @@ import com.emika.app.data.network.callback.TokenCallback
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager
 import com.emika.app.data.network.pojo.user.Payload
 import com.emika.app.di.User
-import com.emika.app.presentation.adapter.profile.ItemTouchHelper.SimpleItemTouchHelperCallback
+import com.emika.app.presentation.adapter.ItemTouchHelper.SimpleItemTouchHelperCallback
 import com.emika.app.presentation.adapter.profile.ProfileContactAdapter
 import com.emika.app.presentation.ui.auth.AuthActivity
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
@@ -97,8 +97,6 @@ class EditProfileActivity : AppCompatActivity(), TokenCallback {
         mViewModel = ViewModelProviders.of(this, TokenViewModelFactory(token)).get(EditProfileViewModel::class.java)
         mViewModel!!.userMutableLiveData.observe(this, getUserLiveData)
         edit_add_contact.setOnClickListener {v: View -> addContact(v)}
-
-
         edit_first_name.setOnClickListener {edit_first_name.setSelection(edit_first_name.getText().length) }
 //        taskName.requestFocus()
 

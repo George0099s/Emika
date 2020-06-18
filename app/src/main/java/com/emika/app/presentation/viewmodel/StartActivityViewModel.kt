@@ -15,7 +15,9 @@ import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks
 import com.emika.app.data.network.pojo.member.PayloadShortMember
 import com.emika.app.data.network.pojo.project.PayloadProject
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation
 import com.emika.app.data.network.pojo.project.PayloadSection
+import com.emika.app.data.network.pojo.project.PayloadSectionCreation
 import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.data.network.pojo.updateUserInfo.UpdateUserModel
 import com.emika.app.data.network.pojo.user.Payload
@@ -28,7 +30,8 @@ import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.iid.InstanceIdResult
 import javax.inject.Inject
 
-class StartActivityViewModel(token: String) : ViewModel(), ShortMemberCallback, ProjectsCallback, EpicLinksCallback, MemberDbCallback, TaskDbCallback, ProjectDbCallback, EpicLinksDbCallback, UserInfoCallback, CompanyInfoCallback, SectionDbCallback, DurationActualCallback, ActualDurationDbCallback, TaskListCallback {
+class StartActivityViewModel(token: String) : ViewModel(), ShortMemberCallback, ProjectsCallback, EpicLinksCallback, MemberDbCallback, TaskDbCallback,
+        ProjectDbCallback, EpicLinksDbCallback, UserInfoCallback, CompanyInfoCallback, SectionDbCallback, DurationActualCallback, ActualDurationDbCallback, TaskListCallback {
     @Inject
     lateinit var projectDi: Project
 
@@ -74,12 +77,18 @@ class StartActivityViewModel(token: String) : ViewModel(), ShortMemberCallback, 
     }
 
     override fun getProjects(projects: List<PayloadProject>) {
+        Log.d(TAG, projects.size.toString())
         projectDi.projectId = projects[0].id
         projectDi.projectName = projects[0].name
         projectDi.projectSectionId = projects[0].defaultSectionId
+        Log.d(TAG,         projects[0].activeFields.size.toString())
         repository.insertDbProject(converter.fromPayloadProjectToProjectEntityList(projects), this)
         projectsDagger.projects = projects
 
+    }
+
+    override fun getCreatedProject(payload: PayloadProjectCreation?) {
+        TODO("Not yet implemented")
     }
 
     override fun getSections(sections: List<PayloadSection>) {
@@ -90,6 +99,9 @@ class StartActivityViewModel(token: String) : ViewModel(), ShortMemberCallback, 
             }
         }
         repository.insertDbSections(converter.fromListPayloadSectionToSectionEntity(sections), this)
+    }
+
+    override fun onSectionCreated(payload: PayloadSection?) {
     }
 
     override fun allMembers(shortMembers: List<PayloadShortMember>) {

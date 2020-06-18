@@ -3,10 +3,15 @@ package com.emika.app.data.db.entity;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
+import com.emika.app.data.db.utils.ActiveFieldsTypeConverter;
+import com.emika.app.data.db.utils.EpicLinksTypeConverter;
+import com.emika.app.data.db.utils.MembersTypeConverter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(tableName = "Project")
@@ -17,7 +22,11 @@ public class ProjectEntity {
     private String name;
     private String status;
     private String createdBy;
-    private String members ;
+    @TypeConverters({MembersTypeConverter.class})
+    private List<String> members = new ArrayList<>();
+    @TypeConverters({ActiveFieldsTypeConverter.class})
+    private List<String> activeFields = new ArrayList<>();
+    private String description ;
     private Boolean isCompanyWide;
     private Boolean isPersonal;
 
@@ -51,14 +60,6 @@ public class ProjectEntity {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
-    }
-
-    public String getMembers() {
-        return members;
-    }
-
-    public void setMembers(String members) {
-        this.members = members;
     }
 
     public Boolean getCompanyWide() {
@@ -121,5 +122,29 @@ public class ProjectEntity {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<String> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<String> members) {
+        this.members = members;
+    }
+
+    public List<String> getActiveFields() {
+        return activeFields;
+    }
+
+    public void setActiveFields(List<String> activeFields) {
+        this.activeFields = activeFields;
     }
 }

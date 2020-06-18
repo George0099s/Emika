@@ -3,6 +3,9 @@ package com.emika.app.data.db.dbmanager;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
@@ -72,6 +75,49 @@ public class SectionDbManager {
             @Override
             public void onError(Throwable e) {
                 Log.d(TAG, "onError: " + e.toString());
+            }
+        });
+    }
+
+
+    public LiveData<List<SectionEntity>> getAllSectionsByProjectIdMutableLiveData(String projectId) {
+        return sectionDao.getAllSectionsByProjectIdMutableLiveData(projectId);
+    }
+
+    public void insertDbSection(SectionEntity section) {
+        Completable.fromAction(() -> db.sectionDao().insert(section)).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) { }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onMembersLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+
+    public void updateDbSection(SectionEntity section) {
+        Completable.fromAction(() -> db.sectionDao().update(section)).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) { }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onMembersLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
             }
         });
     }

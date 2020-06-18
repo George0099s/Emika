@@ -9,6 +9,8 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import com.emika.app.data.db.utils.EpicLinksTypeConverter;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,58 @@ public class TaskEntity implements Parcelable {
     private String createdAt;
     private String parentTaskId;
     private String sectionId;
+    private String subTaskCount;
+    private String doneSubTaskCount;
+    private String customFieldsText;
+
+    public static final Creator<TaskEntity> CREATOR = new Creator<TaskEntity>() {
+        @Override
+        public TaskEntity createFromParcel(Parcel in) {
+            return new TaskEntity(in);
+        }
+
+        @Override
+        public TaskEntity[] newArray(int size) {
+            return new TaskEntity[size];
+        }
+    };
+
+    public String getCustomFieldsText() {
+        return customFieldsText;
+    }
+
+    public void setCustomFieldsText(String customFieldsText) {
+        this.customFieldsText = customFieldsText;
+    }
+
+    public String getCustomFieldsLink() {
+        return customFieldsLink;
+    }
+
+    public void setCustomFieldsLink(String customFieldsLink) {
+        this.customFieldsLink = customFieldsLink;
+    }
+
+    public String getWorkFlowText() {
+        return workFlowText;
+    }
+
+    public void setWorkFlowText(String workFlowText) {
+        this.workFlowText = workFlowText;
+    }
+
+    public String getWorkflowLink() {
+        return workflowLink;
+    }
+
+    public void setWorkflowLink(String workflowLink) {
+        this.workflowLink = workflowLink;
+    }
+
+    private String customFieldsLink;
+    private String workFlowText;
+    private String workflowLink;
+
     @TypeConverters({EpicLinksTypeConverter.class})
     private List<String> epicLinks = new ArrayList<>();
 
@@ -99,17 +153,6 @@ public class TaskEntity implements Parcelable {
         durationLogged = in.readString();
     }
 
-    public static final Creator<TaskEntity> CREATOR = new Creator<TaskEntity>() {
-        @Override
-        public TaskEntity createFromParcel(Parcel in) {
-            return new TaskEntity(in);
-        }
-
-        @Override
-        public TaskEntity[] newArray(int size) {
-            return new TaskEntity[size];
-        }
-    };
 
     @NonNull
     public String getId() {
@@ -349,6 +392,22 @@ public class TaskEntity implements Parcelable {
         this.epicLinks = epicLinks;
     }
 
+    public String getSubTaskCount() {
+        return subTaskCount;
+    }
+
+    public void setSubTaskCount(String subTaskCount) {
+        this.subTaskCount = subTaskCount;
+    }
+
+    public String getDoneSubTaskCount() {
+        return doneSubTaskCount;
+    }
+
+    public void setDoneSubTaskCount(String doneSubTaskCount) {
+        this.doneSubTaskCount = doneSubTaskCount;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -403,6 +462,12 @@ public class TaskEntity implements Parcelable {
         dest.writeString(createdAt);
         dest.writeString(parentTaskId);
         dest.writeString(sectionId);
+        dest.writeString(subTaskCount);
+        dest.writeString(doneSubTaskCount);
+        dest.writeString(customFieldsText);
+        dest.writeString(customFieldsLink);
+        dest.writeString(workFlowText);
+        dest.writeString(workflowLink);
         dest.writeStringList(epicLinks);
         dest.writeString(durationLogged);
     }

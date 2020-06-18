@@ -2,6 +2,7 @@ package com.emika.app.data.db.dao;
 
 import android.net.sip.SipSession;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -21,6 +22,9 @@ import io.reactivex.Maybe;
 public  interface ProjectDao {
     @Query("SELECT * FROM Project")
     Maybe<List<ProjectEntity>> getAllProjects();
+
+    @Query("SELECT * FROM Project")
+    LiveData<List<ProjectEntity>> getProjectsMutable();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<ProjectEntity> projectEntities);

@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,10 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.network.pojo.user.Contact;
-import com.emika.app.presentation.adapter.profile.ItemTouchHelper.ItemTouchHelperAdapter;
+import com.emika.app.presentation.adapter.ItemTouchHelper.ItemTouchHelperAdapter;
 
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MembersContactAdapter extends RecyclerView.Adapter<MembersContactAdapter.ViewHolder> implements ItemTouchHelperAdapter {

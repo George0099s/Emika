@@ -6,17 +6,21 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
 import com.emika.app.data.network.NetworkService;
 import com.emika.app.data.network.api.CalendarApi;
+import com.emika.app.data.network.api.CommentApi;
 import com.emika.app.data.network.api.CompanyApi;
 import com.emika.app.data.network.api.EpicLinksApi;
 import com.emika.app.data.network.api.MemberApi;
 import com.emika.app.data.network.api.ProjectApi;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
+import com.emika.app.data.network.callback.calendar.CommentCallback;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
+import com.emika.app.data.network.pojo.comment.CommentDeleted;
+import com.emika.app.data.network.pojo.comment.ModelComment;
 import com.emika.app.data.network.pojo.companyInfo.ModelCompanyInfo;
 import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
 import com.emika.app.data.network.pojo.durationActualLog.ModelDurationActual;
@@ -28,7 +32,12 @@ import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.ModelProject;
 import com.emika.app.data.network.pojo.project.ModelSection;
 import com.emika.app.data.network.pojo.project.PayloadProject;
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation;
 import com.emika.app.data.network.pojo.project.PayloadSection;
+import com.emika.app.data.network.pojo.project.PayloadSectionCreation;
+import com.emika.app.data.network.pojo.project.ProjectCreation;
+import com.emika.app.data.network.pojo.project.SectionCreation;
+import com.emika.app.data.network.pojo.subTask.Comment;
 import com.emika.app.data.network.pojo.subTask.ModelSubTask;
 import com.emika.app.data.network.pojo.subTask.PayloadSubTask;
 import com.emika.app.data.network.pojo.subTask.SubTask;
@@ -231,7 +240,6 @@ public class CalendarNetworkManager {
                 if (response.body() != null) {
                     ModelProject model = response.body();
                     List<PayloadProject> projects = model.getPayload();
-//                    Log.d(TAG, "onResponse:123 " + projects.size());
                     if (projects != null)
                         callback.getProjects(projects);
                     else
@@ -241,6 +249,82 @@ public class CalendarNetworkManager {
 
             @Override
             public void onFailure(retrofit2.Call<ModelProject> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void createProject(ProjectsCallback callback, String projectName) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<ProjectCreation> call = service.createProject(token, new JSONArray(), projectName, "", new JSONArray());
+        call.enqueue(new Callback<ProjectCreation>() {
+            @Override
+            public void onResponse(retrofit2.Call<ProjectCreation> call, Response<ProjectCreation> response) {
+                if (response.body() != null) {
+                    ProjectCreation model = response.body();
+                    PayloadProjectCreation project = model.getPayloadProjectCreation();
+                    if (project != null)
+                        callback.getCreatedProject(project);
+                    else
+                        callback.getProjects(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ProjectCreation> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void createSection(ProjectsCallback callback, String name, String status, String order, String projectId) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<SectionCreation> call = service.createSection(token, name, status, order, projectId);
+        call.enqueue(new Callback<SectionCreation>() {
+            @Override
+            public void onResponse(retrofit2.Call<SectionCreation> call, Response<SectionCreation> response) {
+                if (response.body() != null) {
+                    SectionCreation model = response.body();
+                    PayloadSection project = model.getPayloadSectionCreation();
+                    if (project != null)
+                        callback.onSectionCreated(project);
+                    else
+                        callback.onSectionCreated(null);
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<SectionCreation> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateProject(ProjectsCallback callback, PayloadProject project) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+
+        Call<ProjectCreation> call = service.updateProject(project.getId(), token, project.getDescription(),
+                 project.getName(),"active",converter.fromListToJSONArray(project.getActiveFields()), converter.fromListToJSONArray(project.getMembers()), "1");
+
+//        Log.d(TAG, "updateProject: );
+        call.enqueue(new Callback<ProjectCreation>() {
+            @Override
+            public void onResponse(retrofit2.Call<ProjectCreation> call, Response<ProjectCreation> response) {
+                if (response.body() != null) {
+                    ProjectCreation model = response.body();
+                    PayloadProjectCreation project = model.getPayloadProjectCreation();
+                    if (project != null)
+                        callback.getCreatedProject(project);
+                    else
+                        callback.getProjects(new ArrayList<>());
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ProjectCreation> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
             }
         });
@@ -363,6 +447,83 @@ public class CalendarNetworkManager {
         });
     }
 
+    public void createComment(String text, String taskId, CommentCallback callback) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
+        CommentApi service = retrofit.create(CommentApi.class);
+        Call<ModelComment> call = service.createComment(taskId, token, text);
+        Log.d(TAG, "createComment: " + call.request().url());
+        call.enqueue(new Callback<ModelComment>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelComment> call, Response<ModelComment> response) {
+                if (response.body() != null) {
+                    ModelComment model = response.body();
+                    if (model.getOk()) {
+                        callback.onCommentCreated(model);
+                        Log.d(TAG, "onResponse: " + model.getPayload().getText());
+                    } else {
+                        callback.onCommentCreated(null);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(retrofit2.Call<ModelComment> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void deleteComment(CommentCallback callback, String taskId, String commentId) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
+        CommentApi service = retrofit.create(CommentApi.class);
+        Call<CommentDeleted> call = service.deleteComment(commentId, taskId, token);
+        Log.d(TAG, "deleteComment: " + call.request().url());
+        call.enqueue(new Callback<CommentDeleted>() {
+            @Override
+            public void onResponse(retrofit2.Call<CommentDeleted> call, Response<CommentDeleted> response) {
+                Log.d(TAG, "deleteComment:1 " + response.body());
+
+                if (response.body() != null) {
+                    CommentDeleted model = response.body();
+
+                    if (model.getOk()) {
+                        Log.d(TAG, "deleteComment:2 " + model.getOk());
+                        callback.onCommentDeleted(model);
+                    } else {
+                        callback.onCommentDeleted(null);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(retrofit2.Call<CommentDeleted> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateComment(String text, String taskId, String commentId, CommentCallback callback) {
+        Retrofit retrofit = NetworkService.getInstance().getRetrofit();
+        CommentApi service = retrofit.create(CommentApi.class);
+        Call<ModelComment> call = service.updateComment(taskId, commentId, token, text);
+        call.enqueue(new Callback<ModelComment>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelComment> call, Response<ModelComment> response) {
+                if (response.body() != null) {
+                    ModelComment model = response.body();
+                    if (model.getOk()) {
+                        Log.d(TAG, "onResponse: " + model.getOk());
+                        callback.onCommentUpdated(model);
+                    } else {
+                        callback.onCommentUpdated(null);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(retrofit2.Call<ModelComment> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
     public void getSubTaskList(String taskId, SubTaskCallback callback) {
         Retrofit retrofit = networkService.getRetrofit();
         CalendarApi service = retrofit.create(CalendarApi.class);
@@ -374,10 +535,13 @@ public class CalendarNetworkManager {
                     ModelSubTask model = response.body();
                     PayloadSubTask payloadSubTask = model.getPayload();
                     List<SubTask> subTasks = payloadSubTask.getSubTasks();
-                    if (subTasks != null)
-                        callback.onSubTaskListLoaded(subTasks);
-                    else
+                    List<Comment> comments = payloadSubTask.getComments();
+
+                    callback.onSubTaskListLoaded(subTasks);
+                    callback.onCommentListLoaded(comments);
+                    if (subTasks == null) {
                         callback.onSubTaskListLoaded(new ArrayList<>());
+                    }
                 }
             }
 
@@ -454,6 +618,63 @@ public class CalendarNetworkManager {
 
             @Override
             public void onFailure(retrofit2.Call<Model> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateTasksOrder(JSONArray tasks) {
+        Retrofit retrofit = networkService.getRetrofit();
+        CalendarApi service = retrofit.create(CalendarApi.class);
+        Call<ModelSubTask> call = service.updateOrder(token, tasks);
+        call.enqueue(new Callback<ModelSubTask>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelSubTask> call, Response<ModelSubTask> response) {
+                if (response.body() != null) {
+
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelSubTask> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateSection(PayloadSection payloadSection) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<SectionCreation> call = service.updateSection(payloadSection.getId(), token, payloadSection.getName(), payloadSection.getStatus(), payloadSection.getCompanyId(), payloadSection.getProjectId());
+        call.enqueue(new Callback<SectionCreation>() {
+            @Override
+            public void onResponse(retrofit2.Call<SectionCreation> call, Response<SectionCreation> response) {
+                if (response.body() != null) {
+
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<SectionCreation> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateSectionsOrder(ArrayList<String> newList) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<SectionCreation> call = service.updateSectionsOrder(token, converter.formListSubTaskToJsonArray(newList));
+        call.enqueue(new Callback<SectionCreation>() {
+            @Override
+            public void onResponse(retrofit2.Call<SectionCreation> call, Response<SectionCreation> response) {
+                if (response.body() != null) {
+
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<SectionCreation> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
             }
         });

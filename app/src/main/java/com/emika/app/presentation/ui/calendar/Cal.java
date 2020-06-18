@@ -169,6 +169,12 @@ public class Cal extends AppCompatActivity {
     };
 
     private Observer<Payload> userInfo = userInfo -> {
+        user.setFirstName(userInfo.getFirstName());
+        user.setLastName(userInfo.getLastName());
+        user.setId(userInfo.getId());
+        user.setPictureUrl(userInfo.getPictureUrl());
+        user.setJobTitle(userInfo.getJobTitle());
+
         assignee.setFirstName(userInfo.getFirstName());
         assignee.setLastName(userInfo.getLastName());
         assignee.setId(userInfo.getId());
@@ -439,6 +445,9 @@ public class Cal extends AppCompatActivity {
             final ArrayList<Pair<Long, PayloadTask>> mItemArray = new ArrayList<>();
             mBoardView.getAdapter(i).setItemList(mItemArray);
             for (int j = 0; j < taskList.size(); j++) {
+                if (taskList.get(j).getWorkFlowText() != null){
+                    Log.d(TAG, ": " + taskList.get(j).getWorkFlowText());
+                }
                 if (taskList.get(j).getPlanDate() != null && !taskList.get(j).getStatus().equals("archived") && !taskList.get(j).getStatus().equals("deleted"))
                     if (taskList.get(j).getPlanDate().equals(Constants.dateColumnMap.get(i))) {
                         long id = sCreatedItems++;
@@ -513,7 +522,7 @@ public class Cal extends AppCompatActivity {
         Boolean hasTask = false;
         int row;
         JSONObject jsonObject;
-        String date, name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, description, parentId, projectId, sectionId;
+        String date, name, assignee, id, priority, planDate, deadlineDate, estimatedTime, spentTime, status, description, parentId, projectId, sectionId, subTaskCount, doneSubTaskCount;
         JSONArray epicLinks = new JSONArray();
         List<String> epicLinkList = new ArrayList<>();
 //        if (getActivity() != null)
@@ -529,6 +538,8 @@ public class Cal extends AppCompatActivity {
                 epicLinks = jsonObject.getJSONArray("epic_links");
                 projectId = jsonObject.getString("project_id");
                 sectionId = jsonObject.getString("section_id");
+                subTaskCount = jsonObject.getString("sub_tasks_count");
+                doneSubTaskCount = jsonObject.getString("done_sub_tasks_count");
                 description = jsonObject.getString("description");
                 date = planDate;
                 assignee = jsonObject.getString("assignee");
@@ -553,6 +564,8 @@ public class Cal extends AppCompatActivity {
                 task2.setEpicLinks(epicLinkList);
                 task2.setAssignee(assignee);
                 task2.setPriority(priority);
+                task2.setSubTaskCount(subTaskCount);
+                task2.setDoneSubTaskCount(doneSubTaskCount);
                 task2.setPlanOrder(String.valueOf(row));
                 task2.setDescription(description);
                 task2.setStatus(status);
@@ -569,6 +582,8 @@ public class Cal extends AppCompatActivity {
                             taskNewPos.second.setDeadlineDate(deadlineDate);
                             taskNewPos.second.setPlanOrder(String.valueOf(row));
                             taskNewPos.second.setAssignee(assignee);
+                            taskNewPos.second.setSubTaskCount(subTaskCount);
+                            taskNewPos.second.setDoneSubTaskCount(doneSubTaskCount);
                             taskNewPos.second.setEpicLinks(epicLinkList);
                             taskNewPos.second.setProjectId(projectId);
                             taskNewPos.second.setSectionId(sectionId);
@@ -753,7 +768,8 @@ public class Cal extends AppCompatActivity {
     }
 
     private void openDayInfo(){
-        View header = View.inflate(this, R.layout.column_header, null);
+        View header = mBoardView.getHeaderView(mBoardView.getFocusedColumn());
+
         LinearHourCounterView estimatedTimeCounter = header.findViewById(R.id.hour_counter_estimated);
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return;
@@ -909,7 +925,7 @@ public class Cal extends AppCompatActivity {
         @Override
         public void onFocusedColumnChanged(int oldColumn, int newColumn) {
             mBoardView.setLastColumn(newColumn);
-
+            vibrator.vibrate(50);
             date.setText(DateHelper.getDate(Constants.dateColumnMap.get(mBoardView.getFocusedColumn())));
             day.setText( DateHelper.getDatOfWeek(mBoardView.getFocusedColumn()));
             date.startAnimation(anim);
@@ -1082,24 +1098,24 @@ public class Cal extends AppCompatActivity {
         listAdapter.setmLayoutId(R.layout.column_item);
         listAdapter.setmGrabHandleId(R.id.item_layout);
         final View header = View.inflate(this, R.layout.column_header, null);
-        LinearHourCounterView estimatedTimeCounter = ((LinearHourCounterView) header.findViewById(R.id.hour_counter_estimated));
+        LinearHourCounterView estimatedTimeCounter = header.findViewById(R.id.hour_counter_estimated);
 
-        header.setOnClickListener(v -> {
-            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
-                return;
-            } else {
-                Bundle bundle = new Bundle();
-                bundle.putString("date", date);
-                bundle.putString("estimatedTime", estimatedTimeCounter.getProgress());
-                bundle.putParcelableArrayList("actualDurationList", (ArrayList<? extends Parcelable>) durationActualList);
-                bundle.putString("id", assignee.getId());
-                BottomSheetDayInfo mySheetDialog = new BottomSheetDayInfo();
-                mySheetDialog.setArguments(bundle);
-                FragmentManager fm = getSupportFragmentManager();
-                mySheetDialog.show(fm, "dayInfo");
-            }
-            mLastClickTime = SystemClock.elapsedRealtime();
-        });
+//        header.setOnClickListener(v -> {
+//            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+//                return;
+//            } else {
+//                Bundle bundle = new Bundle();
+//                bundle.putString("date", date);
+//                bundle.putString("estimatedTime", estimatedTimeCounter.getProgress());
+//                bundle.putParcelableArrayList("actualDurationList", (ArrayList<? extends Parcelable>) durationActualList);
+//                bundle.putString("id", assignee.getId());
+//                BottomSheetDayInfo mySheetDialog = new BottomSheetDayInfo();
+//                mySheetDialog.setArguments(bundle);
+//                FragmentManager fm = getSupportFragmentManager();
+//                mySheetDialog.show(fm, "dayInfo");
+//            }
+//            mLastClickTime = SystemClock.elapsedRealtime();
+//        });
 //
         ((TextView) header.findViewById(R.id.header_date)).setText(month);
         ((TextView) header.findViewById(R.id.header_day)).setText(day);
@@ -1128,6 +1144,7 @@ public class Cal extends AppCompatActivity {
             intent.putExtra("calendarViewModel", viewModel);
             intent.putExtra("date", Constants.dateColumnMap.get(mBoardView.getFocusedColumn()));
 //            startActivity(intent, options.toBundle());
+            vibrator.vibrate(50);
             startActivityForResult(intent, 1);
         }
         mLastClickTime = SystemClock.elapsedRealtime();

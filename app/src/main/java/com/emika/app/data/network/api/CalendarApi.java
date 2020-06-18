@@ -74,4 +74,8 @@ public interface CalendarApi {
     @POST("public_api/account/update")
     Call<ModelDurationActual> sendRegistrationKey(@Query("token") String token,
                                                   @Field("android_registration_key") String key);
+    @FormUrlEncoded
+    @POST("public_api/tasks/update_order")
+    Call<ModelSubTask> updateOrder(@Query("token") String token,
+                                   @Field("tasks") JSONArray tasks);
 }

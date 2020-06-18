@@ -61,6 +61,16 @@ class ChatActivity : AppCompatActivity() {
                 chatRecycler!!.adapter = adapter
                 chatRecycler!!.scrollToPosition(0)
             }
+            if (chat.suggestions != null){
+                if (chat.suggestions.size > 0) {
+                    quickAnswerRecycler!!.visibility = View.VISIBLE
+                    quickAnswerAdapter = QuickAnswerAdapter(chat.suggestions, viewModel, adapter)
+                    quickAnswerRecycler!!.adapter = quickAnswerAdapter
+                    chatRecycler?.scrollToPosition(0)
+                } else {
+                    quickAnswerRecycler!!.visibility = View.GONE
+                }
+            }
 
     }
     private val onUpdateSuggestion = Emitter.Listener { args ->
@@ -84,6 +94,7 @@ class ChatActivity : AppCompatActivity() {
                     quickAnswerRecycler!!.visibility = View.VISIBLE
                     quickAnswerAdapter = QuickAnswerAdapter(suggestions, viewModel, adapter)
                     quickAnswerRecycler!!.adapter = quickAnswerAdapter
+                    chatRecycler?.scrollToPosition(0)
                 } else {
                     quickAnswerRecycler!!.visibility = View.GONE
                 }

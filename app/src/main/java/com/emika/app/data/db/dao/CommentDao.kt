@@ -8,8 +8,8 @@ import io.reactivex.Maybe
 
 @Dao
 interface CommentDao {
-    @Query("SELECT * FROM `Comments`")
-    fun getAllEpicLinks(): Maybe<List<CommentEntity?>?>?
+    @Query("SELECT * FROM `Comments` WHERE `taskId` = :taskId")
+    fun getComments(taskId: String): Maybe<List<CommentEntity?>?>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(comments: List<CommentEntity?>?)

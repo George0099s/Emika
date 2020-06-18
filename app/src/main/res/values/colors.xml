@@ -7,6 +7,7 @@
     <color name="white">#FFFFFF</color>
     <color name="light_black">#3F3E3E</color>
     <color name="grey">#AFBCC6</color>
+    <color name="grey_line">#F0F2F5</color>
     <color name="red">#E43A5A</color>
     <color name="yellow">#BF9040</color>
     <color name="blue">#327EE2</color>
@@ -30,6 +31,7 @@
 
 
     <color name="light_green">#35A666</color>
+    <color name="switch_green">#4DD387</color>
     <color name="green_status_bar">#2A8552</color>
     <dimen name="picker_default_divider_height">1dp</dimen>
 

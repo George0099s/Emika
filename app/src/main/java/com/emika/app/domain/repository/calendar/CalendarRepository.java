@@ -1,18 +1,19 @@
 package com.emika.app.domain.repository.calendar;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.emika.app.data.db.callback.calendar.ActualDurationDbCallback;
+import com.emika.app.data.db.callback.calendar.CommentDbCallback;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
 import com.emika.app.data.db.callback.calendar.SectionDbCallback;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
+import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.db.dao.TaskDao;
 import com.emika.app.data.db.dbmanager.ActualDurationDbManager;
 import com.emika.app.data.db.dbmanager.EpicLinksDbManager;
@@ -22,31 +23,31 @@ import com.emika.app.data.db.dbmanager.SectionDbManager;
 import com.emika.app.data.db.dbmanager.TaskDbManager;
 import com.emika.app.data.db.dbmanager.UserDbManager;
 import com.emika.app.data.db.entity.ActualDurationEntity;
+import com.emika.app.data.db.entity.CommentEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.db.entity.TaskEntity;
-import com.emika.app.data.network.callback.CompanyCallback;
 import com.emika.app.data.network.callback.CompanyInfoCallback;
+import com.emika.app.data.network.callback.calendar.CommentCallback;
 import com.emika.app.data.network.callback.calendar.DurationActualCallback;
 import com.emika.app.data.network.callback.calendar.EpicLinksCallback;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.callback.calendar.ShortMemberCallback;
 import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
-import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
+import com.emika.app.data.network.pojo.project.PayloadProject;
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation;
+import com.emika.app.data.network.pojo.project.PayloadSection;
 import com.emika.app.data.network.pojo.subTask.SubTask;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.presentation.utils.Converter;
-import com.emika.app.presentation.utils.NetworkState;
-import com.emika.app.presentation.viewmodel.StartActivityViewModel;
-import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel;
-import com.google.android.gms.tasks.Tasks;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -54,6 +55,18 @@ import java.util.List;
 
 public class CalendarRepository implements Parcelable {
 
+    public static final Creator<CalendarRepository> CREATOR = new Creator<CalendarRepository>() {
+        @Override
+        public CalendarRepository createFromParcel(Parcel in) {
+            return new CalendarRepository(in);
+        }
+
+        @Override
+        public CalendarRepository[] newArray(int size) {
+            return new CalendarRepository[size];
+        }
+    };
+    private static final String TAG = "CalendarRepository";
     private List<PayloadTask> payloadTaskList;
     private TaskDbManager taskDbManager;
     private CalendarNetworkManager calendarNetworkManager;
@@ -66,7 +79,7 @@ public class CalendarRepository implements Parcelable {
     private EpicLinksDbManager epicLinksDbManager;
     private SectionDbManager sectionDbManager;
     private ActualDurationDbManager actualDurationDbManager;
-    private static final String TAG = "CalendarRepository";
+
     public CalendarRepository(String token) {
         this.token = token;
         this.calendarNetworkManager = new CalendarNetworkManager(token);
@@ -88,38 +101,26 @@ public class CalendarRepository implements Parcelable {
         firstRun = tmpFirstRun == 0 ? null : tmpFirstRun == 1;
     }
 
-    public static final Creator<CalendarRepository> CREATOR = new Creator<CalendarRepository>() {
-        @Override
-        public CalendarRepository createFromParcel(Parcel in) {
-            return new CalendarRepository(in);
-        }
-
-        @Override
-        public CalendarRepository[] newArray(int size) {
-            return new CalendarRepository[size];
-        }
-    };
-
     public void downloadTasks(TaskListCallback taskListCallback) {
 //        if(NetworkState.getInstance(context).isOnline() && firstRun) {
-            calendarNetworkManager.getAllTask(taskListCallback);
+        calendarNetworkManager.getAllTask(taskListCallback);
 //        }/**/
     }
 
-    public void getDbTaskList(TaskDbCallback callback){
+    public void getDbTaskList(TaskDbCallback callback) {
         taskDbManager.getAllDbTask(callback);
     }
 
-    public void updateTask(PayloadTask task){
+    public void updateTask(PayloadTask task) {
         calendarNetworkManager.updateTask(task);
         taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
     }
 
-    public void updateSocketTask(PayloadTask task){
+    public void updateSocketTask(PayloadTask task) {
         calendarNetworkManager.updateTask(task);
     }
 
-     public void updateDbTask(PayloadTask task){
+    public void updateDbTask(PayloadTask task) {
         taskDbManager.updateTask(converter.fromPayloadTaskToTaskEntity(task));
     }
 
@@ -127,47 +128,51 @@ public class CalendarRepository implements Parcelable {
         taskDbManager.addAllProjects(converter.fromPayloadTaskToTaskEntityList(taskList));
     }
 
-    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks, JSONArray subTasks){
+    public void addTask(TaskCallback callback, PayloadTask task, JSONArray epicLinks, JSONArray subTasks) {
         calendarNetworkManager.addTask(callback, task, epicLinks, subTasks);
     }
-    public void addDbTask(PayloadTask task){
+
+    public void addDbTask(PayloadTask task) {
         taskDbManager.addTask(converter.fromPayloadTaskToTaskEntity(task));
     }
-    public void addSubTask(SubTask subTask, SubTaskCallback callback){
+
+    public void addSubTask(SubTask subTask, SubTaskCallback callback) {
         calendarNetworkManager.addSubTask(subTask, callback);
     }
 
-    public void downloadAllMembers(ShortMemberCallback callback){
+    public void downloadAllMembers(ShortMemberCallback callback) {
         calendarNetworkManager.getAllShortMembers(callback);
     }
 
-    public void getAllDbMembers(MemberDbCallback callback){
+    public void getAllDbMembers(MemberDbCallback callback) {
         memberDbManager.getAllMembers(callback);
     }
 
-    public void getAllProjects(ProjectDbCallback callback){
+    public void getAllProjects(ProjectDbCallback callback) {
         projectDbManager.getAllDbProjects(callback);
     }
-    public void downloadAllProject(ProjectsCallback callback){
+
+    public void downloadAllProject(ProjectsCallback callback) {
         calendarNetworkManager.getAllProjects(callback);
     }
-    public void getAllSections(SectionDbCallback callback){
+
+    public void getAllSections(SectionDbCallback callback) {
         sectionDbManager.getAllSections(callback);
     }
 
-    public void downloadSections(ProjectsCallback callback){
+    public void downloadSections(ProjectsCallback callback) {
         calendarNetworkManager.getAllSections(callback);
     }
 
-    public void insertDbProject(List<ProjectEntity> projectEntities, ProjectDbCallback callback){
+    public void insertDbProject(List<ProjectEntity> projectEntities, ProjectDbCallback callback) {
         projectDbManager.addAllProjects(projectEntities, callback);
     }
 
-    public void insertDbSections(List<SectionEntity> sectionEntities, SectionDbCallback callback){
+    public void insertDbSections(List<SectionEntity> sectionEntities, SectionDbCallback callback) {
         sectionDbManager.addAllSections(sectionEntities, callback);
     }
 
-    public void insertDbMembers(List<PayloadShortMember> members, MemberDbCallback callback){
+    public void insertDbMembers(List<PayloadShortMember> members, MemberDbCallback callback) {
 //        memberDbManager.deleteAllMembers();
         memberDbManager.addAllMembers(converter.fromPayloadMemberToMemberEntity(members), callback);
     }
@@ -176,11 +181,11 @@ public class CalendarRepository implements Parcelable {
         userDbManager.addUser(converter.fromUserToUserEntity(user));
     }
 
-    public void downloadEpicLinks(EpicLinksCallback callback){
+    public void downloadEpicLinks(EpicLinksCallback callback) {
         calendarNetworkManager.getAllEpicLinks(callback);
     }
 
-    public void getDbEpicLinks(EpicLinksDbCallback callback){
+    public void getDbEpicLinks(EpicLinksDbCallback callback) {
         epicLinksDbManager.getAllMembers(callback);
     }
 
@@ -189,7 +194,7 @@ public class CalendarRepository implements Parcelable {
         epicLinksDbManager.insertAllEpicLinks(epicLinks, callback);
     }
 
-    public void downloadDurationActualLog(DurationActualCallback callback){
+    public void downloadDurationActualLog(DurationActualCallback callback) {
         calendarNetworkManager.downLoadDurationLog(callback);
     }
 
@@ -226,14 +231,15 @@ public class CalendarRepository implements Parcelable {
         actualDurationDbManager.getAllDurations(callback);
     }
 
-    public void getDBTaskListById(TaskDbCallback callback,String assignee) {
+    public void getDBTaskListById(TaskDbCallback callback, String assignee) {
         taskDbManager.getAllDbTaskById(callback, assignee);
     }
-    public void getDBTaskById(TaskDbCallback callback,String id) {
+
+    public void getDBTaskById(TaskDbCallback callback, String id) {
         taskDbManager.getTaskById(callback, id);
     }
 
-    public void getDBTaskListByDateId(TaskDbCallback callback,String assignee, String planDate) {
+    public void getDBTaskListByDateId(TaskDbCallback callback, String assignee, String planDate) {
         taskDbManager.getAllDbTaskByDateId(callback, assignee, planDate);
     }
 
@@ -249,11 +255,11 @@ public class CalendarRepository implements Parcelable {
         actualDurationDbManager.updateDbDuration(actualDurationEntity);
     }
 
-    public LiveData<List<TaskEntity>> getLiveDataTasks(TaskDao taskDao){
+    public LiveData<List<TaskEntity>> getLiveDataTasks(TaskDao taskDao) {
         return taskDao.getAllTaskLiveData();
     }
 
-    public LiveData<List<TaskEntity>> getLiveDataTasksByAssignee(TaskDao taskDao, String assignee){
+    public LiveData<List<TaskEntity>> getLiveDataTasksByAssignee(TaskDao taskDao, String assignee) {
         return taskDao.getAllTaskLiveDataByAssignee(assignee);
     }
 
@@ -271,5 +277,74 @@ public class CalendarRepository implements Parcelable {
         dest.writeTypedList(payloadTaskList);
         dest.writeString(token);
         dest.writeByte((byte) (firstRun == null ? 0 : firstRun ? 1 : 2));
+    }
+
+    public void insertAllComments(List<CommentEntity> comments) {
+        taskDbManager.insertAllComments(comments);
+    }
+
+    public void insertComment(CommentEntity comment) {
+        taskDbManager.insertComment(comment);
+    }
+
+    public void getDbComments(CommentDbCallback callback, String taskId) {
+        taskDbManager.getDbComments(callback, taskId);
+    }
+
+    public void createComment(CommentCallback callback, String text, String taskId) {
+        calendarNetworkManager.createComment(text, taskId, callback);
+    }
+
+    public void updateComment(CommentCallback callback, String text, String taskId, String commentId) {
+        calendarNetworkManager.updateComment(text, taskId, commentId, callback);
+    }
+
+    public void deleteComment(CommentCallback callback, String taskId, String commentId) {
+        calendarNetworkManager.deleteComment(callback, taskId, commentId);
+    }
+
+    public void deleteDbComment(CommentEntity comment) {
+        taskDbManager.deleteComment(comment);
+    }
+
+    public void createProject(ProjectsCallback callback, String projectName) {
+        calendarNetworkManager.createProject(callback, projectName);
+    }
+
+    public void insertProject(@NotNull PayloadProjectCreation project) {
+        projectDbManager.insertProject(converter.fromPayloadProjectToProjectEntity(project));
+    }
+
+    public void updateProject(@NotNull PayloadProject project, ProjectsCallback callback) {
+        projectDbManager.updateProject(converter.fromPayloadProjectToProjectEntity(project));
+        calendarNetworkManager.updateProject(callback, project);
+    }
+
+    public void createSection(ProjectsCallback callback, String name, String status, String order, String projectId) {
+//        projectDbManager.inserSection(converter.fromPayloadProjectToProjectEntity(project));
+        calendarNetworkManager.createSection(callback, name, status, order, projectId);
+    }
+
+
+    public void updateTasksOrder(List<String> list) {
+        calendarNetworkManager.updateTasksOrder(converter.fromListToJSONArray(list));
+    }
+
+    @NotNull
+    public LiveData<List<SectionEntity>> getSectionsDbLiveData(String projectId) {
+        return sectionDbManager.getAllSectionsByProjectIdMutableLiveData(projectId);
+    }
+
+    public void insertDbSection(@NotNull PayloadSection section) {
+        sectionDbManager.insertDbSection(converter.fromPayloadSectionToSectionEntity(section));
+    }
+
+    public void updateSection(@NotNull PayloadSection payloadSection) {
+        sectionDbManager.updateDbSection(converter.fromPayloadSectionToSectionEntity(payloadSection));
+        calendarNetworkManager.updateSection(payloadSection);
+    }
+
+    public void updateSectionsOrder(@NotNull ArrayList<String> newList) {
+        calendarNetworkManager.updateSectionsOrder(newList);
     }
 }

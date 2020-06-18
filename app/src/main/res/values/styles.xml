@@ -191,4 +191,10 @@
         <item name="android:windowExitAnimation">@anim/zoom_anim</item>
     </style>
 
+    <style name="SwitchGreen" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@color/switch_green</item>
+
+    </style>
+
 </resources>

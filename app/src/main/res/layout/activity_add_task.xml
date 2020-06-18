@@ -29,6 +29,7 @@
                 android:drawableLeft="@drawable/ic_task_done"
                 android:textColor="@color/white"
                 android:drawablePadding="6dp"
+                android:paddingVertical="10dp"
                 android:background="@drawable/ripple_create_task"
                 android:paddingHorizontal="6dp"
                 android:text="@string/create_task"
@@ -368,22 +369,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="24dp"
-                android:elevation="4dp"
                 android:background="@drawable/shape_task_info"
+                android:elevation="4dp"
                 android:orientation="vertical"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout27">
+                app:layout_constraintTop_toBottomOf="@+id/add_task_press_plan_date">
 
                 <LinearLayout
                     android:id="@+id/add_task_press_priority"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="14dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -402,7 +403,7 @@
                         android:layout_marginEnd="10dp"
                         android:layout_weight="1"
                         android:gravity="end"
-                        android:text="Low"
+                        android:text="@string/normal_priority"
                         android:textColor="@color/mainTextColor" />
 
                     <ImageButton
@@ -414,21 +415,27 @@
                         android:src="@drawable/ic_right_green_arrow" />
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/grey_line" />
+
                 <LinearLayout
                     android:id="@+id/add_task_epic_links"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="128dp"
-                        android:layout_height="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:drawableLeft="@drawable/ic_epic_links"
-                        android:drawablePadding="10dp"
+                        android:drawablePadding="13dp"
                         android:text="Epic links"
                         android:textColor="@color/mainTextColor" />
 
@@ -461,19 +468,18 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/shape_task_info"
+                android:elevation="4dp"
                 android:orientation="vertical"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="12dp"
-                android:elevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_task_press_plan_date">
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout21">
 
                 <LinearLayout
                     android:id="@+id/add_task_press_estimated_time"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
                     android:orientation="horizontal">
 
                     <TextView
@@ -505,58 +511,66 @@
                         android:src="@drawable/ic_right_green_arrow" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/add_task_press_spent_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+<!--                <View-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="1dp"-->
+<!--                    android:layout_marginBottom="14dp"-->
+<!--                    android:background="@color/grey" />-->
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="4"
-                        android:drawableLeft="@drawable/ic_spent_time"
-                        android:drawablePadding="10dp"
-                        android:text="@string/actual_spent_time"
-                        android:textColor="@color/mainTextColor" />
+<!--                <LinearLayout-->
+<!--                    android:id="@+id/add_task_press_spent_time"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:orientation="horizontal">-->
 
-                    <TextView
-                        android:id="@+id/add_task_spent_time"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center|end"
-                        android:layout_marginEnd="10dp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/consolab"
-                        android:gravity="end|center"
-                        android:text="1h"
-                        android:textColor="@color/green" />
+<!--                    <TextView-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_weight="4"-->
+<!--                        android:drawableLeft="@drawable/ic_spent_time"-->
+<!--                        android:drawablePadding="10dp"-->
+<!--                        android:text="@string/actual_spent_time"-->
+<!--                        android:textColor="@color/mainTextColor" />-->
 
-                    <ImageButton
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="0.1"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/ic_right_green_arrow" />
-                </LinearLayout>
+<!--                    <TextView-->
+<!--                        android:id="@+id/add_task_spent_time"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center|end"-->
+<!--                        android:layout_marginEnd="10dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/consolab"-->
+<!--                        android:gravity="end|center"-->
+<!--                        android:text="1h"-->
+<!--                        android:textColor="@color/green" />-->
+
+<!--                    <ImageButton-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:layout_weight="0.1"-->
+<!--                        android:background="@android:color/transparent"-->
+<!--                        android:src="@drawable/ic_right_green_arrow" />-->
+<!--                </LinearLayout>-->
             </LinearLayout>
 
             <Button
                 android:id="@+id/add_task_inbox"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/shape_inbox_btn"
+                android:background="@drawable/shape_task_info"
                 android:drawableStart="@drawable/ic_inbox"
                 android:gravity="end|center"
                 android:paddingLeft="14dp"
                 android:paddingRight="14dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:text="Inbox"
                 android:textAllCaps="false"
                 android:textColor="@color/mainTextColor"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/linearLayout21"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout21" />
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout27" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

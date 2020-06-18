@@ -2,7 +2,6 @@ package com.emika.app.data.network.pojo.task;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
@@ -13,8 +12,10 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Entity
-public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
+public class PayloadTask implements Comparable<PayloadTask>, Parcelable {
+
     @PrimaryKey
     @NonNull
     @SerializedName("_id")
@@ -107,6 +108,30 @@ public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
     @SerializedName("duration_logged")
     @Expose
     private String durationLogged;
+    @SerializedName("custom_fields_text")
+    @Expose
+    private String customFieldsText;
+    @SerializedName("custom_fields_link")
+    @Expose
+    private String customFieldsLink;
+    @SerializedName("workflow_text")
+    @Expose
+    private String workFlowText;
+    @SerializedName("workflow_link")
+    @Expose
+    private String workflowLink;
+    @SerializedName("sub_tasks_count")
+    @Expose
+    private String subTaskCount;
+    @SerializedName("done_sub_tasks_count")
+    @Expose
+    private String doneSubTaskCount;
+    @SerializedName("sub_task")
+    @Expose
+    private List<String> subTaskList;
+
+    public PayloadTask() {
+    }
 
     protected PayloadTask(Parcel in) {
         id = in.readString();
@@ -150,7 +175,69 @@ public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
         parentTaskId = in.readString();
         sectionId = in.readString();
         durationLogged = in.readString();
+        customFieldsText = in.readString();
+        customFieldsLink = in.readString();
+        workFlowText = in.readString();
+        workflowLink = in.readString();
+        subTaskCount = in.readString();
+        doneSubTaskCount = in.readString();
         subTaskList = in.createStringArrayList();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeString(type);
+        dest.writeString(status);
+        dest.writeString(order);
+        dest.writeString(assignee);
+        dest.writeString(priority);
+        dest.writeString(createdBy);
+        dest.writeString(planDate);
+        dest.writeByte((byte) (planEmika == null ? 0 : planEmika ? 1 : 2));
+        dest.writeString(planPeriod);
+        dest.writeString(planTime);
+        dest.writeString(planOrder);
+        dest.writeString(deadlineDate);
+        dest.writeByte((byte) (deadlineEmika == null ? 0 : deadlineEmika ? 1 : 2));
+        dest.writeString(deadlinePeriod);
+        dest.writeString(deadlineTime);
+        if (duration == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(duration);
+        }
+        if (durationActual == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(durationActual);
+        }
+        dest.writeStringList(attachments);
+        dest.writeStringList(epicLinks);
+        dest.writeByte((byte) (epicLinksEmika == null ? 0 : epicLinksEmika ? 1 : 2));
+        dest.writeString(companyId);
+        dest.writeString(projectId);
+        dest.writeString(updatedAt);
+        dest.writeString(createdAt);
+        dest.writeString(parentTaskId);
+        dest.writeString(sectionId);
+        dest.writeString(durationLogged);
+        dest.writeString(customFieldsText);
+        dest.writeString(customFieldsLink);
+        dest.writeString(workFlowText);
+        dest.writeString(workflowLink);
+        dest.writeString(subTaskCount);
+        dest.writeString(doneSubTaskCount);
+        dest.writeStringList(subTaskList);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<PayloadTask> CREATOR = new Creator<PayloadTask>() {
@@ -165,23 +252,28 @@ public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
         }
     };
 
+    public String getSubTaskCount() {
+        return subTaskCount;
+    }
+
+    public void setSubTaskCount(String subTaskCount) {
+        this.subTaskCount = subTaskCount;
+    }
+
+    public String getDoneSubTaskCount() {
+        return doneSubTaskCount;
+    }
+
+    public void setDoneSubTaskCount(String doneSubTaskCount) {
+        this.doneSubTaskCount = doneSubTaskCount;
+    }
+
     public List<String> getSubTaskList() {
         return subTaskList;
     }
 
     public void setSubTaskList(List<String> subTaskList) {
         this.subTaskList = subTaskList;
-    }
-
-    @SerializedName("sub_task")
-    @Expose
-    private List<String> subTaskList;
-
-
-
-
-
-    public PayloadTask() {
     }
 
     public String getId() {
@@ -337,7 +429,7 @@ public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
     }
 
     public Integer getDurationActual() {
-        if (durationActual!=null)
+        if (durationActual != null)
             return durationActual;
         else
             return 0;
@@ -428,6 +520,37 @@ public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
     }
 
 
+    public String getCustomFieldsText() {
+        return customFieldsText;
+    }
+
+    public void setCustomFieldsText(String customFieldsText) {
+        this.customFieldsText = customFieldsText;
+    }
+
+    public String getCustomFieldsLink() {
+        return customFieldsLink;
+    }
+
+    public void setCustomFieldsLink(String customFieldsLink) {
+        this.customFieldsLink = customFieldsLink;
+    }
+
+    public String getWorkFlowText() {
+        return workFlowText;
+    }
+
+    public void setWorkFlowText(String workFlowText) {
+        this.workFlowText = workFlowText;
+    }
+
+    public String getWorkflowLink() {
+        return workflowLink;
+    }
+
+    public void setWorkflowLink(String workflowLink) {
+        this.workflowLink = workflowLink;
+    }
 
     @Override
     public int compareTo(PayloadTask o) {
@@ -438,55 +561,5 @@ public class PayloadTask implements Comparable<PayloadTask>, Parcelable{
         } else {
             return 1;
         }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeString(description);
-        dest.writeString(type);
-        dest.writeString(status);
-        dest.writeString(order);
-        dest.writeString(assignee);
-        dest.writeString(priority);
-        dest.writeString(createdBy);
-        dest.writeString(planDate);
-        dest.writeByte((byte) (planEmika == null ? 0 : planEmika ? 1 : 2));
-        dest.writeString(planPeriod);
-        dest.writeString(planTime);
-        dest.writeString(planOrder);
-        dest.writeString(deadlineDate);
-        dest.writeByte((byte) (deadlineEmika == null ? 0 : deadlineEmika ? 1 : 2));
-        dest.writeString(deadlinePeriod);
-        dest.writeString(deadlineTime);
-        if (duration == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(duration);
-        }
-        if (durationActual == null) {
-            dest.writeByte((byte) 0);
-        } else {
-            dest.writeByte((byte) 1);
-            dest.writeInt(durationActual);
-        }
-        dest.writeStringList(attachments);
-        dest.writeStringList(epicLinks);
-        dest.writeByte((byte) (epicLinksEmika == null ? 0 : epicLinksEmika ? 1 : 2));
-        dest.writeString(companyId);
-        dest.writeString(projectId);
-        dest.writeString(updatedAt);
-        dest.writeString(createdAt);
-        dest.writeString(parentTaskId);
-        dest.writeString(sectionId);
-        dest.writeString(durationLogged);
-        dest.writeStringList(subTaskList);
     }
 }

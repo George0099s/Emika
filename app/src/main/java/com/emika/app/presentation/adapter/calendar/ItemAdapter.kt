@@ -20,12 +20,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.SystemClock
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.FrameLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.util.Pair
@@ -36,7 +35,6 @@ import com.emika.app.data.EmikaApplication
 import com.emika.app.data.db.entity.EpicLinksEntity
 import com.emika.app.data.db.entity.ProjectEntity
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager
-import com.emika.app.data.network.pojo.chat.Message
 import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.di.EpicLinks
 import com.emika.app.di.ProjectsDi
@@ -69,9 +67,11 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
     private val sortedTask = ArrayList<Pair<Long, PayloadTask>>()
     private var calendarViewModel: CalendarViewModel? = null
     private lateinit var fragmentManager: FragmentManager
+    private var vibrator: Vibrator? = null
     private lateinit var activity: Activity
     constructor(list: ArrayList<Pair<Long, PayloadTask>>?, layoutId: Int, grabHandleId: Int, dragOnLongPress: Boolean,
-                context: Context?, token: String?, epicLinksEntities: List<EpicLinksEntity>?, projectEntities: List<ProjectEntity>?, calendarViewModel: CalendarViewModel?, fragmentManager: FragmentManager, activity: Activity) {
+                context: Context?, token: String?, epicLinksEntities: List<EpicLinksEntity>?, projectEntities: List<ProjectEntity>?,
+                calendarViewModel: CalendarViewModel?, fragmentManager: FragmentManager, activity: Activity) {
 
         Collections.sort(list,  Comparator { lhs: Pair<Long, PayloadTask>, rhs: Pair<Long, PayloadTask> ->
             when {
@@ -95,6 +95,7 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
         this.epicLinksEntities = epicLinksEntities
         this.calendarViewModel = calendarViewModel
         this.activity = activity
+        vibrator = context!!.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         calendarNetworkManager = CalendarNetworkManager(token)
         hasStub = list!!.isEmpty()
 //        if (hasStub) {
@@ -160,6 +161,14 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
                 task.planOrder = position.toString()
                 holder.mText.text = task.name
                 holder.itemView.tag = mItemList[position]
+
+                if (task.subTaskCount != "0" && task.subTaskCount != null) {
+                    holder.subTaskCount.text = "${task.doneSubTaskCount}/${task.subTaskCount}"
+                    holder.subTaskLayout.visibility = View.VISIBLE
+                } else {
+                    holder.subTaskLayout.visibility = View.GONE
+                }
+
                 if (task.duration % 60 == 0)
                     holder.estimatedTime.text = String.format("%sh", (task.duration / 60).toString())
                 else {
@@ -312,6 +321,8 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
         var layout: FrameLayout
         var isDone: CheckBox
         var refresh: CheckBox
+        var subTaskLayout: LinearLayout
+        var subTaskCount: TextView
 
 
         override fun onItemClicked(view: View) {
@@ -342,13 +353,12 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
 ////                    ft.setCustomAnimations(R.anim.zoom_anim, R.anim.zoom_anim)
 ////                    taskInfo.show(ft, "taskInfoDialog")
 //                    ft.add(R.id.main_container, taskInfo).addToBackStack("boardFragment").commit()
-
-
                     mLastClickTime = SystemClock.elapsedRealtime()
                     val intent = Intent(context, TaskInfoActivity::class.java)
                         intent.putExtra("task", mItemList[adapterPosition].second)
                         intent.putExtra("calendarViewModel", calendarViewModel)
 //                    context!!.startActivity(intent)
+                    vibrator!!.vibrate(100)
                     startActivityForResult(activity, intent, 1, null)
 
                 } catch (e: Exception) {
@@ -379,6 +389,8 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
             isDone = itemView.findViewById(R.id.task_done)
             refresh = itemView.findViewById(R.id.task_refresh)
             taskTextCanceled = itemView.findViewById(R.id.calendar_task_canceled)
+            subTaskCount = itemView.findViewById(R.id.calendar_task_sub_tasks_count)
+            subTaskLayout = itemView.findViewById(R.id.calendar_task_sub_tasks)
         }
     }
 

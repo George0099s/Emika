@@ -16,16 +16,26 @@
         android:roundIcon="@mipmap/id_emika_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".presentation.adapter.calendar.Comments"></activity>
-        <activity android:name=".presentation.ui.calendar.Cal" />
-        <activity android:name=".presentation.ui.profile.ProfileActivity" />
-        <activity android:name=".presentation.ui.calendar.CalendarActivity" />
-        <activity android:name=".presentation.ui.chat.ChatActivity" />
-        <activity android:name=".presentation.ui.calendar.Main2Activity" />
-        <activity android:name=".presentation.ui.calendar.TaskInfoActivity" />
+        <activity android:name=".presentation.ui.calendar.WebViewTask"></activity>
         <activity
-            android:name=".deprecated.InboxActivity"
+            android:name=".presentation.ui.calendar.Comments"
+            android:windowSoftInputMode="adjustResize"></activity>
+        <activity
+            android:name=".presentation.ui.calendar.Cal"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.profile.ProfileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.calendar.CalendarActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.chat.ChatActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.ui.calendar.TaskInfoActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name="presentation.ui.calendar.AddTaskActivity"
             android:screenOrientation="portrait" />
@@ -48,10 +58,6 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".deprecated.TaskInfoActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysVisible|adjustPan" />
-        <activity
             android:name=".presentation.ui.auth.AuthActivity"
             android:noHistory="true"
             android:screenOrientation="portrait" />
@@ -67,8 +73,7 @@
         </activity>
         <activity
             android:name=".presentation.ui.MainActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize">
+            android:screenOrientation="portrait">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->

@@ -11,10 +11,11 @@ import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.os.SystemClock
+import android.os.Vibrator
 import android.text.*
 import android.text.style.ImageSpan
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -42,9 +43,9 @@ import com.emika.app.di.EpicLinks
 import com.emika.app.di.Project
 import com.emika.app.di.ProjectsDi
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog
-import com.emika.app.presentation.adapter.calendar.Comments
+import com.emika.app.presentation.adapter.calendar.CommentAdapter
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter
-import com.emika.app.presentation.adapter.profile.ItemTouchHelper.SubTaskTouchHelperCallback
+import com.emika.app.presentation.adapter.ItemTouchHelper.SubTaskTouchHelperCallback
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.calendar.CalendarViewModel
@@ -53,6 +54,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_edit_profile.*
+import kotlinx.android.synthetic.main.task_info.*
 import java.text.DecimalFormat
 import java.util.*
 import javax.inject.Inject
@@ -86,6 +88,8 @@ class TaskInfoActivity : AppCompatActivity() {
     private var priority: TextView? = null
     private var project: TextView? = null
     private var section: TextView? = null
+    private var workFlow: TextView? = null
+    private var customField: TextView? = null
     private var epicLinkLinearLayout: LinearLayout? = null
     private var addSubTask: TextView? = null
     private lateinit var taskInfoViewModel: TaskInfoViewModel
@@ -102,7 +106,11 @@ class TaskInfoActivity : AppCompatActivity() {
     private lateinit var imm: InputMethodManager
     private lateinit var chipGroup: ChipGroup
     private lateinit var taskIsDone: TextView
+    private var taskId: String? = null
     private lateinit var mainActivity :AppCompatActivity
+    private var adapterComments: CommentAdapter? = null
+    private var recyclerComments: RecyclerView? = null
+    private var vibrator: Vibrator? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.task_info)
@@ -120,15 +128,35 @@ class TaskInfoActivity : AppCompatActivity() {
         initViews()
     }
 
+    private fun goToWebView(url: String){
+        val intent = Intent(this, WebViewTask::class.java)
+        intent.putExtra("url", url)
+        startActivity(intent)
+    }
+
     private fun initViews() {
         c = Calendar.getInstance()
         c!!.add(Calendar.DATE, +24)
         df = DecimalFormat("#.#")
         app.component?.inject(this)
+        recyclerComments = findViewById<RecyclerView>(R.id.task_info_comms_recycler).apply {
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
+        }
+        workFlow = findViewById(R.id.task_info_work_flow)
+        customField = findViewById(R.id.task_info_custom_field)
+        customField!!.setOnClickListener {
+            goToWebView(task!!.customFieldsLink)
+        }
+        workFlow!!.setOnClickListener {
+           goToWebView(task!!.workflowLink)
+        }
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         taskIsDone = findViewById(R.id.task_info_task_done)
         chipGroup = findViewById(R.id.task_info_epic_links_chip_group)
         epicLinkLinearLayout = findViewById(R.id.task_info_epic_links)
         task = intent.getParcelableExtra("task")!!
+        taskId = task!!.id
         calendarViewModelFromBoard = intent.getParcelableExtra("calendarViewModel")!!
         token = EmikaApplication.instance.sharedPreferences?.getString("token", null)!!
         subTaskRecycler = findViewById(R.id.task_info_subtask_recycler)
@@ -152,6 +180,8 @@ class TaskInfoActivity : AppCompatActivity() {
         estimatedTime!!.setOnClickListener { v: View? -> setTime() }
         planDate = findViewById(R.id.task_info_plan_date)
         planDate!!.setOnClickListener { v: View? -> setPlanDate() }
+        task_info_press_estimated_time.setOnClickListener { v: View? -> setTime() }
+        task_info_press_spent_time.setOnClickListener { v: View? -> setSpentTime() }
         deadlineDate = findViewById(R.id.task_info_deadline_date)
         deadlineDate!!.setOnClickListener { v: View? -> setDeadlineDate() }
         userName = findViewById(R.id.task_info_user_name)
@@ -173,7 +203,7 @@ class TaskInfoActivity : AppCompatActivity() {
         taskInfoViewModel.getDbEpicLinks()
         taskInfoViewModel.epicLinksMutableLiveData.observe(this, setTaskEpicLinks)
         taskInfoViewModel.getSubTaskMutableLiveData(task!!.id).observe(this, getSubTask)
-        taskInfoViewModel.getCommentsMutableLiveData().observe(this, getComments)
+        taskInfoViewModel.getCommentsMutableLiveData(task!!.id).observe(this, getComments)
 //        calendarViewModel!!.projectMutableLiveData.observe(this, getProjects)
 //        calendarViewModel!!.sectionListMutableLiveData.observe(this, getSections)
         taskInfoViewModel.projectMutableLiveData.observe(this, getProjectsMutable)
@@ -181,11 +211,9 @@ class TaskInfoActivity : AppCompatActivity() {
     }
 
     private fun goToComms() {
-        val bundle = Bundle()
         val intent = Intent(this, Comments::class.java)
-            intent.putExtra("comments", comments)
-
-        startActivity(intent, bundle)
+        intent.putExtra("taskId", taskId)
+        startActivity(intent)
     }
 
 
@@ -256,7 +284,7 @@ class TaskInfoActivity : AppCompatActivity() {
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable) {
             task!!.name = taskName!!.text.toString()
-//            taskInfoViewModel.updateTask(task)
+            taskInfoViewModel.updateTask(task)
         }
     }
     private val taskDescriptionTextWatcher: TextWatcher = object : TextWatcher {
@@ -267,6 +295,7 @@ class TaskInfoActivity : AppCompatActivity() {
             taskInfoViewModel.updateTask(task)
         }
     }
+
     private val setTaskEpicLinks = androidx.lifecycle.Observer { epicLinksEntities: List<EpicLinksEntity> ->
         if (epicLinksEntities.isNotEmpty()) {
 //            epicLink!!.setTextColor(resources.getColor(R.color.black))
@@ -294,18 +323,31 @@ class TaskInfoActivity : AppCompatActivity() {
         }
     }
     private var mLastClickTime: Long = 0
-    private val getSubTask = androidx.lifecycle.Observer { subTask: List<SubTask?>? ->
+    private val getSubTask = androidx.lifecycle.Observer { subTask: List<SubTask>  ->
         adapter = SubTaskAdapter(subTask, null, taskInfoViewModel)
         subTaskRecycler!!.adapter = adapter
+        subTaskRecycler!!.setItemViewCacheSize(subTask.size)
         val callback: ItemTouchHelper.Callback = SubTaskTouchHelperCallback(adapter)
         val touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(subTaskRecycler)
     }
     private val getComments = androidx.lifecycle.Observer { comments: List<Comment> ->
-        this.comments = comments as ArrayList<Comment>
+        if (comments.isNotEmpty()) {
+            val  newList: MutableList<Comment> = arrayListOf()
+            newList.add(comments[comments.size-1])
+            adapterComments = CommentAdapter(newList, this, taskInfoViewModel.memberEntities, null)
+            recyclerComments!!.adapter = adapterComments
+            task_info_no_comms.visibility = View.GONE
+            recyclerComments!!.visibility = View.VISIBLE
+            task_info_count_comms.text = "${comments.size} comments"
+        } else {
+            task_info_no_comms.visibility = View.VISIBLE
+            recyclerComments!!.visibility = View.GONE
+            task_info_count_comms.text = "Add comments"
+        }
     }
 
-    private val getAddedSubTaskId = androidx.lifecycle.Observer<String> { subTaskId: String? -> adapter!!.taskList[adapter!!.itemCount - 1].id = subTaskId }
+    private val getAddedSubTaskId = androidx.lifecycle.Observer<String> { subTaskId: String? -> adapter!!.taskList[adapter!!.itemCount - 1]!!.id = subTaskId }
 
     private val getProjectsMutable = androidx.lifecycle.Observer { project1: Project? ->
 
@@ -340,18 +382,18 @@ class TaskInfoActivity : AppCompatActivity() {
             adapter!!.notifyItemInserted(adapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(adapter!!.itemCount)
             for (i in adapter!!.taskList.indices) {
-                subTasks.add(adapter!!.taskList[i].name)
+                subTasks.add(adapter!!.taskList[i]!!.name)
             }
             task!!.subTaskList = subTasks
             taskInfoViewModel.updateTask(task)
             taskInfoViewModel.addSubTask(subTask)
             subTaskRecycler!!.requestFocus(adapter!!.itemCount - 1)
-        } else if (!adapter!!.taskList[adapter!!.itemCount - 1].name.isEmpty()) {
+        } else if (!adapter!!.taskList[adapter!!.itemCount - 1]!!.name.isEmpty()) {
             adapter!!.addSubTask(subTask)
             adapter!!.notifyItemInserted(adapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(adapter!!.itemCount)
             for (i in adapter!!.taskList.indices) {
-                subTasks.add(adapter!!.taskList[i].name)
+                subTasks.add(adapter!!.taskList[i]!!.name)
             }
             task!!.subTaskList = subTasks
             taskInfoViewModel.updateTask(task)
@@ -377,8 +419,22 @@ class TaskInfoActivity : AppCompatActivity() {
 
     private val getTask = androidx.lifecycle.Observer { task: PayloadTask ->
         taskName!!.setText(task.name)
-        print(task.id)
         planDate!!.text = DateHelper.getDate(task.planDate)
+
+        if (task.workFlowText != null) {
+            workFlow!!.text = task.workFlowText
+            workFlow!!.visibility = View.VISIBLE
+        } else {
+            workFlow!!.visibility = View.GONE
+        }
+
+        if (task.customFieldsText != null) {
+            customField!!.text = task.customFieldsText
+            customField!!.visibility = View.VISIBLE
+        } else {
+            customField!!.visibility = View.GONE
+        }
+
         if (task.deadlineDate != null && task.deadlineDate != "null") {
             deadlineDate!!.text = DateHelper.getDate(task.deadlineDate)
             deadlineDate!!.setTextColor(resources.getColor(R.color.white))
@@ -445,6 +501,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val bundle = Bundle()
             val mySheetDialog = BottomSheetAddTaskSelectProject()
             bundle.putParcelable("taskInfoViewModel", taskInfoViewModel)
@@ -460,6 +517,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val bundle = Bundle()
             bundle.putParcelable("task", task)
             bundle.putParcelable("taskInfoViewModel", taskInfoViewModel)
@@ -614,8 +672,8 @@ class TaskInfoActivity : AppCompatActivity() {
     }
 
     private fun showPopupMenu(v: View) {
-
-            val popupMenu = PopupMenu(this, v)
+        vibrator!!.vibrate(100)
+        val popupMenu = PopupMenu(this, v)
             popupMenu.inflate(R.menu.priority_popup_menu)
             popupMenu.setOnMenuItemClickListener { item: MenuItem ->
                         when (item.itemId) {
@@ -661,6 +719,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val datePickerDialog = DatePickerDialog(this, planDateListener,
                     dateAndTime[Calendar.YEAR],
                     dateAndTime[Calendar.MONTH],
@@ -683,6 +742,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val datePickerDialog = DatePickerDialog(this, deadlineDateListener,
                     dateAndTime[Calendar.YEAR],
                     dateAndTime[Calendar.MONTH],
@@ -705,6 +765,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val hourOfDay = task!!.duration / 60
             val timePickerDialog = CustomTimePickerDialog(this, estimatedTimeListener, hourOfDay, 0, true)
             timePickerDialog.setIcon(R.drawable.ic_estimated_time)
@@ -717,6 +778,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val hourOfDay = task!!.durationActual / 60
             val minute = task!!.durationActual % 60
             val timePickerDialog = CustomTimePickerDialog(this, spentTimeListener, hourOfDay, minute, true)
@@ -730,6 +792,7 @@ class TaskInfoActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator!!.vibrate(50)
             val bundle = Bundle()
             bundle.putParcelable("calendarViewModel", calendarViewModelFromBoard)
             bundle.putParcelable("taskInfoViewModel", taskInfoViewModel)

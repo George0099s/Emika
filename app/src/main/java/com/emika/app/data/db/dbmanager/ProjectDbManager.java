@@ -3,6 +3,9 @@ package com.emika.app.data.db.dbmanager;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.ProjectDbCallback;
@@ -36,6 +39,8 @@ public class ProjectDbManager {
                 .subscribe((io.reactivex.functions.Consumer<? super List<ProjectEntity>>) callback::onProjectLoaded);
     }
 
+
+
     public void addAllProjects(List<ProjectEntity> projects, ProjectDbCallback callback) {
         Completable.fromAction(() -> db.projectDao().insert(projects)).observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io()).subscribe(new CompletableObserver() {
@@ -47,7 +52,7 @@ public class ProjectDbManager {
             public void onComplete() {
                 callback.onProjectLoaded(new ArrayList<>());
 
-                Log.d(TAG, "onComplete: ");
+                Log.d(TAG, "onComplete: project ");
             }
 
             @Override
@@ -57,8 +62,50 @@ public class ProjectDbManager {
             }
         });
     }
+
+    public LiveData<List<ProjectEntity>> getAllProjects() {
+        return  projectDao.getProjectsMutable();
+    }
     public void deleteAllProjects() {
         Completable.fromAction(() -> db.projectDao().deleteAll()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: deleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e.toString());
+            }
+        });
+    }
+
+    public void insertProject(ProjectEntity projectEntity) {
+        Completable.fromAction(() -> db.projectDao().insert(projectEntity)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: deleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e.toString());
+            }
+        });
+    }
+
+    public void updateProject(ProjectEntity projectEntity) {
+        Completable.fromAction(() -> db.projectDao().update(projectEntity)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
 

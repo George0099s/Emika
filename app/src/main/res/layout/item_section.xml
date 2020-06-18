@@ -3,28 +3,70 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/section"
+    android:orientation="horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/item_section_name"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:textColor="@color/mainTextColor"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Emika" />
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/item_section_drag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_drag_drop"
+            android:layout_marginStart="12dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"/>
+        <TextView
+            android:id="@+id/item_section_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_margin="12dp"
+            android:textColor="@color/mainTextColor"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/item_section_options"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Emika" />
+        <TextView
+            android:id="@+id/item_section_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:visibility="gone"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="16dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:text="@string/default_string"
+            android:background="@drawable/shape_selected_date"/>
+        <ImageButton
+            android:id="@+id/item_section_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/ripple_create_task"
+            android:padding="12dp"
+            android:src="@drawable/ic_options"
+            app:layout_constraintBottom_toBottomOf="@+id/item_section_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/item_section_name" />
+    </LinearLayout>
 
     <View
-        android:layout_width="0dp"
+        android:id="@+id/view6"
+        android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#30D3D3D3"
         android:layout_marginStart="16dp"
+        android:background="#30D3D3D3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

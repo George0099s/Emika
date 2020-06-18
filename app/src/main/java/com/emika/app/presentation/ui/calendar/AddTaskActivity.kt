@@ -9,6 +9,7 @@ import android.graphics.PorterDuff
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.SystemClock
+import android.os.Vibrator
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
@@ -122,6 +123,7 @@ class AddTaskActivity : AppCompatActivity() {
     private var viewModel: AddTaskListViewModel? = null
     private var profileViewModel: ProfileViewModel? = null
     private var back: Button? = null
+    private lateinit var vibrator: Vibrator
     private var inbox: Button? = null
     private val toastContext: Context? = null
     private var subTaskAdapter: SubTaskAdapter? = null
@@ -147,7 +149,10 @@ class AddTaskActivity : AppCompatActivity() {
     private var DATE: String? = null
     private var task: PayloadTask? = null
     private var c: Calendar? = null
-
+    private var pressPlanDate: LinearLayout? = null
+    private var pressDeadlineDate: LinearLayout? = null
+    private var pressPriority: LinearLayout? = null
+    private var pressEpicLinks: LinearLayout? = null
     var planDateListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
         dateAndTime[Calendar.YEAR] = year
         dateAndTime[Calendar.MONTH] = month
@@ -211,6 +216,7 @@ class AddTaskActivity : AppCompatActivity() {
     private fun initView() {
         c = Calendar.getInstance()
         c!!.add(Calendar.DATE, +24)
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         currentDate = intent!!.getStringExtra("date")
         taskDescription = findViewById(R.id.add_task_description)
         mySheetDialog = BottomSheetSelectEpicLinks()
@@ -248,17 +254,22 @@ class AddTaskActivity : AppCompatActivity() {
         planDate = findViewById(R.id.add_task_plan_date)
         estimatedTime = findViewById(R.id.add_task_estimated_time)
         estimatedTime!!.setOnClickListener { v: View? -> setTime(v) }
+        add_task_press_estimated_time.setOnClickListener { v: View? -> setTime(v) }
         deadlineDate = findViewById(R.id.add_task_deadline_date)
+        add_task_press_deadline_date.setOnClickListener { v: View? -> setDeadlineDate(v) }
         deadlineDate!!.setOnClickListener { v: View? -> setDeadlineDate(v) }
         DATE = intent.getStringExtra("date")
         priority = findViewById(R.id.add_task_priority)
         priority!!.setOnClickListener { v: View -> showPopupMenu(v) }
+        add_task_press_priority.setOnClickListener { v: View -> showPopupMenu(v) }
         planDate!!.setOnClickListener { v: View? -> setPlanDate(v) }
+        planDate!!.text = DateHelper.getDate(DATE)
+        add_task_press_plan_date.setOnClickListener { v: View? -> setPlanDate(v) }
         memberList = intent.getParcelableArrayListExtra("members")
         project = findViewById(R.id.add_task_project)
         section = findViewById(R.id.add_task_project_section)
         selectProject = findViewById(R.id.add_task_select_project)
-        selectProject!!.setOnClickListener(View.OnClickListener { view: View -> selectProject(view) })
+        selectProject!!.setOnClickListener({ view: View -> selectProject(view) })
         epicLinks = findViewById(R.id.add_task_epic_links)
         epicLinks!!.setOnClickListener { selectEpicLinks() }
         val layoutManager = LinearLayoutManager(this)
@@ -282,6 +293,7 @@ class AddTaskActivity : AppCompatActivity() {
     }
 
     private fun goToInBox(view: View) {
+        vibrator.vibrate(50)
         val inbox = Inbox()
         val bundle = Bundle()
         bundle.putString("date", currentDate)
@@ -289,7 +301,7 @@ class AddTaskActivity : AppCompatActivity() {
         val ft = supportFragmentManager.beginTransaction()
         ft.setCustomAnimations(R.anim.slide_in_right_anim, R.anim.slide_out_right_anim)
         inbox.show(ft, "inboxDialog")
-        finish()
+//        finish()
     }
 
     private fun addSubTask(view: View) {
@@ -302,7 +314,7 @@ class AddTaskActivity : AppCompatActivity() {
             subTaskAdapter!!.notifyItemInserted(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.requestFocus(subTaskAdapter!!.itemCount - 1)
-        } else if (!subTaskAdapter!!.taskList[subTaskAdapter!!.itemCount - 1].name.isEmpty()) {
+        } else if (!subTaskAdapter!!.taskList[subTaskAdapter!!.itemCount - 1]!!.name.isEmpty()) {
             subTaskAdapter!!.addSubTask(subTask)
             subTaskAdapter!!.notifyItemInserted(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(subTaskAdapter!!.itemCount)
@@ -325,6 +337,7 @@ class AddTaskActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator.vibrate(50)
             val bundle = Bundle()
             val mySheetDialog = BottomSheetAddTaskSelectProject()
             bundle.putParcelable("addTaskViewModel", viewModel)
@@ -339,6 +352,8 @@ class AddTaskActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator.vibrate(50)
+
             val bundle = Bundle()
             bundle.putParcelableArrayList("members", memberList as ArrayList<out Parcelable?>?)
             bundle.putParcelable("calendarViewModel", boardViewModel)
@@ -356,6 +371,8 @@ class AddTaskActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator.vibrate(50)
+
             val bundle = Bundle()
             bundle.putParcelable("addTaskViewModel", viewModel)
             mySheetDialog!!.arguments = bundle
@@ -370,6 +387,8 @@ class AddTaskActivity : AppCompatActivity() {
             taskName!!.requestFocus()
             taskName!!.error = "Task name is missing"
         } else {
+            vibrator.vibrate(50)
+
             val subTasks: MutableList<String> = ArrayList()
             task!!.name = taskName!!.text.toString()
             task!!.projectId = projectDi!!.projectId
@@ -383,7 +402,7 @@ class AddTaskActivity : AppCompatActivity() {
             if (task!!.duration == null) task!!.duration = 60
             task!!.epicLinks = epicLinksId
             for (i in subTaskAdapter!!.taskList.indices) {
-                subTasks.add(subTaskAdapter!!.taskList[i].name)
+                subTasks.add(subTaskAdapter!!.taskList[i]!!.name)
             }
             task!!.subTaskList = subTasks
             if (task!!.planDate == null) {
@@ -407,6 +426,8 @@ class AddTaskActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator.vibrate(50)
+
             val popupMenu = PopupMenu(this, v)
             popupMenu.inflate(R.menu.priority_popup_menu)
             popupMenu
@@ -436,6 +457,7 @@ class AddTaskActivity : AppCompatActivity() {
                         }
                     }
             popupMenu.show()
+
         }
         mLastClickTime = SystemClock.elapsedRealtime()
     }
@@ -444,6 +466,8 @@ class AddTaskActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator.vibrate(50)
+
             val datePickerDialog = DatePickerDialog(this, planDateListener,
                     dateAndTime[Calendar.YEAR],
                     dateAndTime[Calendar.MONTH],
@@ -464,18 +488,19 @@ class AddTaskActivity : AppCompatActivity() {
             return
         } else {
 
+            vibrator.vibrate(50)
 
-//            val datePickerDialog = DatePickerDialog(context!!, deadlineDateListener,
-//                    dateAndTime[Calendar.YEAR],
-//                    dateAndTime[Calendar.MONTH],
-//                    dateAndTime[Calendar.DAY_OF_MONTH])
-//            datePickerDialog.setTitle("Set deadline date")
-//            datePickerDialog.datePicker.minDate = Date().time
-//            datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date") { dialog: DialogInterface?, which: Int ->
-//                deadlineDate!!.text = resources.getString(R.string.no_deadline)
-//                deadlineDateString = null
-//            }
-//            datePickerDialog.show()
+            val datePickerDialog = DatePickerDialog(this, deadlineDateListener,
+                    dateAndTime[Calendar.YEAR],
+                    dateAndTime[Calendar.MONTH],
+                    dateAndTime[Calendar.DAY_OF_MONTH])
+            datePickerDialog.setTitle("Set deadline date")
+            datePickerDialog.datePicker.minDate = Date().time
+            datePickerDialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "No date") { dialog: DialogInterface?, which: Int ->
+                deadlineDate!!.text = resources.getString(R.string.no_deadline)
+                deadlineDateString = null
+            }
+            datePickerDialog.show()
         }
         mLastClickTime = SystemClock.elapsedRealtime()
     }
@@ -484,6 +509,8 @@ class AddTaskActivity : AppCompatActivity() {
         if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
             return
         } else {
+            vibrator.vibrate(50)
+
             val timePickerDialog = CustomTimePickerDialog(this, estimatedTimeListener, 1, 0, true)
             timePickerDialog.setIcon(R.drawable.ic_estimated_time)
             timePickerDialog.show()

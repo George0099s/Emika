@@ -21,7 +21,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class AddTaskListViewModel extends ViewModel implements Parcelable, TaskCallback {
+public class AddTaskListViewModel extends ViewModel implements TaskCallback, Parcelable {
     private static final String TAG = "AddTaskListViewModel";
     private PayloadTask task;
     private String token;
@@ -29,6 +29,14 @@ public class AddTaskListViewModel extends ViewModel implements Parcelable, TaskC
     private MutableLiveData<PayloadTask> mutableLiveData;
     private MutableLiveData<Assignee> assignee;
     private MutableLiveData<Project> projectMutableLiveData;
+
+
+    protected AddTaskListViewModel(Parcel in) {
+        task = in.readParcelable(PayloadTask.class.getClassLoader());
+        token = in.readString();
+        repository = in.readParcelable(CalendarRepository.class.getClassLoader());
+        assigneeModel = in.readParcelable(Assignee.class.getClassLoader());
+    }
 
     public static final Creator<AddTaskListViewModel> CREATOR = new Creator<AddTaskListViewModel>() {
         @Override
@@ -77,10 +85,7 @@ public class AddTaskListViewModel extends ViewModel implements Parcelable, TaskC
         this.epicLinksList = epicLinksList;
     }
 
-    protected AddTaskListViewModel(Parcel in) {
-        task = in.readParcelable(PayloadTask.class.getClassLoader());
-        token = in.readString();
-    }
+
 
     @Override
     public void getAddedTask(PayloadTask task) {
@@ -117,6 +122,7 @@ public class AddTaskListViewModel extends ViewModel implements Parcelable, TaskC
         return epicLinksList;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -126,6 +132,7 @@ public class AddTaskListViewModel extends ViewModel implements Parcelable, TaskC
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(task, flags);
         dest.writeString(token);
+        dest.writeParcelable(repository, flags);
         dest.writeParcelable(assigneeModel, flags);
     }
 }

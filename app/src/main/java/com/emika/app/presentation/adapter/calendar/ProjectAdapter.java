@@ -1,6 +1,8 @@
 package com.emika.app.presentation.adapter.calendar;
 
 import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
@@ -15,7 +18,10 @@ import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.di.Project;
+import com.emika.app.presentation.ui.calendar.BottomSheetEditProjectFragment;
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -30,11 +36,13 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     private BottomSheetAddTaskSelectProjectViewModel viewModel;
     private EmikaApplication emikaApplication = EmikaApplication.instance;
     private PayloadTask task;
-    public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task) {
+    private FragmentManager fragmentManager;
+    public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task, FragmentManager fragmentManager) {
         emikaApplication.getComponent().inject(this);
         this.projects = projects;
         this.viewModel = viewModel;
         this.task = task;
+        this.fragmentManager = fragmentManager;
     }
 
 
@@ -48,28 +56,39 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     @Override
     public void onBindViewHolder(@NonNull ProjectViewHolder holder, int position) {
         PayloadProject project = projects.get(position);
-        for (int i = 0; i < projects.size(); i++) {
-            if (projectDi.getProjectId().equals(project.getId()))
+        if (viewModel != null) {
+            for (int i = 0; i < projects.size(); i++) {
+                if (projectDi.getProjectId().equals(project.getId()))
+                    holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
+                else
+                    holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
+            }
+            holder.item.setOnClickListener(v -> {
                 holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
-            else
-                holder.item.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                projectDi.setProjectId(project.getId());
+                projectDi.setProjectName(project.getName());
+                if (project.getDefaultSectionId() != null)
+                    projectDi.setProjectSectionId(project.getDefaultSectionId());
+
+                viewModel.getSectionListMutableLiveData();
+                notifyDataSetChanged();
+            });
+        } else {
+            holder.item.setOnClickListener(v -> {
+                Bundle bundle = new Bundle();
+                BottomSheetEditProjectFragment mySheetDialog = new BottomSheetEditProjectFragment();
+                bundle.putParcelable("project", project);
+                mySheetDialog.setArguments(bundle);
+                mySheetDialog.show(fragmentManager, "modalSheetDialog");
+            });
+
         }
+        if (project.getIsPersonal() != null)
         if (project.getIsPersonal())
             holder.memberCount.setText("Private");
         else
             holder.memberCount.setText(String.format("%d members", project.getMembers().size()));
         holder.projectName.setText(project.getName());
-        holder.item.setOnClickListener(v -> {
-            holder.item.setBackgroundColor(Color.parseColor("#F5F5F5"));
-            projectDi.setProjectId(project.getId());
-            projectDi.setProjectName(project.getName());
-            if (project.getDefaultSectionId() != null)
-            projectDi.setProjectSectionId(project.getDefaultSectionId());
-//            viewModel.setProjectId(project.getId());
-//            viewModel.setProjectId();
-            viewModel.getSectionListMutableLiveData();
-            notifyDataSetChanged();
-        });
     }
 
     @Override

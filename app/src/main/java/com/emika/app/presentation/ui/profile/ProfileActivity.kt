@@ -26,17 +26,27 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.emika.app.R
 import com.emika.app.data.EmikaApplication
+import com.emika.app.data.db.callback.calendar.ProjectDbCallback
+import com.emika.app.data.db.dbmanager.ProjectDbManager
 import com.emika.app.data.db.dbmanager.UserDbManager
+import com.emika.app.data.db.entity.ProjectEntity
 import com.emika.app.data.network.callback.TokenCallback
+import com.emika.app.data.network.callback.calendar.ProjectsCallback
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager
 import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo
 import com.emika.app.data.network.pojo.member.PayloadShortMember
+import com.emika.app.data.network.pojo.project.PayloadProject
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation
+import com.emika.app.data.network.pojo.project.PayloadSection
 import com.emika.app.data.network.pojo.user.Payload
 import com.emika.app.di.CompanyDi
 import com.emika.app.di.User
+import com.emika.app.domain.repository.calendar.CalendarRepository
+import com.emika.app.presentation.adapter.calendar.ProjectAdapter
 import com.emika.app.presentation.adapter.profile.AllMembersAdapter
 import com.emika.app.presentation.adapter.profile.ProfileContactAdapter
 import com.emika.app.presentation.ui.auth.AuthActivity
+import com.emika.app.presentation.utils.Converter
 import com.emika.app.presentation.utils.NetworkState
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel
@@ -46,7 +56,7 @@ import kotlinx.android.synthetic.main.fragment_profile.view.profile_see_all_memb
 import java.util.ArrayList
 import javax.inject.Inject
 
-class ProfileActivity : AppCompatActivity(), TokenCallback {
+class ProfileActivity : AppCompatActivity(), TokenCallback, ProjectDbCallback {
     @Inject
     lateinit var user: User
     @Inject
@@ -72,8 +82,13 @@ class ProfileActivity : AppCompatActivity(), TokenCallback {
     private var leadAdapter: AllMembersAdapter? = null
     private var coWorkersAdapter: AllMembersAdapter? = null
     private var viewModel: ProfileViewModel? = null
+    private var projectsRecycler: RecyclerView? = null
+    private var projectsAdapter: ProjectAdapter? = null
+    private var repository: CalendarRepository? = null
+    private val converter: Converter = Converter()
     private var memberList: List<PayloadShortMember> = ArrayList()
     private val app = EmikaApplication.instance
+    private val projectDbManager: ProjectDbManager = ProjectDbManager()
     private val getMembers = Observer { members: List<PayloadShortMember> ->
         memberList = members
         companyMemberCount!!.text = String.format("%s %s", memberList.size, resources.getString(R.string.members_string))
@@ -114,6 +129,7 @@ class ProfileActivity : AppCompatActivity(), TokenCallback {
         upArrow.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.SRC_ATOP);
         supportActionBar!!.setHomeAsUpIndicator(upArrow)
         supportActionBar!!.title = "Profile"
+        projectDbManager.allProjects.observe(this, getProjects())
         toolbar.setNavigationOnClickListener{ onBackPressed() }
         initView()
 
@@ -157,6 +173,12 @@ class ProfileActivity : AppCompatActivity(), TokenCallback {
         sharedPreferences = EmikaApplication.instance.sharedPreferences
         token = EmikaApplication.instance.sharedPreferences?.getString("token", "")
 //        viewdarkThemeMode.isChecked = EmikaApplication.instance.sharedPreferences!!.getBoolean("darkMode", true)
+        projectsRecycler = findViewById<RecyclerView>(R.id.profile_projects_recycler).apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(context)
+        }
+        repository = CalendarRepository(token)
+//        repository!!.getAllProjects(this)
         userDbManager = UserDbManager()
         networkManager = AuthNetworkManager(token)
         userName = findViewById(R.id.profile_user_name)
@@ -245,7 +267,6 @@ class ProfileActivity : AppCompatActivity(), TokenCallback {
         intent.putExtra("memberId", user!!.id)
         startActivity(intent)
     }
-    //TODO: Use the progressBar
     private fun logOut() {
         if (NetworkState.getInstance(this).isOnline) {
             ProgressDialog(this).apply {
@@ -280,5 +301,16 @@ class ProfileActivity : AppCompatActivity(), TokenCallback {
 
     companion object {
         private const val TAG = "ProfileFragment"
+    }
+
+
+    private fun getProjects() = Observer<List<ProjectEntity>> {
+        projectsAdapter =  ProjectAdapter(converter.fromProjectEntityToPayloadProjectList(it!!), null, null, supportFragmentManager)
+        projectsRecycler!!.adapter = projectsAdapter
+    }
+
+    override fun onProjectLoaded(projectEntities: MutableList<ProjectEntity>?) {
+        projectsAdapter =  ProjectAdapter(converter.fromProjectEntityToPayloadProjectList(projectEntities!!), null, null, supportFragmentManager)
+        projectsRecycler!!.adapter = projectsAdapter
     }
 }

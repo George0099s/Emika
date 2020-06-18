@@ -59,9 +59,12 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         date = arguments!!.getString("date")
-        durations = arguments!!.getParcelableArrayList<PayloadDurationActual>("actualDurationList")!!
+        durations = arguments!!.getParcelableArrayList("actualDurationList")!!
         val estimatedTime = arguments!!.getString("estimatedTime")
+        if (estimatedTime?.toInt()!! > 0)
         dayInfoEstimatedTime.progress = estimatedTime.toString()
+        else
+        dayInfoEstimatedTime.progress = "0"
         viewModel.taskListMutableLiveData.observe(viewLifecycleOwner, getTask)
         viewModel.durationMutableLiveData.observe(viewLifecycleOwner, getDuration)
         dayInfoRecycler.setHasFixedSize(true)

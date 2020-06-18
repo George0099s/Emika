@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/comm_delete"
+        android:title="@string/delete"
+        android:icon="@drawable/ic_task_delete"
+        android:iconTint="@color/red"/>
+<!--    <item-->
+<!--        android:id="@+id/comm_edit"-->
+<!--        android:title="@string/chat"-->
+<!--        android:icon="@drawable/ic_emika"/>-->
+<!--    <item-->
+<!--        android:id="@+id/menu_profile"-->
+<!--        android:title="@string/profile"-->
+<!--        android:icon="@drawable/ic_user"/>-->
+</menu>

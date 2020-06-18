@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.emika.app.data.db.entity.ActualDurationEntity;
+import com.emika.app.data.db.entity.CommentEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.db.entity.ProjectEntity;
@@ -17,7 +18,9 @@ import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.PayloadProject;
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation;
 import com.emika.app.data.network.pojo.project.PayloadSection;
+import com.emika.app.data.network.pojo.subTask.Comment;
 import com.emika.app.data.network.pojo.task.PayloadTask;
 import com.emika.app.data.network.pojo.user.Contact;
 import com.emika.app.data.network.pojo.user.Payload;
@@ -75,6 +78,8 @@ public class Converter {
             taskEntity.setDeadlineEmika(taskList.get(i).getDeadlineEmika());
             taskEntity.setDeadlineTime(taskList.get(i).getDeadlineTime());
             taskEntity.setDeadlinePeriod(taskList.get(i).getDeadlinePeriod());
+            taskEntity.setSubTaskCount(taskList.get(i).getSubTaskCount());
+            taskEntity.setDoneSubTaskCount(taskList.get(i).getDoneSubTaskCount());
             taskEntity.setDescription(taskList.get(i).getDescription());
             taskEntity.setDuration(taskList.get(i).getDuration());
             taskEntity.setEpicLinks(taskList.get(i).getEpicLinks());
@@ -83,6 +88,11 @@ public class Converter {
             taskEntity.setName(taskList.get(i).getName());
             taskEntity.setProjectId(taskList.get(i).getProjectId());
             taskEntity.setSectionId(taskList.get(i).getSectionId());
+            taskEntity.setCustomFieldsLink(taskList.get(i).getCustomFieldsLink());
+            taskEntity.setCustomFieldsText(taskList.get(i).getCustomFieldsText());
+            taskEntity.setWorkflowLink(taskList.get(i).getWorkflowLink());
+            taskEntity.setWorkFlowText(taskList.get(i).getWorkFlowText());
+            Log.d(TAG, "fromPayloadTaskToTaskEntityList: " + taskList.get(i).getCustomFieldsText());
             taskEntities.add(taskEntity);
         }
         return taskEntities;
@@ -98,6 +108,8 @@ public class Converter {
             payloadTask.setCreatedAt(taskList.get(i).getCreatedAt());
             payloadTask.setCreatedBy(taskList.get(i).getCreatedBy());
             payloadTask.setPriority(taskList.get(i).getPriority());
+            payloadTask.setSubTaskCount(taskList.get(i).getSubTaskCount());
+            payloadTask.setDoneSubTaskCount(taskList.get(i).getDoneSubTaskCount());
             payloadTask.setDeadlineDate(taskList.get(i).getDeadlineDate());
             payloadTask.setDeadlineEmika(taskList.get(i).getDeadlineEmika());
             payloadTask.setDeadlineTime(taskList.get(i).getDeadlineTime());
@@ -112,6 +124,11 @@ public class Converter {
             payloadTask.setProjectId(taskList.get(i).getProjectId());
             payloadTask.setPlanOrder(String.valueOf(taskList.get(i).getPlanOrder()));
             payloadTask.setSectionId(taskList.get(i).getSectionId());
+            payloadTask.setCustomFieldsLink(taskList.get(i).getCustomFieldsLink());
+            payloadTask.setCustomFieldsText(taskList.get(i).getCustomFieldsText());
+            payloadTask.setWorkflowLink(taskList.get(i).getWorkflowLink());
+            payloadTask.setWorkFlowText(taskList.get(i).getWorkFlowText());
+//            Log.d(TAG, "fromTaskEntityToPayloadTaskList: " + taskList.get(i).getCustomFieldsLink());
             payloadTaskList.add(payloadTask);
         }
         return payloadTaskList;
@@ -126,6 +143,8 @@ public class Converter {
         payloadTask.setProjectId(task.getProjectId());
         payloadTask.setSectionId(task.getSectionId());
         payloadTask.setStatus(task.getStatus());
+        payloadTask.setSubTaskCount(task.getSubTaskCount());
+        payloadTask.setDoneSubTaskCount(task.getDoneSubTaskCount());
         payloadTask.setCreatedBy(task.getCreatedBy());
         payloadTask.setDeadlineDate(task.getDeadlineDate());
         payloadTask.setDeadlineEmika(task.getDeadlineEmika());
@@ -137,6 +156,10 @@ public class Converter {
         payloadTask.setPlanOrder(String.valueOf(task.getPlanOrder()));
         payloadTask.setEpicLinks(task.getEpicLinks());
         payloadTask.setName(task.getName());
+        payloadTask.setCustomFieldsLink(task.getCustomFieldsLink());
+        payloadTask.setCustomFieldsText(task.getCustomFieldsText());
+        payloadTask.setWorkflowLink(task.getWorkflowLink());
+        payloadTask.setWorkFlowText(task.getWorkFlowText());
         return payloadTask;
     }
 
@@ -149,6 +172,8 @@ public class Converter {
         taskEntity.setCreatedBy(task.getCreatedBy());
         taskEntity.setPriority(task.getPriority());
         taskEntity.setStatus(task.getStatus());
+        taskEntity.setSubTaskCount(task.getSubTaskCount());
+        taskEntity.setDoneSubTaskCount(task.getDoneSubTaskCount());
         taskEntity.setDeadlineDate(task.getDeadlineDate());
         taskEntity.setDeadlineEmika(task.getDeadlineEmika());
         taskEntity.setDeadlineTime(task.getDeadlineTime());
@@ -162,6 +187,10 @@ public class Converter {
         taskEntity.setSectionId(task.getSectionId());
         taskEntity.setPlanOrder(Integer.valueOf(task.getPlanOrder()));
         taskEntity.setName(task.getName());
+        taskEntity.setCustomFieldsLink(task.getCustomFieldsLink());
+        taskEntity.setCustomFieldsText(task.getCustomFieldsText());
+        taskEntity.setWorkflowLink(task.getWorkflowLink());
+        taskEntity.setWorkFlowText(task.getWorkFlowText());
         return this.taskEntity;
     }
 
@@ -178,9 +207,11 @@ public class Converter {
             project.setDefaultSectionId(projectEntities.get(i).getDefaultSectionId());
             project.setIsCompanyWide(projectEntities.get(i).getCompanyWide());
             project.setIsPersonal(projectEntities.get(i).getPersonal());
-            project.setMembers(Collections.singletonList(projectEntities.get(i).getMembers()));
+            project.setMembers(projectEntities.get(i).getMembers());
             project.setStatus(projectEntities.get(i).getStatus());
             project.setUpdatedAt(projectEntities.get(i).getUpdatedAt());
+            project.setDescription(projectEntities.get(i).getDescription());
+            project.setActiveFields(projectEntities.get(i).getActiveFields());
             payloadProjects.add(project);
         }
         return payloadProjects;
@@ -199,11 +230,14 @@ public class Converter {
             projectEntity.setDefaultSectionId(projects.get(i).getDefaultSectionId());
             projectEntity.setCompanyWide(projects.get(i).getIsCompanyWide());
             projectEntity.setPersonal(projects.get(i).getIsPersonal());
-            projectEntity.setMembers(String.valueOf(projects.get(i).getMembers().size()));
+            projectEntity.setMembers(projects.get(i).getMembers());
+            projectEntity.setActiveFields(projects.get(i).getActiveFields());
+            projectEntity.setDescription(projects.get(i).getDescription());
             projectEntity.setStatus(projects.get(i).getStatus());
             projectEntity.setUpdatedAt(projects.get(i).getUpdatedAt());
             projectEntities.add(projectEntity);
         }
+//        Log.d(TAG, "fromPayloadProjectToProjectEntityList: " + projects.get(0).getActiveFields().size());
         return projectEntities;
     }
 
@@ -356,40 +390,41 @@ public class Converter {
 
     public List<ActualDurationEntity> fromPayloadListDurationToListDurationEntity(List<PayloadDurationActual> durationActualList) {
         List<ActualDurationEntity> durationEntities = new ArrayList<>();
-        for (int i = 0; i <durationActualList.size() ; i++) {
+        for (int i = 0; i < durationActualList.size(); i++) {
             PayloadDurationActual durationActual = durationActualList.get(i);
-            ActualDurationEntity durationEntity = new ActualDurationEntity(durationActual.getId(),durationActual.getStatus(),
-                    durationActual.getTaskId(), durationActual.getProjectId(),durationActual.getCompanyId(), durationActual.getDate(),
+            ActualDurationEntity durationEntity = new ActualDurationEntity(durationActual.getId(), durationActual.getStatus(),
+                    durationActual.getTaskId(), durationActual.getProjectId(), durationActual.getCompanyId(), durationActual.getDate(),
                     durationActual.getPerson(), durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy());
             durationEntities.add(durationEntity);
         }
         return durationEntities;
     }
+
     public List<PayloadDurationActual> fromEntityListDurationToPayloadListDuration(List<ActualDurationEntity> durationActualList) {
         List<PayloadDurationActual> durationActuals = new ArrayList<>();
-        for (int i = 0; i <durationActualList.size() ; i++) {
+        for (int i = 0; i < durationActualList.size(); i++) {
             ActualDurationEntity durationActual = durationActualList.get(i);
-            PayloadDurationActual payloadDurationActual = new PayloadDurationActual(durationActual.getId(),durationActual.getStatus(),
-                    durationActual.getTaskId(), durationActual.getProjectId(),durationActual.getCompanyId(), durationActual.getDate(),
+            PayloadDurationActual payloadDurationActual = new PayloadDurationActual(durationActual.getId(), durationActual.getStatus(),
+                    durationActual.getTaskId(), durationActual.getProjectId(), durationActual.getCompanyId(), durationActual.getDate(),
                     durationActual.getPerson(), durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy());
-                durationActuals.add(payloadDurationActual);
+            durationActuals.add(payloadDurationActual);
         }
         Log.d(TAG, "fromEntityListDurationToPayloadListDuration: " + durationActuals.size() + " " + durationActualList.size());
         return durationActuals;
     }
 
     public ActualDurationEntity fromPayloadDurationToDurationEntity(PayloadDurationActual durationActual) {
-    ActualDurationEntity actualDurationEntity = new ActualDurationEntity(
-            durationActual.getId(),
-            durationActual.getStatus(),
-            durationActual.getTaskId(),
-            durationActual.getProjectId(),
-            durationActual.getCompanyId(),
-            durationActual.getDate(),
-            durationActual.getPerson(),
-            durationActual.getValue(),
-            durationActual.getCreatedAt(),
-            durationActual.getCreatedBy());
+        ActualDurationEntity actualDurationEntity = new ActualDurationEntity(
+                durationActual.getId(),
+                durationActual.getStatus(),
+                durationActual.getTaskId(),
+                durationActual.getProjectId(),
+                durationActual.getCompanyId(),
+                durationActual.getDate(),
+                durationActual.getPerson(),
+                durationActual.getValue(),
+                durationActual.getCreatedAt(),
+                durationActual.getCreatedBy());
         return actualDurationEntity;
     }
 
@@ -416,6 +451,10 @@ public class Converter {
             payloadTask.setProjectId(taskList.getValue().get(i).getProjectId());
             payloadTask.setPlanOrder(String.valueOf(taskList.getValue().get(i).getPlanOrder()));
             payloadTask.setSectionId(taskList.getValue().get(i).getSectionId());
+            payloadTask.setCustomFieldsLink(taskList.getValue().get(i).getCustomFieldsLink());
+            payloadTask.setCustomFieldsText(taskList.getValue().get(i).getCustomFieldsText());
+            payloadTask.setWorkflowLink(taskList.getValue().get(i).getWorkflowLink());
+            payloadTask.setWorkFlowText(taskList.getValue().get(i).getWorkFlowText());
             payloadTaskList.getValue().add(payloadTask);
         }
         return payloadTaskList;
@@ -425,11 +464,118 @@ public class Converter {
     public ActualDurationEntity frompayload(PayloadDurationActual durationActual) {
         ActualDurationEntity actualDuration = new ActualDurationEntity(
                 durationActual.getId(), durationActual.getStatus(),
-                durationActual.getTaskId(),durationActual.getProjectId(),
+                durationActual.getTaskId(), durationActual.getProjectId(),
                 durationActual.getCompanyId(), durationActual.getDate(), durationActual.getPerson(),
                 durationActual.getValue(), durationActual.getCreatedAt(), durationActual.getCreatedBy()
         );
         return actualDuration;
+    }
+
+    public List<CommentEntity> fromListCommentsToListEntity(List<Comment> comments) {
+        List<CommentEntity> commentList = new ArrayList<>();
+        for (Comment comment : comments) {
+            CommentEntity commentEntity = new CommentEntity(
+                    comment.getId(),
+                    comment.getCompanyId(),
+                    comment.getCreatedAt(),
+                    comment.getCreatedBy(),
+                    comment.getTaskId(),
+                    comment.getText(),
+                    comment.getUpdatedAt()
+            );
+            commentList.add(commentEntity);
+        }
+        return commentList;
+    }
+
+    public List<Comment> fromListCommentsEntityToList(List<CommentEntity> comments) {
+        List<Comment> commentList = new ArrayList<>();
+        for (CommentEntity commentEntity : comments) {
+            Comment comment = new Comment(
+                    commentEntity.getCompanyId(),
+                    commentEntity.getCreatedAt(),
+                    commentEntity.getCreatedBy(),
+                    commentEntity.getId(),
+                    commentEntity.getTaskId(),
+                    commentEntity.getText(),
+                    commentEntity.getUpdatedAt()
+            );
+            commentList.add(comment);
+        }
+        return commentList;
+    }
+
+
+    public CommentEntity fromCommentToCommentEntity(Comment comment){
+        CommentEntity commentEntity = new CommentEntity(
+                comment.getId(),
+                comment.getCompanyId(),
+                comment.getCreatedAt(),
+                comment.getCreatedBy(),
+                comment.getTaskId(),
+                comment.getText(),
+                comment.getUpdatedAt()
+        );
+        return commentEntity;
+    }
+
+    public Comment fromCommentToCommentEntity(CommentEntity commentEntity){
+        Comment comment = new Comment(
+                commentEntity.getCompanyId(),
+                commentEntity.getCreatedAt(),
+                commentEntity.getCreatedBy(),
+                commentEntity.getId(),
+                commentEntity.getTaskId(),
+                commentEntity.getText(),
+                commentEntity.getUpdatedAt()
+        );
+        return comment;
+    }
+
+    public ProjectEntity fromPayloadProjectToProjectEntity(PayloadProject project) {
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setId(project.getId());
+        projectEntity.setName(project.getName());
+        projectEntity.setColor(project.getColor());
+        projectEntity.setCompanyId(project.getCompanyId());
+        projectEntity.setCreatedAt(project.getCreatedAt());
+        projectEntity.setCreatedBy(project.getCreatedBy());
+        projectEntity.setDefaultSectionId(project.getDefaultSectionId());
+        projectEntity.setCompanyWide(project.getIsCompanyWide());
+        projectEntity.setPersonal(project.getIsPersonal());
+        projectEntity.setMembers(project.getMembers());
+        projectEntity.setActiveFields(project.getActiveFields());
+        projectEntity.setDescription(project.getDescription());
+        projectEntity.setStatus(project.getStatus());
+        projectEntity.setUpdatedAt(project.getUpdatedAt());
+
+        return projectEntity;
+    }  public ProjectEntity fromPayloadProjectToProjectEntity(PayloadProjectCreation project) {
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setId(project.getId());
+        projectEntity.setName(project.getName());
+        projectEntity.setColor(project.getColor());
+        projectEntity.setCreatedAt(project.getCreatedAt());
+        projectEntity.setCreatedBy(project.getCreatedBy());
+        projectEntity.setMembers(project.getMembers());
+        projectEntity.setStatus(project.getStatus());
+        projectEntity.setUpdatedAt(project.getUpdatedAt());
+
+        return projectEntity;
+    }
+
+    public SectionEntity fromPayloadSectionToSectionEntity(PayloadSection section) {
+
+        SectionEntity sectionEntity = new SectionEntity(section.getId(), section.getName(), section.getStatus(),
+                    section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
+        return sectionEntity;
+    }
+
+    public PayloadSection fromSectionEntityToPayloadSection(SectionEntity section) {
+
+        PayloadSection sectionPayload = new PayloadSection(section.getId(), section.getName(), section.getStatus(),
+                    section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
+        return sectionPayload;
     }
 }
 

@@ -1,15 +1,15 @@
-package com.emika.app.presentation.adapter.profile.ItemTouchHelper;
+package com.emika.app.presentation.adapter.ItemTouchHelper;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.emika.app.presentation.adapter.calendar.SectionAdapter;
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter;
-import com.emika.app.presentation.adapter.profile.ProfileContactAdapter;
 
-public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
-    private final ProfileContactAdapter mAdapter;
+public class SectionTouchHelperCallback extends ItemTouchHelper.Callback {
+    private final SectionAdapter mAdapter;
 
-    public SimpleItemTouchHelperCallback(ProfileContactAdapter adapter) {
+    public SectionTouchHelperCallback(SectionAdapter adapter) {
         mAdapter = adapter;
     }
 

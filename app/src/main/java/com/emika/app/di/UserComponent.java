@@ -1,6 +1,7 @@
 package com.emika.app.di;
 
 import com.emika.app.domain.repository.auth.CreateUserRepository;
+import com.emika.app.presentation.adapter.calendar.CommentAdapter;
 import com.emika.app.presentation.adapter.calendar.DayInfoTaskAdapter;
 import com.emika.app.presentation.adapter.calendar.EpicLinksAdapter;
 import com.emika.app.presentation.adapter.calendar.ItemAdapter;
@@ -8,6 +9,8 @@ import com.emika.app.presentation.adapter.calendar.ProjectAdapter;
 import com.emika.app.presentation.adapter.calendar.SectionAdapter;
 import com.emika.app.presentation.adapter.calendar.SelectCurrentUserAdapter;
 import com.emika.app.deprecated.ChatAdapterOld;
+import com.emika.app.presentation.ui.calendar.BottomSheetEditSections;
+import com.emika.app.presentation.ui.calendar.BottomSheetProjectAddMember;
 import com.emika.app.presentation.ui.calendar.Cal;
 import com.emika.app.presentation.ui.chat.ChatActivity;
 import com.emika.app.presentation.adapter.chat.QuickAnswerAdapter;
@@ -82,4 +85,7 @@ public interface UserComponent {
     void inject(CalendarActivity calendarActivity);
     void inject(ProfileActivity profile);
     void inject(Cal calendar);
+    void inject(CommentAdapter adapter);
+    void inject(BottomSheetProjectAddMember bottomSheet);
+    void inject(BottomSheetEditSections bottomSheet);
 }

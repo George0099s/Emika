@@ -56,7 +56,7 @@ class BottomSheetCalendarSelectUser : BottomSheetDialogFragment() {
     }
 
     private val members = Observer { members1: List<PayloadShortMember?>? ->
-        adapter = SelectCurrentUserAdapter(members1, context, boardViewModel, addTaskListViewModel, taskInfoViewModel, this)
+        adapter = SelectCurrentUserAdapter(members1, context, boardViewModel, addTaskListViewModel, taskInfoViewModel, this, null)
         memberRecycler!!.adapter = adapter
         invite!!.visibility = View.VISIBLE
     }

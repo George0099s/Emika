@@ -66,7 +66,29 @@
                     card_view:layout_constraintStart_toStartOf="@+id/text"
                     card_view:layout_constraintTop_toBottomOf="@+id/text"
                     tools:text="urgent" />
-
+                <LinearLayout
+                    android:id="@+id/calendar_task_sub_tasks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:gravity="center"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/ic_subtask"/>
+                    <TextView
+                        android:id="@+id/calendar_task_sub_tasks_count"
+                        android:layout_width="wrap_content"
+                        style="@style/TaskParams"
+                        android:gravity="center"
+                        android:textColor="@color/grey"
+                        android:layout_height="wrap_content"
+                        android:text="1/1"/>
+                </LinearLayout>
                 <TextView
                     android:id="@+id/calendar_task_deadline"
                     style="@style/TaskParams"

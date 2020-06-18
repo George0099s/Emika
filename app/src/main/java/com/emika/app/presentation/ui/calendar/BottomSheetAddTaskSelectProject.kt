@@ -1,12 +1,14 @@
 package com.emika.app.presentation.ui.calendar
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,13 +17,16 @@ import com.emika.app.R
 import com.emika.app.data.EmikaApplication
 import com.emika.app.data.network.callback.calendar.ProjectsCallback
 import com.emika.app.data.network.pojo.project.PayloadProject
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation
 import com.emika.app.data.network.pojo.project.PayloadSection
+import com.emika.app.data.network.pojo.project.PayloadSectionCreation
 import com.emika.app.data.network.pojo.task.PayloadTask
 import com.emika.app.di.Project
 import com.emika.app.di.ProjectsDi
 import com.emika.app.domain.repository.calendar.CalendarRepository
 import com.emika.app.presentation.adapter.calendar.ProjectAdapter
 import com.emika.app.presentation.adapter.calendar.SectionAdapter
+import com.emika.app.presentation.ui.profile.AddContactDialogFragment
 import com.emika.app.presentation.utils.Converter
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel
@@ -49,12 +54,12 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
     private var converter: Converter? = null
     private var task: PayloadTask? = null
     private var repository: CalendarRepository? = null
-
+    private lateinit var addProject: TextView
     @Inject
     lateinit var projectsDagger: ProjectsDi
     private val setProjects = Observer { projects: List<PayloadProject?> ->
         Log.d(TAG, ":  projects bootm sheet" + projects.size)
-        projectAdapter = ProjectAdapter(projects, mViewModel, task)
+        projectAdapter = ProjectAdapter(projects, mViewModel, task, null)
         projectRecycler!!.adapter = projectAdapter
     }
     private val setSection = Observer { sections: List<PayloadSection> ->
@@ -67,7 +72,7 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
             if (projectDi.projectId != null) if (projectDi.projectId == sections[i].projectId) sectionList.add(sections[i])
         }
         mViewModel!!.projectListMutableLiveData
-        sectionAdapter = SectionAdapter(sectionList, mViewModel, task)
+        sectionAdapter = SectionAdapter(sectionList, null, context!!)
         sectionRecycler!!.adapter = sectionAdapter
     }
 
@@ -85,6 +90,8 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
         task = arguments!!.getParcelable("task")
         token = EmikaApplication.instance.sharedPreferences?.getString("token", "")
         repository = CalendarRepository(token)
+        addProject = view.findViewById(R.id.add_project)
+        addProject.setOnClickListener{createProject()}
         //        repository.downloadSections(this);
 //        repository.downloadAllProject(this);
         projectRecycler = view.findViewById(R.id.recycler_add_task_project)
@@ -94,26 +101,17 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
         sectionRecycler!!.setHasFixedSize(true)
         sectionRecycler!!.layoutManager = LinearLayoutManager(context)
         selectProject = view.findViewById(R.id.add_task_add_project_btn)
-        selectProject!!.setOnClickListener { view: View -> addProject(view) }
+        selectProject!!.setOnClickListener { view: View -> addProject() }
         converter = Converter()
-        //        projectAdapter = new ProjectAdapter(projectsDagger.getProjects(), mViewModel, task);
-//        projectRecycler.setAdapter(projectAdapter);
-//
-//        List<PayloadSection> sectionList = new ArrayList<>();
-//        if (projectsDagger.getSections().size() == 0) {
-//            projectDi.setProjectSectionId(null);
-//            projectDi.setProjectSectionName(null);
-//        }
-//
-//        for (int i = 0; i < projectsDagger.getSections().size(); i++) {
-//            if (projectDi.getProjectId().equals(projectsDagger.getSections().get(i).getProjectId()))
-//                sectionList.add(projectsDagger.getSections().get(i));
-//        }
-//        sectionAdapter = new SectionAdapter(sectionList, mViewModel,  task);
-//        sectionRecycler.setAdapter(sectionAdapter);
     }
 
-    private fun addProject(view: View) {
+    private fun createProject(){
+        val addContact = AddProjectDialogFragment()
+        addContact.isCancelable = true
+        addContact.show(parentFragmentManager, "createProjectDialog")
+    }
+
+    private fun addProject() {
         if (addTaskListViewModel != null) {
             addTaskListViewModel!!.epicLinksList = ArrayList()
             addTaskListViewModel!!.epicLinksMutableLiveData
@@ -132,6 +130,11 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
         dismiss()
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        addProject()
+        super.onDismiss(dialog)
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mViewModel = ViewModelProviders.of(this, TokenViewModelFactory(token)).get(BottomSheetAddTaskSelectProjectViewModel::class.java)
@@ -140,8 +143,12 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
     }
 
     override fun getProjects(projects: List<PayloadProject>) {
-        projectAdapter = ProjectAdapter(projects, mViewModel, task)
+        projectAdapter = ProjectAdapter(projects, mViewModel, task, null)
         projectRecycler!!.adapter = projectAdapter
+    }
+
+    override fun getCreatedProject(payload: PayloadProjectCreation?) {
+        TODO("Not yet implemented")
     }
 
     override fun getSections(sections: List<PayloadSection>) {
@@ -158,8 +165,11 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
         }
 
         mViewModel!!.projectListMutableLiveData
-        sectionAdapter = SectionAdapter(sectionList, mViewModel, task)
+        sectionAdapter = SectionAdapter(sectionList, null, context!!)
         sectionRecycler!!.adapter = sectionAdapter
+    }
+
+    override fun onSectionCreated(payload: PayloadSection?) {
     }
 
     companion object {
@@ -168,6 +178,7 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
             return BottomSheetAddTaskSelectProject()
         }
     }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetStyleDialogTheme)
 
 }

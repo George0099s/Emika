@@ -1,5 +1,7 @@
 package com.emika.app.data.db.dao;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,8 +18,10 @@ import io.reactivex.Maybe;
 
 @Dao
 public interface SectionDao {
-    @Query("SELECT * FROM Section")
+    @Query("SELECT * FROM Section WHERE status != 'deleted'")
     Maybe<List<SectionEntity>> getAllSection();
+    @Query("SELECT * FROM Section WHERE projectId = :projectId AND status != 'deleted'")
+    LiveData<List<SectionEntity>> getAllSectionsByProjectIdMutableLiveData(String projectId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<SectionEntity> sectionEntities);

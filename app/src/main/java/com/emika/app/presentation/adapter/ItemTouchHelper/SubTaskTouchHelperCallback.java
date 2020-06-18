@@ -1,4 +1,4 @@
-package com.emika.app.presentation.adapter.profile.ItemTouchHelper;
+package com.emika.app.presentation.adapter.ItemTouchHelper;
 
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;

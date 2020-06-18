@@ -7,9 +7,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.emika.app.data.EmikaApplication;
+import com.emika.app.data.db.callback.calendar.CommentDbCallback;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
 import com.emika.app.data.db.callback.calendar.MemberDbCallback;
 import com.emika.app.data.db.callback.calendar.SubTaskCallback;
+import com.emika.app.data.db.entity.CommentEntity;
 import com.emika.app.data.db.entity.EpicLinksEntity;
 import com.emika.app.data.db.entity.MemberEntity;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
@@ -21,16 +23,19 @@ import com.emika.app.di.Assignee;
 import com.emika.app.di.EpicLinks;
 import com.emika.app.di.Project;
 import com.emika.app.di.ProjectsDi;
+import com.emika.app.di.User;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
 import com.emika.app.domain.repository.calendar.TaskInfoRepository;
 import com.emika.app.presentation.utils.Converter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLinksDbCallback, SubTaskCallback, MemberDbCallback {
+public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLinksDbCallback, SubTaskCallback, MemberDbCallback, CommentDbCallback {
     private MutableLiveData<PayloadTask> taskMutableLiveData;
 
     public static final Creator<TaskInfoViewModel> CREATOR = new Creator<TaskInfoViewModel>() {
@@ -55,6 +60,11 @@ public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLin
     private MutableLiveData<Project> projectMutableLiveData;
     private MutableLiveData<List<PayloadSection>> sectionListMutableLiveData;
     private MutableLiveData<List<EpicLinksEntity>> epicLinksMutableLiveData;
+
+    public List<MemberEntity> getMemberEntities() {
+        return memberEntities;
+    }
+
     private List<MemberEntity> memberEntities;
     private List<String> taskEpicLinks;
 
@@ -80,6 +90,8 @@ public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLin
     ProjectsDi projectsDagger;
     @Inject
     EpicLinks epicLinksDi;
+    @Inject
+    User user;
     public TaskInfoViewModel(String token) {
         this.token = token;
         EmikaApplication.instance.getComponent().inject(this);
@@ -107,7 +119,8 @@ public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLin
         return subTaskMutableLiveData;
     }
 
-    public MutableLiveData<List<Comment>> getCommentsMutableLiveData() {
+    public MutableLiveData<List<Comment>> getCommentsMutableLiveData(String taskId) {
+        repository.getDbComments(this, taskId);
         return commentsMutableLiveData;
     }
 
@@ -187,7 +200,7 @@ public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLin
     @Override
     public void onCommentListLoaded(List<Comment> comments) {
         commentsMutableLiveData.postValue(comments);
-//        repository.insertAllComments(comments);
+        repository.insertAllComments(converter.fromListCommentsToListEntity(comments));
     }
 
     @Override
@@ -224,6 +237,15 @@ public class TaskInfoViewModel extends ViewModel implements  Parcelable, EpicLin
         dest.writeStringList(taskEpicLinks);
         dest.writeString(token);
         dest.writeParcelable(assignee, flags);
+    }
+
+    @Override
+    public void onCommentsLoaded(@NotNull List<CommentEntity> comments) {
+        commentsMutableLiveData.postValue(converter.fromListCommentsEntityToList(comments));
+    }
+
+    public void updateTaskOrder(@NotNull List<String> list) {
+        repository.updateTasksOrder(list);
     }
 }
 

@@ -27,7 +27,7 @@ import com.emika.app.data.db.entity.UserEntity;
 
 @Database(entities = {UserEntity.class, TokenEntity.class, TaskEntity.class,
         MemberEntity.class, ProjectEntity.class, EpicLinksEntity.class,
-        MessageEntity.class, SectionEntity.class, ActualDurationEntity.class, CommentEntity.class}, version = 13, exportSchema = false)
+        MessageEntity.class, SectionEntity.class, ActualDurationEntity.class, CommentEntity.class}, version = 16, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
     public abstract TokenDao tokenDao();

@@ -12,7 +12,9 @@ import com.emika.app.data.db.entity.ProjectEntity;
 import com.emika.app.data.db.entity.SectionEntity;
 import com.emika.app.data.network.callback.calendar.ProjectsCallback;
 import com.emika.app.data.network.pojo.project.PayloadProject;
+import com.emika.app.data.network.pojo.project.PayloadProjectCreation;
 import com.emika.app.data.network.pojo.project.PayloadSection;
+import com.emika.app.data.network.pojo.project.PayloadSectionCreation;
 import com.emika.app.di.Project;
 import com.emika.app.di.ProjectsDi;
 import com.emika.app.domain.repository.calendar.CalendarRepository;
@@ -80,6 +82,17 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
         projectsDagger.setSections(sections);
                 sectionListMutableLiveData.postValue(sections);
     }
+
+    @Override
+    public void getCreatedProject(PayloadProjectCreation payload) {
+
+    }
+
+    @Override
+    public void onSectionCreated(PayloadSection payload) {
+
+    }
+
 
     public void getSections(){
         repository.getAllSections(this);

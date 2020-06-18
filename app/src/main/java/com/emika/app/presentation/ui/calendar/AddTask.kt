@@ -274,7 +274,7 @@ class AddTask : DialogFragment() {
             subTaskAdapter!!.notifyItemInserted(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.requestFocus(subTaskAdapter!!.itemCount - 1)
-        } else if (!subTaskAdapter!!.taskList[subTaskAdapter!!.itemCount - 1].name.isEmpty()) {
+        } else if (!subTaskAdapter!!.taskList[subTaskAdapter!!.itemCount - 1]!!.name.isEmpty()) {
             subTaskAdapter!!.addSubTask(subTask)
             subTaskAdapter!!.notifyItemInserted(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(subTaskAdapter!!.itemCount)
@@ -355,7 +355,7 @@ class AddTask : DialogFragment() {
             if (task!!.duration == null) task!!.duration = 60
             task!!.epicLinks = epicLinksId
             for (i in subTaskAdapter!!.taskList.indices) {
-                subTasks.add(subTaskAdapter!!.taskList[i].name)
+                subTasks.add(subTaskAdapter!!.taskList[i]!!.name)
             }
             task!!.subTaskList = subTasks
             if (task!!.planDate == null) {

@@ -5,8 +5,10 @@ import android.util.Log;
 
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
+import com.emika.app.data.db.callback.calendar.CommentDbCallback;
 import com.emika.app.data.db.dao.TaskDao;
 import com.emika.app.data.db.dao.TaskTransactionDao;
+import com.emika.app.data.db.entity.CommentEntity;
 import com.emika.app.data.db.entity.TaskEntity;
 import com.emika.app.data.db.callback.calendar.TaskDbCallback;
 import com.emika.app.presentation.utils.Converter;
@@ -155,6 +157,79 @@ public class TaskDbManager {
     private Boolean updateDBTask(TaskEntity task) {
         taskDao.update(task);
         return true;
+    }
+
+    public void insertAllComments(List<CommentEntity> comments) {
+        Completable.fromAction(() -> db.commentDao()
+                .insert(comments))
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onTasksLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+
+    public void getDbComments(CommentDbCallback callback, String taskId) {
+        db.commentDao().getComments(taskId)
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io())
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribe((io.reactivex.functions.Consumer<? super List<CommentEntity>>) callback::onCommentsLoaded);
+    }
+
+    public void insertComment(CommentEntity comment) {
+        Completable.fromAction(() -> db.commentDao()
+                .insert(comment))
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onTasksLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
+    }
+
+    public void deleteComment(CommentEntity comment) {
+        Completable.fromAction(() -> db.commentDao()
+                .delete(comment))
+                .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+                .subscribeOn(io.reactivex.schedulers.Schedulers.io()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+//                callback.onTasksLoaded(null);
+                Log.d(TAG, "onError: "+ e.toString());
+            }
+        });
     }
 
 

@@ -60,4 +60,22 @@
     <string name="actual_spent_time">Actual Spent Time</string>
     <string name="create_task">Create Task</string>
     <string name="comments">Comments</string>
+    <string name="no_comments_yet">No comments yet</string>
+    <string name="add_comment">Add comment</string>
+    <string name="comment">Comment</string>
+    <string name="delete">Delete</string>
+    <string name="add_project">Add Project</string>
+    <string name="edit_sections">Edit Sections</string>
+    <string name="create_new_project">Create new project</string>
+    <string name="project_name">Project name</string>
+    <string name="task_field_settings">Task Field Settings</string>
+    <string name="sections">Sections</string>
+    <string name="epic_links">Epic Links</string>
+    <string name="members">Members</string>
+    <string name="type_project_name">Type project name</string>
+    <string name="notes">Notes</string>
+    <string name="select_project_members">Select Project Members</string>
+    <string name="add_new_section">Add New Section</string>
+    <string name="set_as_default">Set as Default</string>
+    <string name="edit_section">Edit Section</string>
 </resources>

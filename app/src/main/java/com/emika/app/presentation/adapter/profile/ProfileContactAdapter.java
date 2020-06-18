@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.emika.app.R;
 import com.emika.app.data.network.pojo.user.Contact;
-import com.emika.app.presentation.adapter.profile.ItemTouchHelper.ItemTouchHelperAdapter;
+import com.emika.app.presentation.adapter.ItemTouchHelper.ItemTouchHelperAdapter;
 
 import java.util.Collections;
 import java.util.List;

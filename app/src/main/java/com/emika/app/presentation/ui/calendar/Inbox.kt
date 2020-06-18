@@ -69,7 +69,6 @@ class Inbox : DialogFragment() {
         view.inbox_recycler.setHasFixedSize(false)
         view.inbox_recycler.addItemDecoration(decor)
         view.inbox_recycler.layoutManager = LinearLayoutManager(context)
-        view.add_task_back.setOnClickListener(this::onBackPressed)
         date = arguments!!.getString("date", null)
         viewModel!!.setContext(context)
         viewModel!!.getAllDbTask()
@@ -79,9 +78,7 @@ class Inbox : DialogFragment() {
         view.inbox_add.setOnClickListener(this::addTasks)
     }
 
-    fun onBackPressed(v: View) {
-        dismiss()
-    }
+
 
     private val getProjectLiveData = Observer<List<ProjectEntity>> { projects ->
         this.projects = projects

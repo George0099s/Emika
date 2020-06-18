@@ -5,8 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/calendarBackground"
-    android:fitsSystemWindows="true">
+    android:background="@color/calendarBackground">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/main_toolbar"
         android:layout_width="match_parent"
@@ -94,16 +93,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:overScrollMode="ifContentScrolls"
         android:backgroundTint="#35A666"
-        android:src="@drawable/custom_fab_add_task"
-        android:translationZ="4dp"
+        app:srcCompat="@drawable/custom_fab_add_task"
+        style="@style/Widget.Design.FloatingActionButton"
         app:fabSize="auto"
+        app:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="@+id/select_current_user"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/select_current_user"
         />
-
     <ImageButton
         android:id="@+id/left_scroll_to_current_date"
         android:layout_width="40dp"
