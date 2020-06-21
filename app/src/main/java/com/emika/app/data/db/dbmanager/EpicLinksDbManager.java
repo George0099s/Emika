@@ -3,6 +3,8 @@ package com.emika.app.data.db.dbmanager;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
 import com.emika.app.data.db.callback.calendar.EpicLinksDbCallback;
@@ -57,6 +59,48 @@ public class EpicLinksDbManager {
 
     public void deleteAllEpicLinks() {
         Completable.fromAction(() -> db.epicLinksDao().deleteAll()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: deleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e.toString());
+            }
+        });
+    }
+
+    public LiveData<List<EpicLinksEntity>> getEpicLinksDbLiveData(String projectId) {
+        return epicLinksDao.getLiveDataEpicLinksByProjectId(projectId);
+    }
+
+    public void updateEpicLink(EpicLinksEntity epicLink) {
+        Completable.fromAction(() -> db.epicLinksDao().update(epicLink)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: deleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e.toString());
+            }
+        });
+    }
+
+    public void insertEpicLink(EpicLinksEntity epicLink) {
+        Completable.fromAction(() -> db.epicLinksDao().insert(epicLink)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
 

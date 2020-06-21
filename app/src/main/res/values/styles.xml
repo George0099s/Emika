@@ -165,8 +165,8 @@
     <item name="android:windowIsFloating">false</item>
     </style>
 
-    <style name="FullScreenDialogStyle" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowNoTitle">true</item>
+    <style name="FullScreenDialogStyle" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowNoTitle">false</item>
         <item name="colorPrimaryDark">@color/addTaskBackground</item>
         <item name="colorPrimary">@color/addTaskBackground</item>
 
@@ -176,7 +176,7 @@
         <item name="android:windowIsFloating">false</item>
 
         <!-- This is important! Don't forget to set window background -->
-        <item name="android:windowBackground">@color/addTaskBackground</item>
+        <item name="android:windowBackground">@color/white</item>
         <item name="android:windowSoftInputMode">stateAlwaysVisible|adjustResize</item>
         <item name="android:windowTranslucentStatus">false</item>
 

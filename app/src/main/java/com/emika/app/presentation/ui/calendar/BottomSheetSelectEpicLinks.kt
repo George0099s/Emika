@@ -38,7 +38,7 @@ class BottomSheetSelectEpicLinks : BottomSheetDialogFragment() {
     private var addEpicLinks: Button? = null
     private var task: PayloadTask? = null
     private val getEpicLinks = Observer { epicLinks: List<PayloadEpicLinks> ->
-        adapter = EpicLinksAdapter(epicLinks, context!!, addTaskListViewModel, taskInfoViewModel)
+        adapter = EpicLinksAdapter(epicLinks, context!!, addTaskListViewModel, taskInfoViewModel, null)
         epicLinksRecycler!!.adapter = adapter
     }
 

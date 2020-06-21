@@ -15,7 +15,7 @@
             android:id="@+id/textView29"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="16dp"
             android:text="Edit Project"
             android:textColor="#424242"
             android:textSize="28sp"
@@ -27,15 +27,15 @@
             android:id="@+id/save_proj"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
             android:background="@drawable/ripple_create_task"
             android:paddingHorizontal="12dp"
             android:text="Save"
             android:textColor="@color/green"
             android:textSize="28sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/textView29"
             app:layout_constraintEnd_toEndOf="@+id/linearLayout17"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/textView29" />
 
 
         <LinearLayout
@@ -61,6 +61,7 @@
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:maxLines="1"
+                android:textColor="@color/mainTextColor"
                 android:textColorHint="@color/hint_text"
                 android:textSize="18sp"
                 app:layout_constraintTop_toBottomOf="@+id/edit_project_name"
@@ -108,8 +109,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+
                 android:drawableStart="@drawable/ic_deadline_edit_project"
                 android:drawablePadding="10dp"
+                android:ellipsize="none"
+                android:hapticFeedbackEnabled="true"
+                android:splitTrack="false"
                 android:text="@string/deadline_string"
                 android:theme="@style/SwitchGreen" />
 
@@ -150,7 +155,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:drawableStart="@drawable/ic_epic_links_edit_project"
+                android:drawableStart="@drawable/ic_epic_links_grey"
+                android:drawableTint="@color/black"
                 android:drawablePadding="10dp"
                 android:text="@string/epic_links"
                 android:theme="@style/SwitchGreen" />
@@ -184,7 +190,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:drawableStart="@drawable/ic_members_grey"
-                    android:drawablePadding="10dp"
+                    android:drawablePadding="7dp"
                     android:text="@string/members"
                     android:textColor="@color/mainTextColor"
                     android:theme="@style/SwitchGreen" />
@@ -198,7 +204,7 @@
                     android:drawablePadding="10dp"
                     android:gravity="end"
                     android:text="@string/members"
-                    android:textColor="@color/mainTextColor"
+                    android:textColor="@color/grey"
                     android:theme="@style/SwitchGreen" />
             </LinearLayout>
 

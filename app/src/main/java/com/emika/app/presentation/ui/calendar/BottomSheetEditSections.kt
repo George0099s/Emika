@@ -4,43 +4,36 @@ import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
 import com.emika.app.R
 import com.emika.app.data.EmikaApplication
 import com.emika.app.data.db.entity.SectionEntity
 import com.emika.app.data.network.pojo.project.PayloadProject
 import com.emika.app.data.network.pojo.project.PayloadSection
-import com.emika.app.data.network.pojo.project.PayloadSectionCreation
 import com.emika.app.di.ProjectsDi
 import com.emika.app.presentation.adapter.ItemTouchHelper.SectionTouchHelperCallback
-import com.emika.app.presentation.adapter.ItemTouchHelper.SubTaskTouchHelperCallback
 import com.emika.app.presentation.adapter.calendar.SectionAdapter
 import com.emika.app.presentation.utils.Converter
 import com.emika.app.presentation.viewmodel.calendar.AddProjectViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import javax.inject.Inject
-import kotlin.text.Typography.section
 
 /**
  * A simple [Fragment] subclass.
  */
-class BottomSheetEditSections : BottomSheetDialogFragment() {
+class BottomSheetEditSections : DialogFragment() {
     @Inject
     lateinit var sectionDi: ProjectsDi
     private lateinit var adapter: SectionAdapter
@@ -51,7 +44,7 @@ class BottomSheetEditSections : BottomSheetDialogFragment() {
     private val converter = Converter()
     private var sections: MutableList<PayloadSection> = arrayListOf()
 
-    init{
+    init {
         EmikaApplication.instance.component?.inject(this)
     }
 
@@ -62,6 +55,7 @@ class BottomSheetEditSections : BottomSheetDialogFragment() {
         // Inflate the layout for this fragment
 
         val view = inflater.inflate(R.layout.fragment_bottom_sheet_edit_sections, container, false)
+        dialog!!.window!!.statusBarColor = resources.getColor(R.color.green)
         initView(view)
         return view
     }
@@ -74,20 +68,25 @@ class BottomSheetEditSections : BottomSheetDialogFragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
         }
-
-
+        adapter = SectionAdapter(ArrayList(), viewModel, context!!)
+        recycler.adapter = adapter
+        val callback: ItemTouchHelper.Callback = SectionTouchHelperCallback(adapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(recycler)
 
         addSection = view.findViewById(R.id.add_section_btn)
         addSection.setOnClickListener {
-            if (addSectionText.text.isNotEmpty())
-                createSection()
-            else {
-                addSectionText.requestFocus()
-                addSectionText.error = "missing section name"
-            }
-
+            createSection()
         }
         addSectionText = view.findViewById(R.id.bottom_sheet_add_section)
+        addSectionText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                createSection()
+                true
+            } else false
+        }
+
+
         addSectionText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(ed: Editable?) {
                 addSection.isEnabled = ed!!.isNotEmpty()
@@ -103,24 +102,30 @@ class BottomSheetEditSections : BottomSheetDialogFragment() {
         })
     }
 
-    private fun getSections() = Observer<List<SectionEntity>>{
-        adapter = SectionAdapter(converter.fromListEntitySectionToPayloadSection(it), viewModel, context!!)
-        recycler.adapter = adapter
-        val callback: ItemTouchHelper.Callback = SectionTouchHelperCallback(adapter)
-        val touchHelper = ItemTouchHelper(callback)
-        touchHelper.attachToRecyclerView(recycler)
+    private fun getSections() = Observer<List<SectionEntity>> {
+        adapter.setList(converter.fromListEntitySectionToPayloadSection(it))
+        adapter.notifyDataSetChanged()
     }
 
     private fun createSection() {
-        viewModel.createSection(addSectionText.text.toString(), "active", "0", project.id)
-//        adapter.sections.add(viewModel.section)
-//        adapter.notifyDataSetChanged()
-        addSectionText.setText("")
-    }
+        if (addSectionText.text.isNotEmpty()) {
+            viewModel.createSection(addSectionText.text.toString(), "active", "0", project.id)
+            addSectionText.setText("")
+        } else {
+            addSectionText.requestFocus()
+            addSectionText.error = "missing section name"
+        }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetStyleDialogTheme)
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        dialog!!.window!!.setWindowAnimations(R.style.DialogAnimation)
     }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.FullScreenDialogStyle)
+    }
+
 }

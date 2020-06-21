@@ -30,7 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Converter {
@@ -314,6 +313,19 @@ public class Converter {
         return epicLinksEntities;
     }
 
+    public EpicLinksEntity fromPayloadEpicLinkToEpicLinkEntity(PayloadEpicLinks payloadEpicLink) {
+        EpicLinksEntity epicLinksEntity = new EpicLinksEntity();
+        epicLinksEntity.setId(payloadEpicLink.getId());
+        epicLinksEntity.setProjectId(payloadEpicLink.getProjectId());
+        epicLinksEntity.setCreatedAt(payloadEpicLink.getCreatedAt());
+        epicLinksEntity.setEmoji(payloadEpicLink.getEmoji());
+        epicLinksEntity.setName(payloadEpicLink.getName());
+        epicLinksEntity.setStatus(payloadEpicLink.getStatus());
+        epicLinksEntity.setUpdatedAt(payloadEpicLink.getUpdatedAt());
+        epicLinksEntity.setOrder(payloadEpicLink.getOrder());
+        return epicLinksEntity;
+    }
+
     public List<PayloadEpicLinks> fromEpicLinksEntityToPayloadEpicLinks(List<EpicLinksEntity> epicLinksEntityList) {
         payloadEpicLinks = new ArrayList<>();
         for (int i = 0; i < epicLinksEntityList.size(); i++) {
@@ -506,7 +518,7 @@ public class Converter {
     }
 
 
-    public CommentEntity fromCommentToCommentEntity(Comment comment){
+    public CommentEntity fromCommentToCommentEntity(Comment comment) {
         CommentEntity commentEntity = new CommentEntity(
                 comment.getId(),
                 comment.getCompanyId(),
@@ -519,7 +531,7 @@ public class Converter {
         return commentEntity;
     }
 
-    public Comment fromCommentToCommentEntity(CommentEntity commentEntity){
+    public Comment fromCommentToCommentEntity(CommentEntity commentEntity) {
         Comment comment = new Comment(
                 commentEntity.getCompanyId(),
                 commentEntity.getCreatedAt(),
@@ -550,7 +562,9 @@ public class Converter {
         projectEntity.setUpdatedAt(project.getUpdatedAt());
 
         return projectEntity;
-    }  public ProjectEntity fromPayloadProjectToProjectEntity(PayloadProjectCreation project) {
+    }
+
+    public ProjectEntity fromPayloadProjectToProjectEntity(PayloadProjectCreation project) {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setId(project.getId());
         projectEntity.setName(project.getName());
@@ -567,14 +581,14 @@ public class Converter {
     public SectionEntity fromPayloadSectionToSectionEntity(PayloadSection section) {
 
         SectionEntity sectionEntity = new SectionEntity(section.getId(), section.getName(), section.getStatus(),
-                    section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
+                section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
         return sectionEntity;
     }
 
     public PayloadSection fromSectionEntityToPayloadSection(SectionEntity section) {
 
         PayloadSection sectionPayload = new PayloadSection(section.getId(), section.getName(), section.getStatus(),
-                    section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
+                section.getOrder(), section.getProjectId(), section.getCompanyId(), section.getUpdatedAt(), section.getCreatedAt());
         return sectionPayload;
     }
 }

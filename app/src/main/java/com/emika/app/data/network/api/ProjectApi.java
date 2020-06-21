@@ -1,5 +1,7 @@
 package com.emika.app.data.network.api;
 
+import com.emika.app.data.network.pojo.epiclinks.ModelEpicLinkCreation;
+import com.emika.app.data.network.pojo.epiclinks.ModelEpicLinks;
 import com.emika.app.data.network.pojo.project.ModelProject;
 import com.emika.app.data.network.pojo.project.ModelSection;
 import com.emika.app.data.network.pojo.project.ProjectCreation;
@@ -39,9 +41,15 @@ public interface ProjectApi {
                                         @Field("name") String sectionName,
                                         @Field("status") String status,
                                         @Field("order") String order,
-                                        @Field("project_id") String projectId
+                                        @Field("project_id") String projectId);
+    @FormUrlEncoded
+    @POST("/public_api/projects/epic_links/create")
+    Call<ModelEpicLinkCreation> createEpicLink(@Query("token") String token,
+                                        @Field("name") String sectionName,
+                                        @Field("status") String status,
+                                        @Field("order") String order,
+                                        @Field("project_id") String projectId);
 
-    );
 
     @FormUrlEncoded
     @POST("/public_api/projects/{project_id}/update")
@@ -66,9 +74,25 @@ public interface ProjectApi {
             @Field("project_id") String projectId);
 
     @FormUrlEncoded
+    @POST("/public_api/projects/epic_links/{epic_link_id}/update")
+    Call<ModelEpicLinks> updateEpicLink(
+            @Path("epic_link_id") String sectionId,
+            @Query("token") String token,
+            @Field("name") String name,
+            @Field("status") String status,
+            @Field("order") String order,
+            @Field("project_id") String projectId);
+
+    @FormUrlEncoded
     @POST("/public_api/projects/sections/update_order")
     Call<SectionCreation> updateSectionsOrder(
             @Query("token") String token,
             @Field("sections") JSONArray orders);
+
+    @FormUrlEncoded
+    @POST("/public_api/projects/epic_links/update_order")
+    Call<ModelEpicLinks> updateEpicLinksOrder(
+            @Query("token") String token,
+            @Field("epic_links") JSONArray orders);
 
 }

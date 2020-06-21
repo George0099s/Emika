@@ -1,5 +1,6 @@
 package com.emika.app.presentation.adapter.calendar;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,12 +38,14 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     private EmikaApplication emikaApplication = EmikaApplication.instance;
     private PayloadTask task;
     private FragmentManager fragmentManager;
-    public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task, FragmentManager fragmentManager) {
+    private Context context;
+    public ProjectAdapter(List<PayloadProject> projects, BottomSheetAddTaskSelectProjectViewModel viewModel, PayloadTask task, FragmentManager fragmentManager, Context context) {
         emikaApplication.getComponent().inject(this);
         this.projects = projects;
         this.viewModel = viewModel;
         this.task = task;
         this.fragmentManager = fragmentManager;
+        this.context = context;
     }
 
 
@@ -81,7 +84,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                 mySheetDialog.setArguments(bundle);
                 mySheetDialog.show(fragmentManager, "modalSheetDialog");
             });
-
+            holder.memberCount.setBackground(null);
+            holder.memberCount.setTextColor(context.getResources().getColor(R.color.mainTextColor));
         }
         if (project.getIsPersonal() != null)
         if (project.getIsPersonal())
@@ -95,6 +99,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
     public int getItemCount() {
         return projects.size();
     }
+
 
     public class ProjectViewHolder extends RecyclerView.ViewHolder {
         TextView memberCount, projectName;

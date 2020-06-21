@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface EpicLinksCallback {
     void onEpicLinksDownloaded(List<PayloadEpicLinks> epicLinks);
+    void onEpicLinkCreated(PayloadEpicLinks epicLink);
 }

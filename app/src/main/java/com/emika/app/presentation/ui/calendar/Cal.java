@@ -31,6 +31,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -162,7 +163,6 @@ public class Cal extends AppCompatActivity {
             Glide.with(this).load(currentAssignee.getPictureUrl()).apply(RequestOptions.circleCropTransform()).into(fabImg);
 
         }
-
         else {
             Glide.with(this).load("https://api.emika.ai/public_api/common/files/default").apply(RequestOptions.circleCropTransform()).into(fabImg);
         }
@@ -758,11 +758,21 @@ public class Cal extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
         Glide.with(this).asGif().load(R.drawable.emika_gif).apply(RequestOptions.circleCropTransform()).into((ImageView) findViewById(R.id.chat));
         findViewById(R.id.chat).setOnClickListener(v ->{
+            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                return;
+            } else {
             socket.emit("server_read_messages", tokenJson);
             startActivity(new Intent(this, ChatActivity.class));
+            }
+            mLastClickTime = SystemClock.elapsedRealtime();
         });
         findViewById(R.id.profile).setOnClickListener(v ->{
+            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                return;
+            } else {
             startActivity(new Intent(this, ProfileActivity.class));
+            }
+            mLastClickTime = SystemClock.elapsedRealtime();
         });
         initViews();
     }
@@ -1098,7 +1108,8 @@ public class Cal extends AppCompatActivity {
         listAdapter.setmLayoutId(R.layout.column_item);
         listAdapter.setmGrabHandleId(R.id.item_layout);
         final View header = View.inflate(this, R.layout.column_header, null);
-        LinearHourCounterView estimatedTimeCounter = header.findViewById(R.id.hour_counter_estimated);
+//        LinearHourCounterView estimatedTimeCounter = header.findViewById(R.id.hour_counter_estimated);
+        ProgressBar estimatedTimeCounter = header.findViewById(R.id.hour_counter_estimated);
 
 //        header.setOnClickListener(v -> {
 //            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {

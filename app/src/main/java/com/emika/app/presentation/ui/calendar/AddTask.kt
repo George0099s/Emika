@@ -15,6 +15,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -30,6 +31,7 @@ import com.emika.app.di.Assignee
 import com.emika.app.di.Project
 import com.emika.app.di.ProjectsDi
 import com.emika.app.features.customtimepickerdialog.CustomTimePickerDialog
+import com.emika.app.presentation.adapter.ItemTouchHelper.SubTaskTouchHelperCallback
 import com.emika.app.presentation.adapter.calendar.SubTaskAdapter
 import com.emika.app.presentation.utils.DateHelper
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
@@ -241,6 +243,9 @@ class AddTask : DialogFragment() {
         subTaskRecycler!!.layoutManager = layoutManager
         subTaskAdapter = SubTaskAdapter(tasks, calendarViewModel, null)
         subTaskRecycler!!.adapter = subTaskAdapter
+        val callback: ItemTouchHelper.Callback = SubTaskTouchHelperCallback(subTaskAdapter)
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(subTaskRecycler)
         if (task != null)
             setTaskInfo(task)
         else {
@@ -271,12 +276,10 @@ class AddTask : DialogFragment() {
         subTask.name = ""
         if (subTaskAdapter!!.taskList.size == 0) {
             subTaskAdapter!!.addSubTask(subTask)
-            subTaskAdapter!!.notifyItemInserted(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.requestFocus(subTaskAdapter!!.itemCount - 1)
-        } else if (!subTaskAdapter!!.taskList[subTaskAdapter!!.itemCount - 1]!!.name.isEmpty()) {
+        } else if (subTaskAdapter!!.taskList[subTaskAdapter!!.itemCount - 1]!!.name.isNotEmpty()) {
             subTaskAdapter!!.addSubTask(subTask)
-            subTaskAdapter!!.notifyItemInserted(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(subTaskAdapter!!.itemCount)
             subTaskRecycler!!.requestFocus(subTaskAdapter!!.itemCount - 1)
         } else {

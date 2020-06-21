@@ -184,6 +184,7 @@ public class ColumnProperties {
          *
          * @return instance of the {@link Builder}
          */
+
         public Builder setItemsSectionBackgroundColor(@ColorInt int backgroundColor) {
             mItemsSectionBackgroundColor = backgroundColor;
             return this;
@@ -196,6 +197,7 @@ public class ColumnProperties {
          *
          * @return instance of the {@link Builder}
          */
+
         public Builder setHeader(@Nullable View header) {
             mHeader = header;
             return this;

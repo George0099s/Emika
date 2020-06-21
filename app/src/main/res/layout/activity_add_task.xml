@@ -42,7 +42,9 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:overScrollMode="always"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -435,7 +437,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:drawableLeft="@drawable/ic_epic_links"
-                        android:drawablePadding="13dp"
+                        android:drawablePadding="10dp"
                         android:text="Epic links"
                         android:textColor="@color/mainTextColor" />
 

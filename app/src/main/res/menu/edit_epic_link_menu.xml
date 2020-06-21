@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/edit_epic_link_edit"
+        android:icon="@drawable/ic_rename_task"
+        android:iconTint="@color/red"
+        android:visible="false"
+        android:title="@string/edit_section" />
+    <item
+        android:id="@+id/edit_epic_link_delete"
+        android:icon="@drawable/ic_task_delete"
+        android:textColor="@color/red"
+        android:iconTint="@color/red"
+        android:title="@string/delete" />
+</menu>

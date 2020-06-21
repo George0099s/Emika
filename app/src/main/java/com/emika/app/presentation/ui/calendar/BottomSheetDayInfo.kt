@@ -61,7 +61,7 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
         date = arguments!!.getString("date")
         durations = arguments!!.getParcelableArrayList("actualDurationList")!!
         val estimatedTime = arguments!!.getString("estimatedTime")
-        if (estimatedTime?.toInt()!! > 0)
+        if (estimatedTime?.toDouble()!! > 0)
         dayInfoEstimatedTime.progress = estimatedTime.toString()
         else
         dayInfoEstimatedTime.progress = "0"

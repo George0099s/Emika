@@ -42,4 +42,9 @@ public class BottomSheetSelectEpicLinksViewModel extends ViewModel implements Ep
     public void onEpicLinksDownloaded(List<PayloadEpicLinks> epicLinks) {
         repository.insertDbEpicLinks(converter.fromPayloadEpicLinksToEpicLinksEntity(epicLinks), this);
     }
+
+    @Override
+    public void onEpicLinkCreated(PayloadEpicLinks epicLink) {
+
+    }
 }

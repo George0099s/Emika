@@ -388,7 +388,7 @@ class TaskInfoActivity : AppCompatActivity() {
             taskInfoViewModel.updateTask(task)
             taskInfoViewModel.addSubTask(subTask)
             subTaskRecycler!!.requestFocus(adapter!!.itemCount - 1)
-        } else if (!adapter!!.taskList[adapter!!.itemCount - 1]!!.name.isEmpty()) {
+        } else if (adapter!!.taskList[adapter!!.itemCount - 1]!!.name.isNotEmpty()) {
             adapter!!.addSubTask(subTask)
             adapter!!.notifyItemInserted(adapter!!.itemCount)
             subTaskRecycler!!.scrollToPosition(adapter!!.itemCount)

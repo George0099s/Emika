@@ -7,31 +7,78 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:paddingTop="18dp"
-    android:paddingBottom="18dp"
+    android:paddingTop="14dp"
+    android:paddingBottom="14dp"
+    android:elevation="4dp"
     android:orientation="vertical">
-    <com.emika.app.features.hourcounter.LinearHourCounterView
-        android:id="@+id/hour_counter_estimated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        hour:progress="5"
-        hour:strokeWidth="3dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginStart="12dp"
-        hour:color="@color/blue"
-        hour:inactiveColor="@color/inactiveHourCounter"/>
-    <com.emika.app.features.hourcounter.LinearHourCounterView
+<!--    <com.emika.app.features.hourcounter.LinearHourCounterView-->
+<!--        android:id="@+id/hour_counter_estimated"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        hour:progress="5"-->
+<!--        hour:strokeWidth="3dp"-->
+<!--        android:layout_marginEnd="12dp"-->
+<!--        android:layout_marginStart="12dp"-->
+<!--        hour:color="@color/blue"-->
+<!--        android:visibility="gone"-->
+<!--        hour:inactiveColor="@color/inactiveHourCounter"/>-->
+<!--    <com.emika.app.features.hourcounter.LinearHourCounterView-->
+<!--        android:id="@+id/hour_counter_spent"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        hour:progress="5"-->
+<!--        hour:strokeWidth="3dp"-->
+<!--        android:visibility="gone"-->
+<!--        android:layout_marginEnd="12dp"-->
+<!--        android:layout_marginStart="12dp"-->
+<!--        hour:color="@color/green"-->
+<!--        hour:inactiveColor="@color/inactiveHourCounter"/>-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ProgressBar
         android:id="@+id/hour_counter_spent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        hour:progress="5"
-        hour:strokeWidth="3dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginStart="12dp"
-        hour:color="@color/green"
-        hour:inactiveColor="@color/inactiveHourCounter"/>
+        android:layout_width="0dp"
+        android:layout_weight="7"
+        android:layout_height="3dp"
+        android:max="120"
+        android:progressTint="@color/green"
+        android:layout_gravity="center"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:progress="60"
 
+        android:indeterminate="false"
+        style="@android:style/Widget.ProgressBar.Horizontal"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="123"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ProgressBar
+        android:id="@+id/hour_counter_estimated"
+        android:layout_width="0dp"
+        android:layout_weight="7"
+        android:layout_height="3dp"
+        android:max="120"
+        android:progressTint="@color/blue"
+        android:layout_gravity="center"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:progress="100"
 
+        android:indeterminate="false"
+        style="@android:style/Widget.ProgressBar.Horizontal"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="123"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/item_layout_task"

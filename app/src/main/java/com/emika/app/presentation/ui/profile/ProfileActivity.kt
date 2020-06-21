@@ -6,16 +6,18 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.ImageSpan
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
@@ -31,13 +33,9 @@ import com.emika.app.data.db.dbmanager.ProjectDbManager
 import com.emika.app.data.db.dbmanager.UserDbManager
 import com.emika.app.data.db.entity.ProjectEntity
 import com.emika.app.data.network.callback.TokenCallback
-import com.emika.app.data.network.callback.calendar.ProjectsCallback
 import com.emika.app.data.network.networkManager.auth.AuthNetworkManager
 import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo
 import com.emika.app.data.network.pojo.member.PayloadShortMember
-import com.emika.app.data.network.pojo.project.PayloadProject
-import com.emika.app.data.network.pojo.project.PayloadProjectCreation
-import com.emika.app.data.network.pojo.project.PayloadSection
 import com.emika.app.data.network.pojo.user.Payload
 import com.emika.app.di.CompanyDi
 import com.emika.app.di.User
@@ -51,9 +49,7 @@ import com.emika.app.presentation.utils.NetworkState
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
 import com.emika.app.presentation.viewmodel.profile.ProfileViewModel
 import kotlinx.android.synthetic.main.fragment_profile.*
-import kotlinx.android.synthetic.main.fragment_profile.view.*
-import kotlinx.android.synthetic.main.fragment_profile.view.profile_see_all_members
-import java.util.ArrayList
+import java.util.*
 import javax.inject.Inject
 
 class ProfileActivity : AppCompatActivity(), TokenCallback, ProjectDbCallback {
@@ -294,9 +290,11 @@ class ProfileActivity : AppCompatActivity(), TokenCallback, ProjectDbCallback {
         intent.putExtra("token", token)
         val sharedPreferences = EmikaApplication.instance.sharedPreferences
         sharedPreferences!!.edit().putBoolean("logged in", false).apply()
-        sharedPreferences!!.edit().putString("token", token).apply()
-        startActivity(intent)
+        sharedPreferences.edit().putString("token", token).apply()
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP and Intent.FLAG_ACTIVITY_NEW_TASK)
         viewModel!!.userMutableLiveData.value = Payload()
+        startActivity(intent)
+        finishAffinity()
     }
 
     companion object {
@@ -305,12 +303,12 @@ class ProfileActivity : AppCompatActivity(), TokenCallback, ProjectDbCallback {
 
 
     private fun getProjects() = Observer<List<ProjectEntity>> {
-        projectsAdapter =  ProjectAdapter(converter.fromProjectEntityToPayloadProjectList(it!!), null, null, supportFragmentManager)
+        projectsAdapter =  ProjectAdapter(converter.fromProjectEntityToPayloadProjectList(it!!), null, null, supportFragmentManager, this)
         projectsRecycler!!.adapter = projectsAdapter
     }
 
     override fun onProjectLoaded(projectEntities: MutableList<ProjectEntity>?) {
-        projectsAdapter =  ProjectAdapter(converter.fromProjectEntityToPayloadProjectList(projectEntities!!), null, null, supportFragmentManager)
+        projectsAdapter =  ProjectAdapter(converter.fromProjectEntityToPayloadProjectList(projectEntities!!), null, null, supportFragmentManager, this)
         projectsRecycler!!.adapter = projectsAdapter
     }
 }

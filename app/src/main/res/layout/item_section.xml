@@ -13,14 +13,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-        <ImageButton
-            android:id="@+id/item_section_drag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_drag_drop"
-            android:layout_marginStart="12dp"
-            android:layout_gravity="center"
-            android:background="@android:color/transparent"/>
+
         <TextView
             android:id="@+id/item_section_name"
             android:layout_width="0dp"
@@ -47,18 +40,6 @@
             android:textColor="@color/white"
             android:text="@string/default_string"
             android:background="@drawable/shape_selected_date"/>
-        <ImageButton
-            android:id="@+id/item_section_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/ripple_create_task"
-            android:padding="12dp"
-            android:src="@drawable/ic_options"
-            app:layout_constraintBottom_toBottomOf="@+id/item_section_name"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/item_section_name" />
     </LinearLayout>
 
     <View

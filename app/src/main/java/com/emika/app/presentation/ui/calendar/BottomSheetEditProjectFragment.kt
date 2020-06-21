@@ -9,10 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Switch
 import android.widget.TextView
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.emika.app.R
+import com.emika.app.data.db.entity.EpicLinksEntity
+import com.emika.app.data.db.entity.SectionEntity
 import com.emika.app.data.network.pojo.project.PayloadProject
 import com.emika.app.presentation.viewmodel.calendar.AddProjectViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -22,8 +25,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 /**
  * A simple [Fragment] subclass.
  */
-class BottomSheetEditProjectFragment : BottomSheetDialogFragment() {
+class BottomSheetEditProjectFragment : DialogFragment() {
     private lateinit var project: PayloadProject
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NO_TITLE, R.style.FullScreenDialogStyle)
+
+    }
+
     private lateinit var projectName: TextView
     private lateinit var projectDescription: TextView
     private lateinit var switchEpicLinks: Switch
@@ -42,16 +51,10 @@ class BottomSheetEditProjectFragment : BottomSheetDialogFragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_bottom_sheet_edit_project, container, false)
-
+        dialog!!.window!!.statusBarColor = resources.getColor(R.color.green)
         initView(view)
-        dialog!!.setOnShowListener { dialog ->
-//            val d = dialog as BottomSheetDialog
-//            val bottomSheetInternal = d.findViewById<View>(android.support.R.id.design_bottom_sheet)
-//            BottomSheetBehavior.from(bottomSheetInternal).state = BottomSheetBehavior.STATE_EXPANDED
-        }
         return view
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -65,6 +68,8 @@ class BottomSheetEditProjectFragment : BottomSheetDialogFragment() {
         viewModel = ViewModelProviders.of(this).get(AddProjectViewModel::class.java)
         viewModel.membersMutableLiveData.observe(viewLifecycleOwner, getMemberLiveData())
         project = arguments!!.getParcelable("project")!!
+        viewModel.getSectionsByProjectId(project.id).observe(viewLifecycleOwner, getSections())
+        viewModel.getEpicLinksByProjectId(project.id).observe(viewLifecycleOwner, getEpicLinks())
         projectName = view.findViewById(R.id.edit_project_name)
         save = view.findViewById(R.id.save_proj)
         save.setOnClickListener {
@@ -120,7 +125,16 @@ class BottomSheetEditProjectFragment : BottomSheetDialogFragment() {
             editSection()
         }
         epicLinks = view.findViewById(R.id.edit_project_epic_links_tv)
+        epicLinks.setOnClickListener{ editEpicLink() }
         setProjectInfo(project)
+    }
+
+    private fun getSections() = Observer<List<SectionEntity>> {
+        sections.text = "${it.size} sections"
+    }
+
+    private fun getEpicLinks() = Observer<List<EpicLinksEntity>> {
+        epicLinks.text = "${it.size} Epic Links"
     }
 
     private fun editSection() {
@@ -132,7 +146,16 @@ class BottomSheetEditProjectFragment : BottomSheetDialogFragment() {
         mySheetDialog.show(fragmentManager!!, "modalSheetDialog")
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetStyleDialogTheme)
+    private fun editEpicLink() {
+        val bundle = Bundle()
+        val mySheetDialog = BottomSheetEditEpicLinks()
+        bundle.putParcelable("project", project)
+        bundle.putParcelable("viewModel", viewModel)
+        mySheetDialog.arguments = bundle
+        mySheetDialog.show(fragmentManager!!, "modalSheetDialog")
+    }
+
+//    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = BottomSheetDialog(requireContext(), R.style.BottomSheetStyleDialogTheme)
 
     private fun getMemberLiveData() = Observer<List<String>>{
         if (it.isNotEmpty())

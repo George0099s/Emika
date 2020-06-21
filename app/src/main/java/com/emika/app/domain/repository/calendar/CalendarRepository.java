@@ -38,6 +38,7 @@ import com.emika.app.data.network.callback.calendar.TaskCallback;
 import com.emika.app.data.network.callback.calendar.TaskListCallback;
 import com.emika.app.data.network.networkManager.calendar.CalendarNetworkManager;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
+import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.PayloadShortMember;
 import com.emika.app.data.network.pojo.project.PayloadProject;
 import com.emika.app.data.network.pojo.project.PayloadProjectCreation;
@@ -48,6 +49,7 @@ import com.emika.app.data.network.pojo.user.Payload;
 import com.emika.app.presentation.utils.Converter;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -345,6 +347,28 @@ public class CalendarRepository implements Parcelable {
     }
 
     public void updateSectionsOrder(@NotNull ArrayList<String> newList) {
-        calendarNetworkManager.updateSectionsOrder(newList);
+        calendarNetworkManager.updateSectionsOrder(converter.fromListToJSONArray(newList));
+    }
+
+    @NotNull
+    public LiveData<List<EpicLinksEntity>> getEpicLinksDbLiveData(@NotNull String projectId) {
+        return epicLinksDbManager.getEpicLinksDbLiveData(projectId);
+    }
+
+    public void updateEpicLinksOrder(@NotNull ArrayList<String> newEpicLinkList) {
+        calendarNetworkManager.updateEpicLinksOrder(converter.fromListToJSONArray(newEpicLinkList));
+    }
+
+    public void updateEpicLink(@NotNull PayloadEpicLinks payloadEpicLinks) {
+        epicLinksDbManager.updateEpicLink(converter.fromPayloadEpicLinkToEpicLinkEntity(payloadEpicLinks));
+        calendarNetworkManager.updateEpicLink(payloadEpicLinks);
+    }
+
+    public void createEpicLink(EpicLinksCallback callback, @NotNull String name, @NotNull String status, @NotNull String order, @NotNull String projectId) {
+        calendarNetworkManager.createEpicLink(callback, name, status, order, projectId);
+    }
+
+    public void insertEpicLink(@Nullable PayloadEpicLinks epicLink) {
+        epicLinksDbManager.insertEpicLink(converter.fromPayloadEpicLinkToEpicLinkEntity(epicLink));
     }
 }

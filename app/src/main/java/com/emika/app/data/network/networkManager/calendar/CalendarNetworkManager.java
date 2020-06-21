@@ -25,6 +25,7 @@ import com.emika.app.data.network.pojo.companyInfo.ModelCompanyInfo;
 import com.emika.app.data.network.pojo.companyInfo.PayloadCompanyInfo;
 import com.emika.app.data.network.pojo.durationActualLog.ModelDurationActual;
 import com.emika.app.data.network.pojo.durationActualLog.PayloadDurationActual;
+import com.emika.app.data.network.pojo.epiclinks.ModelEpicLinkCreation;
 import com.emika.app.data.network.pojo.epiclinks.ModelEpicLinks;
 import com.emika.app.data.network.pojo.epiclinks.PayloadEpicLinks;
 import com.emika.app.data.network.pojo.member.ModelShortMember;
@@ -645,7 +646,7 @@ public class CalendarNetworkManager {
     public void updateSection(PayloadSection payloadSection) {
         Retrofit retrofit = networkService.getRetrofit();
         ProjectApi service = retrofit.create(ProjectApi.class);
-        Call<SectionCreation> call = service.updateSection(payloadSection.getId(), token, payloadSection.getName(), payloadSection.getStatus(), payloadSection.getCompanyId(), payloadSection.getProjectId());
+        Call<SectionCreation> call = service.updateSection(payloadSection.getId(), token, payloadSection.getName(), payloadSection.getStatus(), String.valueOf(payloadSection.getOrder()), payloadSection.getProjectId());
         call.enqueue(new Callback<SectionCreation>() {
             @Override
             public void onResponse(retrofit2.Call<SectionCreation> call, Response<SectionCreation> response) {
@@ -661,10 +662,10 @@ public class CalendarNetworkManager {
         });
     }
 
-    public void updateSectionsOrder(ArrayList<String> newList) {
+    public void updateSectionsOrder(JSONArray newList) {
         Retrofit retrofit = networkService.getRetrofit();
         ProjectApi service = retrofit.create(ProjectApi.class);
-        Call<SectionCreation> call = service.updateSectionsOrder(token, converter.formListSubTaskToJsonArray(newList));
+        Call<SectionCreation> call = service.updateSectionsOrder(token, newList);
         call.enqueue(new Callback<SectionCreation>() {
             @Override
             public void onResponse(retrofit2.Call<SectionCreation> call, Response<SectionCreation> response) {
@@ -675,6 +676,69 @@ public class CalendarNetworkManager {
 
             @Override
             public void onFailure(retrofit2.Call<SectionCreation> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateEpicLinksOrder(JSONArray epicLinkList) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<ModelEpicLinks> call = service.updateEpicLinksOrder(token, epicLinkList);
+        call.enqueue(new Callback<ModelEpicLinks>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelEpicLinks> call, Response<ModelEpicLinks> response) {
+                if (response.body() != null) {
+
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelEpicLinks> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void updateEpicLink(PayloadEpicLinks payloadEpicLink) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<ModelEpicLinks> call = service.updateEpicLink(payloadEpicLink.getId(), token, payloadEpicLink.getName(),
+                payloadEpicLink.getStatus(), String.valueOf(payloadEpicLink.getOrder()), payloadEpicLink.getProjectId());
+        call.enqueue(new Callback<ModelEpicLinks>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelEpicLinks> call, Response<ModelEpicLinks> response) {
+                if (response.body() != null) {
+
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelEpicLinks> call, Throwable t) {
+                Log.d(TAG, t.getMessage().toString());
+            }
+        });
+    }
+
+    public void createEpicLink(EpicLinksCallback callback, String name, String status, String order, String projectId) {
+        Retrofit retrofit = networkService.getRetrofit();
+        ProjectApi service = retrofit.create(ProjectApi.class);
+        Call<ModelEpicLinkCreation> call = service.createEpicLink(token, name, status, order, projectId);
+        call.enqueue(new Callback<ModelEpicLinkCreation>() {
+            @Override
+            public void onResponse(retrofit2.Call<ModelEpicLinkCreation> call, Response<ModelEpicLinkCreation> response) {
+                if (response.body() != null) {
+                    ModelEpicLinkCreation model = response.body();
+                    PayloadEpicLinks epicLink = model.getPayload();
+                    if (epicLink != null)
+                        callback.onEpicLinkCreated(epicLink);
+                    else
+                        callback.onEpicLinkCreated(null);
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ModelEpicLinkCreation> call, Throwable t) {
                 Log.d(TAG, t.getMessage().toString());
             }
         });

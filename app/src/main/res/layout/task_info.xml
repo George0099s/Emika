@@ -25,6 +25,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:overScrollMode="always"
 
         >
 
@@ -74,8 +75,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:paddingVertical="14dp"
-                android:paddingHorizontal="14dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="12dp"
                 android:elevation="4dp"
                 android:drawableStart="@drawable/ic_work_flow"
                 android:drawablePadding="10dp"
@@ -314,8 +315,8 @@
                 android:drawableEnd="@drawable/ic_right_green_arrow"
                 android:drawablePadding="10dp"
                 android:elevation="4dp"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="14dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="12dp"
                 android:textColor="@color/mainTextColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -444,7 +445,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="14dp"
                     android:orientation="horizontal">
-
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -643,7 +643,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:drawableLeft="@drawable/ic_comments"
-                        android:drawablePadding="12dp"
+                        android:drawablePadding="10dp"
                         android:text="@string/comments"
                         android:textColor="@color/mainTextColor"
                         app:layout_constraintEnd_toEndOf="parent"

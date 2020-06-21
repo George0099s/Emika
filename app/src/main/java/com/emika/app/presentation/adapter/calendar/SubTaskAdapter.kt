@@ -14,6 +14,7 @@ import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.emika.app.R
@@ -44,15 +45,15 @@ class SubTaskAdapter(taskList: List<SubTask>, calendarViewModel: CalendarViewMod
             subTask.newTask = false
         } else holder.body.clearFocus()
         if (subTask.name != null) holder.body.text = subTask.name
-        if (subTask.status == "done")
-            holder.checkBox.isChecked = true
-        else
-            holder.checkBox.isChecked = false
+        holder.checkBox.isChecked = subTask.status == "done"
 
 //        holder.body.setOnEditorActionListener { v, actionId, event ->
 //            if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                if (position == taskList.size-1 )
-//                    addSubTask(SubTask())
+//                if (position == taskList.size-1 ) {
+//                    taskList.add(itemCount, subTask)
+//                    notifyDataSetChanged()
+//                    holder.body.requestFocus()
+//                }
 //                true
 //            } else false
 //        }
@@ -71,12 +72,7 @@ class SubTaskAdapter(taskList: List<SubTask>, calendarViewModel: CalendarViewMod
                 }
             }
         }
-//        holder.body.setOnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
-//            if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                return@setOnEditorActionListener true
-//            }
-//            false
-//        }
+
         holder.body.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
@@ -100,8 +96,19 @@ class SubTaskAdapter(taskList: List<SubTask>, calendarViewModel: CalendarViewMod
     }
 
     fun addSubTask(subTask: SubTask) {
+        subTask.status = "wip"
+        subTask.name = ""
+//        subTask.parentTaskId = task!!.id
+//        subTask.assignee = assignee.id
+//        subTask.planDate = task!!.planDate
+//        subTask.deadlineDate = task!!.deadlineDate
+//        subTask.companyId = task!!.companyId
+//        subTask.projectId = task!!.projectId
+//        subTask.sectionId = task!!.sectionId
+        subTask.duration = 60
         subTask.newTask = true
         taskList.add(itemCount, subTask)
+        notifyItemInserted(itemCount)
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

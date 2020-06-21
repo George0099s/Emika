@@ -10,8 +10,8 @@ import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,7 +40,7 @@ public class LinearHourCounterView extends View {
     private Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private RectF mProgressRect = new RectF();
     private Rect mTextBounds = new Rect();
-
+    private int progressEndX= 0;
     public LinearHourCounterView(Context context) {
         super(context);
         init(context, null);
@@ -54,12 +54,20 @@ public class LinearHourCounterView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int halfHeight = getHeight();
-        int progressEndX = (int) (getWidth()  * Double.parseDouble(mProgress) / MAX_PROGRESS);
+        int halfHeight = getHeight() / 2;
+        progressEndX = (int) (getWidth()  * Double.parseDouble(mProgress) / MAX_PROGRESS);
+//                else
+//                    progressEndX = 12;
 //        canvas.translate(mStrokeWidth / 2, mStrokeWidth / 2);
+
+        if (progressEndX < 12)
+            progressEndX = 12;
         updateProgressRect();
+
+        Log.d(TAG, "onDraw: " + progressEndX);
+
 //        canvas.drawLine(progressEndX, halfHeight, getWidth(), halfHeight, mInactiveCirclePaint);
-        canvas.drawLine(0, halfHeight/2, progressEndX - mTextBounds.width() - mTextBounds.width()/3, halfHeight/2, mCirclePaint);
+        canvas.drawLine(0, halfHeight, progressEndX - mTextBounds.width() - mTextBounds.width()/3 - getPaddingRight(), halfHeight, mCirclePaint);
 
         mProgress = mProgress.replace(',', '.');
 //        canvas.drawArc(mProgressRect, START_ANGLE, (float) (Double.parseDouble(mProgress) * MAX_ANGLE / MAX_PROGRESS), false, mCirclePaint);
@@ -100,9 +108,9 @@ public class LinearHourCounterView extends View {
     private void drawText(Canvas canvas) {
         final String progressString = formatString(String.valueOf(mProgress));
         getTextBounds(progressString);
-
-        float x = mProgressRect.width() - mTextBounds.width() - getPaddingRight();
+        float x = progressEndX - mTextBounds.width() - getPaddingRight();
         float y = mTextBounds.height();
+
 //        float x = mProgressRect.width() - mTextBounds.width() - getPaddingRight();
 //        float y = mTextBounds.height() - getPaddingTop() - getPaddingBottom();
         canvas.drawText(progressString, x, y, mTextPaint);
@@ -110,9 +118,9 @@ public class LinearHourCounterView extends View {
 
     private void updateProgressRect() {
         mProgressRect.left = getPaddingLeft();
-        mProgressRect.top = getPaddingTop() + mTextBounds.height() ;
-        mProgressRect.right = getWidth() - mStrokeWidth - getPaddingRight();
-        mProgressRect.bottom = getHeight() - mStrokeWidth - getPaddingBottom();
+        mProgressRect.top = mTextBounds.height() ;
+        mProgressRect.right = progressEndX - getPaddingRight();
+        mProgressRect.bottom = getHeight();
     }
 
     private void getTextBounds(@NonNull String progressString) {
@@ -125,8 +133,8 @@ public class LinearHourCounterView extends View {
 
     private void init(@NonNull Context context, @Nullable AttributeSet attrs) {
         extractAttributes(context, attrs);
-        configureInactiveCirclePaint();
-        configureCirclePaint();
+//        configureInactiveCirclePaint();
+        configureLinePaint();
         configureTextPaint();
     }
 
@@ -141,7 +149,7 @@ public class LinearHourCounterView extends View {
         mTextPaint.setColor(mColor);
     }
 
-    private void configureCirclePaint() {
+    private void configureLinePaint() {
         mCirclePaint.setStrokeWidth(mStrokeWidth);
         mCirclePaint.setStyle(Paint.Style.STROKE);
         mCirclePaint.setColor(mColor);

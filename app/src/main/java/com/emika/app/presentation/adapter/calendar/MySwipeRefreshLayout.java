@@ -1,6 +1,7 @@
 package com.emika.app.presentation.adapter.calendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -25,5 +26,6 @@ public class  MySwipeRefreshLayout extends SwipeRefreshLayout {
 
     public void setScrollingView(View scrollingView) {
         mScrollingView = scrollingView;
+
     }
 }

@@ -1,5 +1,6 @@
 package com.emika.app.data.db.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -16,8 +17,11 @@ import io.reactivex.Maybe;
 
 @Dao
 public interface EpicLinksDao {
-    @Query("SELECT * FROM `Epic links`")
+    @Query("SELECT * FROM `Epic links` WHERE status !='deleted'")
     Maybe<List<EpicLinksEntity>> getAllEpicLinks();
+
+    @Query("SELECT * FROM `Epic links` WHERE projectId = :projectId AND status !='deleted'")
+    LiveData<List<EpicLinksEntity>> getLiveDataEpicLinksByProjectId(String projectId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(List<EpicLinksEntity> epicLinksEntities);

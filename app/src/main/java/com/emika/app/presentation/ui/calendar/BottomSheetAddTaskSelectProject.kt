@@ -59,7 +59,7 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
     lateinit var projectsDagger: ProjectsDi
     private val setProjects = Observer { projects: List<PayloadProject?> ->
         Log.d(TAG, ":  projects bootm sheet" + projects.size)
-        projectAdapter = ProjectAdapter(projects, mViewModel, task, null)
+        projectAdapter = ProjectAdapter(projects, mViewModel, task, null, context)
         projectRecycler!!.adapter = projectAdapter
     }
     private val setSection = Observer { sections: List<PayloadSection> ->
@@ -143,7 +143,7 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
     }
 
     override fun getProjects(projects: List<PayloadProject>) {
-        projectAdapter = ProjectAdapter(projects, mViewModel, task, null)
+        projectAdapter = ProjectAdapter(projects, mViewModel, task, null, context)
         projectRecycler!!.adapter = projectAdapter
     }
 

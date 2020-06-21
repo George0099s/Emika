@@ -69,7 +69,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     private BoardCallback mBoardCallback;
     private boolean mSnapToColumnWhenScrolling = true;
     private boolean mSnapToColumnWhenDragging = true;
-    private boolean mSnapToColumnInLandscape = false;
+    private boolean mSnapToColumnInLandscape = true;
     private ColumnSnapPosition mSnapPosition = ColumnSnapPosition.CENTER;
     private int mCurrentColumn;
     private float mTouchX;
@@ -133,8 +133,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         mScroller = new Scroller(getContext(), new DecelerateInterpolator(1.1f));
         mAutoScroller = new AutoScroller(getContext(), this);
-        mAutoScroller.setAutoScrollMode(snapToColumnWhenDragging() ? AutoScroller.AutoScrollMode.COLUMN : AutoScroller.AutoScrollMode
-                .POSITION);
+        mAutoScroller.setAutoScrollMode(snapToColumnWhenDragging() ? AutoScroller.AutoScrollMode.COLUMN : AutoScroller.AutoScrollMode.POSITION);
         mDragItem = new DragItem(getContext());
         mDragColumn = new DragItem(getContext());
         mDragColumn.setSnapToTouch(false);

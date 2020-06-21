@@ -108,6 +108,10 @@ class StartActivityViewModel(token: String) : ViewModel(), ShortMemberCallback, 
         repository.insertDbMembers(shortMembers, this)
     }
 
+    override fun onEpicLinkCreated(epicLink: PayloadEpicLinks?) {
+        TODO("Not yet implemented")
+    }
+
     override fun onEpicLinksDownloaded(epicLinks: List<PayloadEpicLinks>) {
         if (epicLinks.size > 0) {
             for (i in epicLinks.indices) {
