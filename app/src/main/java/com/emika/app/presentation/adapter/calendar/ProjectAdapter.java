@@ -73,6 +73,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ProjectV
                 if (project.getDefaultSectionId() != null)
                     projectDi.setProjectSectionId(project.getDefaultSectionId());
 
+
+                viewModel.setProject(project);
                 viewModel.getSectionListMutableLiveData();
                 notifyDataSetChanged();
             });

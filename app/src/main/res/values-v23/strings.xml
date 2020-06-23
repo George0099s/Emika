@@ -78,4 +78,6 @@
     <string name="add_new_section">Add New Section</string>
     <string name="set_as_default">Set as Default</string>
     <string name="edit_section">Edit Section</string>
+    <string name="create_your_company_and_invite_your_team_members_to_join_your_new_workspace">Create your company and invite your team members to join your new workspace</string>
+    <string name="you_will_need_to_ask_an_existing_member_of_the_company_to_invite_you_via_email_invitation">You will need to ask an existing member of the company to invite you via email invitation</string>
 </resources>

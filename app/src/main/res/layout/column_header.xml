@@ -10,6 +10,8 @@
     android:paddingTop="14dp"
     android:paddingBottom="14dp"
     android:elevation="4dp"
+    android:layout_marginStart="18dp"
+    android:layout_marginEnd="16dp"
     android:orientation="vertical">
 <!--    <com.emika.app.features.hourcounter.LinearHourCounterView-->
 <!--        android:id="@+id/hour_counter_estimated"-->
@@ -40,19 +42,21 @@
         android:id="@+id/hour_counter_spent"
         android:layout_width="0dp"
         android:layout_weight="7"
-        android:layout_height="3dp"
+        android:layout_height="5dp"
         android:max="120"
-        android:progressTint="@color/green"
         android:layout_gravity="center"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:progressDrawable="@drawable/spent_progress_color"
         android:progress="60"
-
+        android:paddingStart="5dp"
         android:indeterminate="false"
         style="@android:style/Widget.ProgressBar.Horizontal"/>
         <TextView
+            android:id="@+id/hour_counter_spent_text"
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:textColor="@color/green"
+            android:gravity="center"
+            android:fontFamily="@font/consolab"
             android:layout_height="wrap_content"
             android:text="123"/>
     </LinearLayout>
@@ -63,19 +67,21 @@
         android:id="@+id/hour_counter_estimated"
         android:layout_width="0dp"
         android:layout_weight="7"
-        android:layout_height="3dp"
+        android:layout_height="5dp"
         android:max="120"
-        android:progressTint="@color/blue"
+        android:paddingStart="5dp"
+        android:progressDrawable="@drawable/estimated_progress_color"
         android:layout_gravity="center"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
         android:progress="100"
-
         android:indeterminate="false"
         style="@android:style/Widget.ProgressBar.Horizontal"/>
         <TextView
+            android:id="@+id/hour_counter_estimated_text"
             android:layout_width="0dp"
             android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@color/blue"
+            android:fontFamily="@font/consolab"
             android:layout_height="wrap_content"
             android:text="123"/>
     </LinearLayout>

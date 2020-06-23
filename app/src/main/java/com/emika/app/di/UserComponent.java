@@ -24,7 +24,6 @@ import com.emika.app.presentation.ui.calendar.BottomSheetAddTaskSelectProject;
 import com.emika.app.presentation.ui.calendar.BottomSheetCalendarSelectUser;
 import com.emika.app.presentation.ui.calendar.BottomSheetDayInfo;
 import com.emika.app.presentation.ui.calendar.BottomSheetSelectEpicLinks;
-import com.emika.app.presentation.ui.calendar.CalendarActivity;
 import com.emika.app.presentation.ui.calendar.Inbox;
 import com.emika.app.presentation.ui.calendar.TaskInfo;
 import com.emika.app.presentation.ui.calendar.TaskInfoActivity;
@@ -82,7 +81,6 @@ public interface UserComponent {
     void inject(AddTaskActivity addTask);
     void inject(TaskInfoActivity addTask);
     void inject(ChatActivity chatActivity);
-    void inject(CalendarActivity calendarActivity);
     void inject(ProfileActivity profile);
     void inject(Cal calendar);
     void inject(CommentAdapter adapter);

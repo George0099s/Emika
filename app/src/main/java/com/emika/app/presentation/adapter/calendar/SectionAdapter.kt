@@ -137,6 +137,7 @@ class SectionAdapter(sections: List<PayloadSection?>, addProjectViewModel: AddPr
         })
         for (section in sections)
             newList.add(section!!.id)
+
         addProjectViewModel?.updateSectionsOrder(newList as ArrayList<String>)
         notifyItemMoved(fromPosition, toPosition)
     }
@@ -146,6 +147,7 @@ class SectionAdapter(sections: List<PayloadSection?>, addProjectViewModel: AddPr
     }
 
     private fun deleteItem(position: Int){
+        projectsDagger!!.sections.remove(sections[position])
         sections[position]?.status = "deleted"
         addProjectViewModel?.updateSection(sections[position]!!)
         sections.removeAt(position)

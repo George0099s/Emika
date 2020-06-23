@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     private TokenDbManager tokenDbManager;
     private SharedPreferences sharedPreferences;
     private EmikaApplication emikaApplication;
+    private RadioButton under_20, under_100, under_500, over_500, personal, company;
     private StartActivityViewModel startActivityViewModel;
 
     public static CreateCompany newInstance() {
@@ -62,11 +64,27 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
     }
 
     private void initView(View view) {
+        under_100 = view.findViewById(R.id.under_100);
+        under_100.setOnClickListener(this::onClick);
+        under_20 = view.findViewById(R.id.under_20);
+        under_20.setOnClickListener(this::onClick);
+
+        under_500 = view.findViewById(R.id.under_500);
+        under_500.setOnClickListener(this::onClick);
+
+        over_500 = view.findViewById(R.id.over_500);
+        over_500.setOnClickListener(this::onClick);
+        personal = view.findViewById(R.id.personal_workspace);
+        personal.setOnClickListener(this::onClick);
+
+        company = view.findViewById(R.id.team_workspace);
+        company.setOnClickListener(this::onClick);
         emikaApplication = EmikaApplication.instance;
         sharedPreferences = emikaApplication.getSharedPreferences();
         token =sharedPreferences.getString("token", "");
         networkManager = new CompanyNetworkManager(token);
         networkManager.setToken(token);
+
         startActivityViewModel = new ViewModelProvider(getActivity().getViewModelStore(), new TokenViewModelFactory(token)).get(StartActivityViewModel.class);
         fm = getParentFragmentManager();
         logout = view.findViewById(R.id.create_company_log_out);
@@ -75,10 +93,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
         teamSizeTitle = view.findViewById(R.id.team_size_title);
         joinCompany = view.findViewById(R.id.create_company_waiting_to_join);
         joinCompany.setOnClickListener(this::onClick);
-        workspaceRadioGroup = view.findViewById(R.id.workspace_radio_group);
-        workspaceRadioGroup.setOnCheckedChangeListener(workspaceRadioGroupListener);
-        teamSizeRadioGroup = view.findViewById(R.id.team_size_radio_group);
-        teamSizeRadioGroup.setOnCheckedChangeListener(teamSizeRadioGroupListener);
+
         createCompany = view.findViewById(R.id.create_company_next_btn);
         createCompany.setOnClickListener(this::onClick);
     }
@@ -90,6 +105,8 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
         fm.beginTransaction().replace(R.id.auth_container, new AuthFragment()).commit();
     }
 
+
+
     private void onClick(View view) {
         switch (view.getId()) {
             case R.id.create_company_next_btn:
@@ -98,6 +115,34 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
                 break;
             case R.id.create_company_waiting_to_join:
             fm.beginTransaction().replace(R.id.auth_container, new JoinCompanyFragment()).commit();
+            case R.id.personal_workspace:
+                under_500.setVisibility(View.GONE);
+                under_20.setVisibility(View.GONE);
+                under_100.setVisibility(View.GONE);
+                over_500.setVisibility(View.GONE);
+                teamSizeTitle.setVisibility(View.GONE);
+                networkManager.setSize("");
+                break;
+            case R.id.team_workspace:
+                under_500.setVisibility(View.VISIBLE);
+                under_20.setVisibility(View.VISIBLE);
+                under_100.setVisibility(View.VISIBLE);
+                over_500.setVisibility(View.VISIBLE);
+                teamSizeTitle.setVisibility(View.VISIBLE);
+                break;
+            case R.id.under_20:
+                networkManager.setSize(getString(R.string.under_20));
+                break;
+            case R.id.under_100:
+                networkManager.setSize(getString(R.string.under_100));
+                break;
+            case R.id.under_500:
+                networkManager.setSize(getString(R.string.under_500));
+                break;
+            case R.id.over_500:
+                networkManager.setSize(getString(R.string.over_500));
+                break;
+
         }
     }
 
@@ -113,6 +158,7 @@ public class CreateCompany extends Fragment implements CreateCompanyCallback, To
                 teamSizeRadioGroup.setVisibility(View.VISIBLE);
                 teamSizeTitle.setVisibility(View.VISIBLE);
                 break;
+
         }
     };
 

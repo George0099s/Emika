@@ -46,13 +46,15 @@ class SubTaskAdapter(taskList: List<SubTask>, calendarViewModel: CalendarViewMod
         } else holder.body.clearFocus()
         if (subTask.name != null) holder.body.text = subTask.name
         holder.checkBox.isChecked = subTask.status == "done"
-
+//        if (position == itemCount - 1)
 //        holder.body.setOnEditorActionListener { v, actionId, event ->
 //            if (actionId == EditorInfo.IME_ACTION_DONE) {
 //                if (position == taskList.size-1 ) {
-//                    taskList.add(itemCount, subTask)
+//
+//                    taskList.add(itemCount, SubTask().apply {newTask = true})
+//                    notifyItemInserted(itemCount)
 //                    notifyDataSetChanged()
-//                    holder.body.requestFocus()
+//                    Log.d(TAG, taskList.size.toString())
 //                }
 //                true
 //            } else false
@@ -96,6 +98,7 @@ class SubTaskAdapter(taskList: List<SubTask>, calendarViewModel: CalendarViewMod
     }
 
     fun addSubTask(subTask: SubTask) {
+        val subTasks = ArrayList<String>()
         subTask.status = "wip"
         subTask.name = ""
 //        subTask.parentTaskId = task!!.id
@@ -105,6 +108,13 @@ class SubTaskAdapter(taskList: List<SubTask>, calendarViewModel: CalendarViewMod
 //        subTask.companyId = task!!.companyId
 //        subTask.projectId = task!!.projectId
 //        subTask.sectionId = task!!.sectionId
+
+//        for (i in taskList.indices) {
+//            subTasks.add(taskList[i]!!.name)
+//        }
+//        taskInfoViewModel?.task?.subTaskList = subTasks
+//        taskInfoViewModel?.updateTask(taskInfoViewModel?.task)
+//        taskInfoViewModel?.addSubTask(subTask)
         subTask.duration = 60
         subTask.newTask = true
         taskList.add(itemCount, subTask)

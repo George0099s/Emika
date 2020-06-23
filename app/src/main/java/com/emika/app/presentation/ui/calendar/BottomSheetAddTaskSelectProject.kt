@@ -29,6 +29,7 @@ import com.emika.app.presentation.adapter.calendar.SectionAdapter
 import com.emika.app.presentation.ui.profile.AddContactDialogFragment
 import com.emika.app.presentation.utils.Converter
 import com.emika.app.presentation.utils.viewModelFactory.calendar.TokenViewModelFactory
+import com.emika.app.presentation.viewmodel.calendar.AddProjectViewModel
 import com.emika.app.presentation.viewmodel.calendar.AddTaskListViewModel
 import com.emika.app.presentation.viewmodel.calendar.BottomSheetAddTaskSelectProjectViewModel
 import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel
@@ -49,14 +50,17 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
     private var token: String? = null
     private var addTaskListViewModel: AddTaskListViewModel? = null
     private var taskInfoViewModel: TaskInfoViewModel? = null
+    private var addProjectViewModel: AddProjectViewModel? = null
     private var selectProject: Button? = null
     private val app = EmikaApplication.instance
     private var converter: Converter? = null
     private var task: PayloadTask? = null
+    private var project: PayloadProject? = null
     private var repository: CalendarRepository? = null
     private lateinit var addProject: TextView
     @Inject
     lateinit var projectsDagger: ProjectsDi
+
     private val setProjects = Observer { projects: List<PayloadProject?> ->
         Log.d(TAG, ":  projects bootm sheet" + projects.size)
         projectAdapter = ProjectAdapter(projects, mViewModel, task, null, context)
@@ -69,7 +73,25 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
             projectDi.projectSectionName = null
         }
         for (i in sections.indices) {
-            if (projectDi.projectId != null) if (projectDi.projectId == sections[i].projectId) sectionList.add(sections[i])
+            if (projectDi.projectId != null)
+                if (projectDi.projectId == sections[i].projectId)
+                    sectionList.add(sections[i])
+        }
+        mViewModel!!.projectListMutableLiveData
+        sectionAdapter = SectionAdapter(sectionList, null, context!!)
+        sectionRecycler!!.adapter = sectionAdapter
+    }
+
+    private val setSectionLiveData = Observer { sections: List<PayloadSection> ->
+        val sectionList: MutableList<PayloadSection> = ArrayList()
+        if (sections.isEmpty()) {
+            projectDi.projectSectionId = null
+            projectDi.projectSectionName = null
+        }
+        for (i in sections.indices) {
+            if (projectDi.projectId != null)
+                if (projectDi.projectId == sections[i].projectId)
+                    sectionList.add(sections[i])
         }
         mViewModel!!.projectListMutableLiveData
         sectionAdapter = SectionAdapter(sectionList, null, context!!)
@@ -89,9 +111,21 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
         taskInfoViewModel = arguments!!.getParcelable("taskInfoViewModel")
         task = arguments!!.getParcelable("task")
         token = EmikaApplication.instance.sharedPreferences?.getString("token", "")
+        mViewModel = ViewModelProviders.of(this, TokenViewModelFactory(token)).get(BottomSheetAddTaskSelectProjectViewModel::class.java)
+        mViewModel!!.projectListMutableLiveData.observe(viewLifecycleOwner, setProjects)
+        mViewModel!!.sectionListMutableLiveData.observe(viewLifecycleOwner, setSection)
         repository = CalendarRepository(token)
         addProject = view.findViewById(R.id.add_project)
         addProject.setOnClickListener{createProject()}
+        for (proj in projectsDagger.projects){
+            if (proj.id == projectDi.projectId)
+                project = proj
+        }
+        mViewModel?.project = project
+        addProjectViewModel?.project = project
+        view.findViewById<TextView>(R.id.edit_sections).setOnClickListener{
+            editSection()
+        }
         //        repository.downloadSections(this);
 //        repository.downloadAllProject(this);
         projectRecycler = view.findViewById(R.id.recycler_add_task_project)
@@ -135,11 +169,23 @@ class BottomSheetAddTaskSelectProject : BottomSheetDialogFragment(), ProjectsCal
         super.onDismiss(dialog)
     }
 
+    private fun editSection() {
+        val bundle = Bundle()
+        val mySheetDialog = BottomSheetEditSections()
+        bundle.putParcelable("project", mViewModel!!.project)
+        bundle.putParcelable("viewModel", addProjectViewModel)
+        mySheetDialog.arguments = bundle
+        mySheetDialog.show(fragmentManager!!, "modalSheetDialog")
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mViewModel = ViewModelProviders.of(this, TokenViewModelFactory(token)).get(BottomSheetAddTaskSelectProjectViewModel::class.java)
-        mViewModel!!.projectListMutableLiveData.observe(viewLifecycleOwner, setProjects)
-        mViewModel!!.sectionListMutableLiveData.observe(viewLifecycleOwner, setSection)
+
+//        mViewModel!!.getSectionEntityLiveData.observe(viewLifecycleOwner, setSection)
+
+
+
+        addProjectViewModel = ViewModelProviders.of(this).get(AddProjectViewModel::class.java)
     }
 
     override fun getProjects(projects: List<PayloadProject>) {

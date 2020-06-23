@@ -2,6 +2,7 @@ package com.emika.app.presentation.viewmodel.calendar;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -30,8 +31,10 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
     private String token;
     private MutableLiveData<List<PayloadProject>> projectListMutableLiveData;
     private MutableLiveData<List<PayloadSection>> sectionListMutableLiveData;
+    private MutableLiveData<List<SectionEntity>> sectionsMutableLiveData;
     private CalendarRepository repository;
     private String projectId;
+    private PayloadProject project;
     private Converter converter;
     private EmikaApplication app = EmikaApplication.instance;
     @Inject
@@ -42,6 +45,7 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
         this.token = token;
         projectListMutableLiveData = new MutableLiveData<>();
         sectionListMutableLiveData = new MutableLiveData<>();
+        sectionsMutableLiveData = new MutableLiveData<>();
         repository = new CalendarRepository(token);
         repository.getAllProjects(this);
         repository.getAllSections(this);
@@ -97,6 +101,13 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
     public void getSections(){
         repository.getAllSections(this);
     }
+
+    public LiveData<List<SectionEntity>> getSectionEntityLiveData(String id){
+        Log.d(TAG, "getSectionEntityLiveData: 123123123123 " + id);
+
+        return sectionsMutableLiveData;
+    }
+
     public MutableLiveData<List<PayloadSection>> getSectionListMutableLiveData() {
 //        repository.downloadSections(this);
         List<PayloadSection> sectionList = new ArrayList<>();
@@ -126,5 +137,13 @@ public class BottomSheetAddTaskSelectProjectViewModel extends ViewModel implemen
 
     public String getProjectId() {
         return projectId;
+    }
+
+    public PayloadProject getProject() {
+        return project;
+    }
+
+    public void setProject(PayloadProject project) {
+        this.project = project;
     }
 }

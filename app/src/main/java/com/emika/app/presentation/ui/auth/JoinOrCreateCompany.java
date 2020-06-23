@@ -11,8 +11,12 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 
 public class JoinOrCreateCompany extends Fragment {
@@ -22,11 +26,11 @@ public class JoinOrCreateCompany extends Fragment {
         return new JoinOrCreateCompany();
     }
 
-    private TextView joinExisting, createNewWorkSpace;
+    private LinearLayout joinExisting, createNewWorkSpace;
     private String token;
     private FragmentManager fm;
     private TextView logout;
-
+    private ImageView emika;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -43,6 +47,8 @@ public class JoinOrCreateCompany extends Fragment {
         joinExisting.setOnClickListener(this::onClick);
         createNewWorkSpace = view.findViewById(R.id.create_new_workspace);
         createNewWorkSpace.setOnClickListener(this::onClick);
+        emika = view.findViewById(R.id.emika_gif);
+        Glide.with(this).asGif().load(R.drawable.emika_gif).apply(RequestOptions.circleCropTransform()).into(emika);
     }
 
     private void onClick(View view) {

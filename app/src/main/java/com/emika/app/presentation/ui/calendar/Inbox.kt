@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -33,6 +34,7 @@ class Inbox : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.activity_inbox, container, false)
+        dialog!!.window!!.statusBarColor = resources.getColor(R.color.green)
         initView(view)
         return view
     }
@@ -69,6 +71,7 @@ class Inbox : DialogFragment() {
         view.inbox_recycler.setHasFixedSize(false)
         view.inbox_recycler.addItemDecoration(decor)
         view.inbox_recycler.layoutManager = LinearLayoutManager(context)
+        view.findViewById<Button>(R.id.add_task_back).setOnClickListener{dismiss()}
         date = arguments!!.getString("date", null)
         viewModel!!.setContext(context)
         viewModel!!.getAllDbTask()

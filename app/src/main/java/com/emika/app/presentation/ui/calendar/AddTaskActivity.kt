@@ -299,7 +299,7 @@ class AddTaskActivity : AppCompatActivity() {
         bundle.putString("date", currentDate)
         inbox.arguments = bundle
         val ft = supportFragmentManager.beginTransaction()
-        ft.setCustomAnimations(R.anim.slide_in_right_anim, R.anim.slide_out_right_anim)
+//        ft.setCustomAnimations(R.anim.slide_in_right_anim, R.anim.slide_out_right_anim)
         inbox.show(ft, "inboxDialog")
 //        finish()
     }

@@ -16,9 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.emika.app.R;
 import com.emika.app.data.EmikaApplication;
 import com.emika.app.data.db.AppDatabase;
@@ -45,6 +48,7 @@ public class CreateAccountFragment extends Fragment{
     private AppDatabase db;
     private FragmentManager fm;
     private TextView logout;
+    private ImageView emika;
     private SharedPreferences sharedPreferences;
     @Inject
     User userDi;
@@ -68,6 +72,8 @@ public class CreateAccountFragment extends Fragment{
         viewModel = new ViewModelProvider(this, new CreateAccountViewModelFactory(token)).get(CreateAccountViewModel.class);
         emikaApplication = EmikaApplication.instance;
         emikaApplication.getComponent().inject(this);
+        emika = view.findViewById(R.id.emika_gif);
+        Glide.with(this).asGif().load(R.drawable.emika_gif).apply(RequestOptions.circleCropTransform()).into(emika);
         db = emikaApplication.getDatabase();
         fm = getParentFragmentManager();
         logout = view.findViewById(R.id.create_account_log_out);

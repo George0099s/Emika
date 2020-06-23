@@ -20,8 +20,8 @@ android {
         applicationId "com.emika.app"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 7
-        versionName "1.5"
+        versionCode 9
+        versionName "1.5.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

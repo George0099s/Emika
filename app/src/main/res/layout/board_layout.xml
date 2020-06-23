@@ -75,18 +75,18 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <com.emika.app.features.calendar.BoardView
-        android:id="@+id/board_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:boardEdges="12dp"
-        app:columnSpacing="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_toolbar" />
-
+            <com.emika.app.features.calendar.BoardView
+                android:id="@+id/board_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:nestedScrollingEnabled="false"
+                app:boardEdges="12dp"
+                app:columnSpacing="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/main_toolbar" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_task"
         android:layout_width="wrap_content"

@@ -9,11 +9,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="welcome_stranger">Welcome, Stranger!</string>
-    <string name="to_access_emika_please_login_or_sign_up">To access Emika, please, login or sign up</string>
+    <string name="to_access_emika_please_login_or_sign_up">Sign Up or Login to make your team more productive</string>
     <string name="enter_your_password_at_least_6_chars">Enter your password at least 6 chars</string>
     <string name="enter_your_email">Enter your email</string>
-    <string name="login_string">Login</string>
-    <string name="create_new_account">Create new account</string>
+    <string name="login_string">Welcome! We know who you are!</string>
+    <string name="create_new_account">Welcome, Stranger! </string>
     <string name="complete_basic_info">Complete your basic profile information</string>
     <string name="first_name">First name</string>
     <string name="last_name">Last name</string>
@@ -26,10 +26,10 @@
     <string name="my_team_and_me">My team and me</string>
     <string name="short_password">Password must contains at least 6 characters</string>
     <string name="how_many_people_work_for_the_company">How many people work for the company</string>
-    <string name="under_20">under 20</string>
-    <string name="under_100">under 100</string>
-    <string name="under_500">under 500</string>
-    <string name="over_500">over 500</string>
+    <string name="under_20">Under 20</string>
+    <string name="under_100">Under 100</string>
+    <string name="under_500">Under 500</string>
+    <string name="over_500">Over 500</string>
     <string name="back">back</string>
     <string name="wait_to_be_invited">wait to be invited</string>
     <string name="create_company">Create company</string>
@@ -138,6 +138,10 @@
     <string name="set_as_default">Set as Default</string>
     <string name="edit_section">Edit Section</string>
     <string name="default_string">default</string>
+    <string name="hour_string">%sh</string>
+    <string name="create_your_company_and_invite_your_team_members_to_join_your_new_workspace">Create your company and invite your team members to join your new workspace</string>
+    <string name="you_will_need_to_ask_an_existing_member_of_the_company_to_invite_you_via_email_invitation">You will need to ask an existing member of the company to invite you via email invitation</string>
+    <string name="add_new_epic_link">Add new epic link</string>
 
 
 </resources>

@@ -4,8 +4,4 @@
         android:drawable="@drawable/shape_input_active"
         android:state_focused="false">
     </item>
-    <item
-        android:drawable="@drawable/shape_input_disactive"
-        android:state_focused="true">
-    </item>
 </selector>

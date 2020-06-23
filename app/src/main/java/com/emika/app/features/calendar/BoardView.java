@@ -35,6 +35,7 @@ import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Scroller;
 
 import androidx.annotation.NonNull;
@@ -60,6 +61,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
     private GestureDetector mGestureDetector;
     private FrameLayout mRootLayout;
     private LinearLayout mColumnLayout;
+    private ScrollView mScrollView;
     private ArrayList<DragItemRecyclerView> mLists = new ArrayList<>();
     private ArrayList<View> mHeaders = new ArrayList<>();
     private DragItemRecyclerView mCurrentRecyclerView;
@@ -143,6 +145,9 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         mColumnLayout.setOrientation(LinearLayout.HORIZONTAL);
         mColumnLayout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
         mColumnLayout.setMotionEventSplittingEnabled(false);
+        mScrollView = new ScrollView(getContext());
+        mScrollView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        mColumnLayout.addView(mScrollView);
         mRootLayout.addView(mColumnLayout);
         mRootLayout.addView(mDragItem.getDragItemView());
         addView(mRootLayout);
@@ -909,11 +914,14 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         recyclerView.setBackgroundColor(columnProperties.getItemsSectionBackgroundColor());
         recyclerView.setHasFixedSize(columnProperties.hasFixedItemSize());
         List<RecyclerView.ItemDecoration> itemDecorations = columnProperties.getItemDecorations();
+
         for (int i = 0; i < itemDecorations.size(); i++) {
             recyclerView.addItemDecoration(itemDecorations.get(i));
         }
+
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setDragItemListener(new DragItemRecyclerView.DragItemListener() {
+
             @Override
             public void onDragStarted(int itemPosition, float x, float y) {
                 mDragStartColumn = getColumnOfList(recyclerView);
@@ -974,7 +982,6 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setDragEnabled(mDragEnabled);
-
         LinearLayout layout = new LinearLayout(getContext());
         layout.setBackgroundColor(columnProperties.getColumnBackgroundColor());
         layout.setOrientation(LinearLayout.VERTICAL);

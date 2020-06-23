@@ -38,10 +38,12 @@
             android:layout_marginTop="36dp"
             android:layout_marginEnd="12dp"
             android:background="@drawable/shape_edit_text_comments"
-            android:hint="@string/add_new_section"
+            android:hint="@string/add_new_epic_link"
             android:imeOptions="actionSend"
             android:inputType="text"
             android:maxLines="1"
+            android:textColorHint="@color/grey"
+
             android:textColor="@color/mainTextColor"
             app:layout_constraintEnd_toStartOf="@+id/add_epic_link_btn"
             app:layout_constraintStart_toStartOf="@+id/textView4"

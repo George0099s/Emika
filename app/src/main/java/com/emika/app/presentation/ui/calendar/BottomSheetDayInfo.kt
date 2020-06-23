@@ -61,10 +61,11 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
         date = arguments!!.getString("date")
         durations = arguments!!.getParcelableArrayList("actualDurationList")!!
         val estimatedTime = arguments!!.getString("estimatedTime")
-        if (estimatedTime?.toDouble()!! > 0)
-        dayInfoEstimatedTime.progress = estimatedTime.toString()
+        if (estimatedTime?.toDouble()!! > 0.0f)
+            dayInfoEstimatedTime.progress = estimatedTime.toString()
         else
-        dayInfoEstimatedTime.progress = "0"
+            dayInfoEstimatedTime.progress = "0"
+
         viewModel.taskListMutableLiveData.observe(viewLifecycleOwner, getTask)
         viewModel.durationMutableLiveData.observe(viewLifecycleOwner, getDuration)
         dayInfoRecycler.setHasFixedSize(true)
@@ -78,6 +79,17 @@ class BottomSheetDayInfo : BottomSheetDialogFragment() {
         this.taskList = taskList as MutableList<PayloadTask>
         val adapter = DayInfoTaskAdapter(taskList, context!!, assigneeDi, durations)
         dayInfoRecycler.adapter = adapter
+//        if (taskList.isNotEmpty())
+//        for (task in taskList) {
+//            if (task.duration % 60 == 0)
+//                dayInfoEstimatedTime.progress = (task.duration / 60).toString()
+//            else {
+//                var s = df.format(task.duration / 60.0f.toDouble())
+//                s = s.replace(',', '.')
+//                dayInfoEstimatedTime.progress = s
+//            }
+//        }
+//        else { dayInfoEstimatedTime.progress = "0" }
     }
 
     private val getDuration = Observer { durations: List<PayloadDurationActual> ->

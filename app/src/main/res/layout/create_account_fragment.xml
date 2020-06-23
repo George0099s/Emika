@@ -6,6 +6,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.ui.auth.CreateAccountFragment">
 
+    <ImageView
+        android:id="@+id/emika_gif"
+        android:layout_width="104dp"
+        android:layout_height="104dp"
+        android:layout_marginTop="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/create_back_btn"
         android:layout_width="wrap_content"
@@ -21,71 +31,70 @@
     <TextView
         android:id="@+id/auth_title"
         style="@style/subTitle"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="58dp"
         android:text="@string/complete_basic_info"
         android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="@+id/linear"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/linear"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="@+id/create_first_name"
+        app:layout_constraintStart_toStartOf="@+id/create_first_name"
+        app:layout_constraintTop_toBottomOf="@+id/emika_gif" />
 
-    <LinearLayout
-        android:id="@+id/linear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_title">
+    <ImageView
+        android:layout_width="304dp"
+        android:layout_height="210dp"
+        android:src="@drawable/emika_layer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
         <EditText
             android:id="@+id/create_first_name"
             style="@style/inputPlaceholder"
             android:layout_width="match_parent"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/selector_input"
             android:hint="@string/first_name"
+            android:elevation="4dp"
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/auth_title" />
 
-        <EditText
-            android:id="@+id/create_last_name"
-            style="@style/inputPlaceholder"
-            android:layout_width="match_parent"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/selector_input"
-            android:hint="@string/last_name"
-            android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.4"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/auth_email" />
-    </LinearLayout>
+
+    <EditText
+        android:id="@+id/create_last_name"
+        style="@style/inputPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/selector_input"
+        android:elevation="4dp"
+        android:hint="@string/last_name"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/create_first_name"
+        app:layout_constraintTop_toBottomOf="@+id/create_first_name" />
 
     <Button
         android:id="@+id/create_next_btn"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
+        android:layout_marginTop="24dp"
         android:background="@drawable/shape_next_btn"
         android:text="@string/continue_string"
-        app:layout_constraintEnd_toEndOf="@+id/linear"
-        app:layout_constraintTop_toBottomOf="@+id/linear" />
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/create_last_name"
+        app:layout_constraintTop_toBottomOf="@+id/create_last_name" />
 
     <TextView
         android:id="@+id/create_account_log_out"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         android:text="@string/log_out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_marginEnd="18dp"
+        android:textColor="#50555C"
+        android:gravity="center"
+        android:drawablePadding="8dp"
+        android:drawableLeft="@drawable/ic_log_out_black"
+        app:layout_constraintBottom_toBottomOf="@+id/create_next_btn"
+        app:layout_constraintEnd_toStartOf="@+id/create_next_btn"
+        app:layout_constraintTop_toTopOf="@+id/create_next_btn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

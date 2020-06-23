@@ -21,7 +21,9 @@ import android.content.Intent
 import android.graphics.Paint
 import android.os.SystemClock
 import android.os.Vibrator
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -29,7 +31,6 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.util.Pair
 import androidx.fragment.app.FragmentManager
-import androidx.recyclerview.widget.RecyclerView
 import com.emika.app.R
 import com.emika.app.data.EmikaApplication
 import com.emika.app.data.db.entity.EpicLinksEntity
@@ -48,9 +49,8 @@ import java.util.*
 import javax.inject.Inject
 
 class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolder?> {
-    @JvmField
     @Inject
-    var epicLinksDi: EpicLinks? = null
+    lateinit var epicLinksDi: EpicLinks
     @Inject
     lateinit var projects: ProjectsDi
     private var mLayoutId = 0
@@ -97,12 +97,18 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
         this.activity = activity
         vibrator = context!!.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         calendarNetworkManager = CalendarNetworkManager(token)
-        hasStub = list!!.isEmpty()
-//        if (hasStub) {
-//            list.add(Pair(1, PayloadTask()))
-//            itemList = list
-//        } else
-            itemList = list
+//        if (list?.size != 0){
+//            hasStub = false
+//        } else {
+//            hasStub = true
+//        }
+//        hasStub =/ list!!.size > 0
+        if (hasStub) {
+            list?.add(Pair(1, PayloadTask()))
+            mItemList = list
+            Log.d(TAG, "hasnostub ${list?.size}")
+        } else
+            mItemList = list
 
         df = DecimalFormat("#.#")
         this.fragmentManager = fragmentManager
@@ -128,20 +134,37 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
     }
 
     fun setList(list: ArrayList<Pair<Long?, PayloadTask?>?>?) {
+
         itemList = list
+
     }
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-//        var layout = -1
-//
-//        when (viewType) {
-//            1 -> layout = mLayoutId
-//            2 -> layout = R.layout.item_stub_calendar
-//        }
-        val v = LayoutInflater
-                .from(parent.context)
-                .inflate(mLayoutId, parent, false)
-        return ViewHolder(v)
+        var layout = -1
+        val viewHolder: ViewHolder? = null
+        val v: View? = null
+        when (viewType) {
+            1 -> {
+                val v = LayoutInflater
+                        .from(parent.context)
+                        .inflate(mLayoutId, parent, false)
+                return ViewHolder(v!!)
+            }
+            2 -> {
+                val v = LayoutInflater
+                        .from(parent.context)
+                        .inflate(R.layout.item_stub_calendar, parent, false)
+                return ViewHolder(v!!)
+            }
+            else -> {
+                val v = LayoutInflater
+                        .from(parent.context)
+                        .inflate(mLayoutId, parent, false)
+                return ViewHolder(v!!)
+            }
+        }
+
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -155,125 +178,128 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
-
             val task = mItemList[position].second
-            if (task!!.status != "deleted") {
-                task.planOrder = position.toString()
-                holder.mText.text = task.name
-                holder.itemView.tag = mItemList[position]
+       if (!hasStub){
+                if (task!!.status != "deleted") {
+                    task.planOrder = position.toString()
+                    holder.mText?.text = task.name
+                    holder.itemView.tag = mItemList[position]
 
-                if (task.subTaskCount != "0" && task.subTaskCount != null) {
-                    holder.subTaskCount.text = "${task.doneSubTaskCount}/${task.subTaskCount}"
-                    holder.subTaskLayout.visibility = View.VISIBLE
-                } else {
-                    holder.subTaskLayout.visibility = View.GONE
-                }
-
-                if (task.duration % 60 == 0)
-                    holder.estimatedTime.text = String.format("%sh", (task.duration / 60).toString())
-                else {
-                    var s = String.format("%sh", df!!.format(task.duration / 60.0f.toDouble()))
-                    s = s.replace(',', '.')
-                    holder.estimatedTime.text = s
-                }
-                if (task.durationActual % 60 == 0)
-                    holder.spentTime.text = String.format("%sh", (task.durationActual / 60).toString())
-                else {
-                    var s = String.format("%sh", df!!.format(task.durationActual / 60.0f.toDouble()))
-                    s = s.replace(',', '.')
-                    holder.spentTime.text = s
-                }
-                holder.isDone.setOnClickListener { v: View? ->
-                    if (holder.isDone.isChecked) {
-                        holder.mText.setTextColor(context!!.resources.getColor(R.color.task_name_done))
-                        task.status = "done"
-                        calendarNetworkManager!!.updateTask(task)
+                    if (task.subTaskCount != "0" && task.subTaskCount != null) {
+                        holder.subTaskCount?.text = "${task.doneSubTaskCount}/${task.subTaskCount}"
+                        holder.subTaskLayout?.visibility = View.VISIBLE
                     } else {
-                        holder.mText.setTextColor(context!!.resources.getColor(R.color.mainTextColor))
-                        task.status = "wip"
-                        calendarNetworkManager!!.updateTask(task)
+                        holder.subTaskLayout?.visibility = View.GONE
                     }
-                }
-                holder.refresh.setOnClickListener { v: View? ->
-                    holder.mText.paintFlags = Paint.ANTI_ALIAS_FLAG
-                    task.status = "wip"
-                    holder.taskTextCanceled.visibility = View.GONE
-                    holder.priority.visibility = View.VISIBLE
-                    holder.refresh.visibility = View.GONE
-                    holder.isDone.visibility = View.VISIBLE
-                    holder.isDone.isChecked = false
-                    calendarNetworkManager!!.updateTask(task)
-                }
-                when (task.status) {
-                    "done" -> {
-                        holder.mText.paintFlags = Paint.ANTI_ALIAS_FLAG
-                        holder.mText.setTextColor(context!!.resources.getColor(R.color.task_name_done))
-                        holder.isDone.visibility = View.VISIBLE
-                        holder.isDone.isChecked = true
-                        holder.taskTextCanceled.visibility = View.GONE
-                        holder.priority.visibility = View.VISIBLE
-                        holder.refresh.visibility = View.GONE
+
+                    if (task.duration % 60 == 0)
+                        holder.estimatedTime?.text = String.format("%sh", (task.duration / 60).toString())
+                    else {
+                        var s = String.format("%sh", df!!.format(task.duration / 60.0f.toDouble()))
+                        s = s.replace(',', '.')
+                        holder.estimatedTime?.text = s
                     }
-                    "canceled" -> {
-                        holder.mText.setTextColor(context!!.resources.getColor(R.color.task_name_done))
-                        holder.mText.paintFlags = holder.mText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                        holder.taskTextCanceled.visibility = View.VISIBLE
-                        holder.isDone.visibility = View.GONE
-                        holder.priority.visibility = View.GONE
-                        holder.refresh.visibility = View.VISIBLE
-                        holder.refresh.isChecked = true
+                    if (task.durationActual % 60 == 0)
+                        holder.spentTime?.text = String.format("%sh", (task.durationActual / 60).toString())
+                    else {
+                        var s = String.format("%sh", df!!.format(task.durationActual / 60.0f.toDouble()))
+                        s = s.replace(',', '.')
+                        holder.spentTime?.text = s
                     }
-                    else -> {
-                        holder.mText.paintFlags = Paint.ANTI_ALIAS_FLAG
-                        holder.taskTextCanceled.visibility = View.GONE
-                        holder.priority.visibility = View.VISIBLE
-                        holder.refresh.visibility = View.GONE
-                        holder.isDone.visibility = View.VISIBLE
-                        holder.isDone.isChecked = false
-                        holder.mText.setTextColor(context!!.resources.getColor(R.color.mainTextColor))
-                        holder.isDone.isChecked = false
-                    }
-                }
-                if (task.priority != null) when (task.priority) {
-                    "low" -> {
-                        //                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_low));
-                        holder.priority.setTextColor(context!!.resources.getColor(R.color.low_priority))
-                        holder.priority.setCompoundDrawablesWithIntrinsicBounds(context!!.resources.getDrawable(R.drawable.ic_priority_low), null, null, null)
-                    }
-                    "normal" -> holder.priority.visibility = View.GONE
-                    "high" -> {
-                        //                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_high));
-                        holder.priority.setTextColor(context!!.resources.getColor(R.color.yellow))
-                        holder.priority.setCompoundDrawablesWithIntrinsicBounds(context!!.resources.getDrawable(R.drawable.ic_priority_high), null, null, null)
-                    }
-                    "urgent" -> {
-                        //                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_urgent));
-                        holder.priority.setTextColor(context!!.resources.getColor(R.color.red))
-                        holder.priority.setCompoundDrawablesWithIntrinsicBounds(context!!.resources.getDrawable(R.drawable.ic_task_urgent), null, null, null)
-                    }
-                }
-                if (task.epicLinks != null && task.epicLinks.size != 0) {
-                    for (i in task.epicLinks.indices) {
-                        for (j in epicLinksDi!!.epicLinksList.indices) {
-                            if (task.epicLinks[i] == epicLinksDi!!.epicLinksList[j].id) {
-                                holder.epicLink.visibility = View.VISIBLE
-                                if (task.epicLinks.size > 1) {
-                                    holder.epicLink.text = String.format("%s+%d", epicLinksDi!!.epicLinksList[j].name, task.epicLinks.size - 1)
-                                } else holder.epicLink.text = epicLinksDi!!.epicLinksList[j].name
-                            }
+                    holder.isDone!!.setOnClickListener { v: View? ->
+                        if (holder.isDone!!.isChecked) {
+                            holder.mText!!.setTextColor(context!!.resources.getColor(R.color.task_name_done))
+                            task.status = "done"
+                            calendarNetworkManager!!.updateTask(task)
+                        } else {
+                            holder.mText!!.setTextColor(context!!.resources.getColor(R.color.mainTextColor))
+                            task.status = "wip"
+                            calendarNetworkManager!!.updateTask(task)
                         }
                     }
-                } else holder.epicLink.visibility = View.GONE
-
-                for (i in projects.projects.indices) {
-                    if (task.projectId != null) if (task.projectId == projects.projects[i].id) {
-                        holder.project.text = projects.projects[i].name
+                    holder.refresh!!.setOnClickListener { v: View? ->
+                        holder.mText!!.paintFlags = Paint.ANTI_ALIAS_FLAG
+                        task.status = "wip"
+                        holder.taskTextCanceled!!.visibility = View.GONE
+                        holder.priority!!.visibility = View.VISIBLE
+                        holder.refresh!!.visibility = View.GONE
+                        holder.isDone!!.visibility = View.VISIBLE
+                        holder.isDone!!.isChecked = false
+                        calendarNetworkManager!!.updateTask(task)
                     }
-                }
-                holder.priority.text = Constants.priority[task.priority]
-                if (task.deadlineDate != null && task.deadlineDate != "null") holder.deadLine.text = DateHelper.getDate(task.deadlineDate) else holder.deadLine.visibility = View.GONE
-            }
+                    when (task.status) {
+                        "done" -> {
+                            holder.mText!!.paintFlags = Paint.ANTI_ALIAS_FLAG
+                            holder.mText!!.setTextColor(context!!.resources.getColor(R.color.task_name_done))
+                            holder.isDone!!.visibility = View.VISIBLE
+                            holder.isDone!!.isChecked = true
+                            holder.taskTextCanceled!!.visibility = View.GONE
+                            holder.priority!!.visibility = View.VISIBLE
+                            holder.refresh!!.visibility = View.GONE
+                        }
+                        "canceled" -> {
+                            holder.mText!!.setTextColor(context!!.resources.getColor(R.color.task_name_done))
+                            holder.mText!!.paintFlags = holder.mText!!.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                            holder.taskTextCanceled!!.visibility = View.VISIBLE
+                            holder.isDone!!.visibility = View.GONE
+                            holder.priority!!.visibility = View.GONE
+                            holder.refresh!!.visibility = View.VISIBLE
+                            holder.refresh!!.isChecked = true
+                        }
+                        else -> {
+                            holder.mText!!.paintFlags = Paint.ANTI_ALIAS_FLAG
+                            holder.taskTextCanceled!!.visibility = View.GONE
+                            holder.priority!!.visibility = View.VISIBLE
+                            holder.refresh!!.visibility = View.GONE
+                            holder.isDone!!.visibility = View.VISIBLE
+                            holder.isDone!!.isChecked = false
+                            holder.mText!!.setTextColor(context!!.resources.getColor(R.color.mainTextColor))
+                            holder.isDone!!.isChecked = false
+                        }
+                    }
+                    if (task.priority != null) when (task.priority) {
+                        "low" -> {
+                            //                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_low));
+                            holder.priority!!.setTextColor(context!!.resources.getColor(R.color.low_priority))
+                            holder.priority!!.setCompoundDrawablesWithIntrinsicBounds(context!!.resources.getDrawable(R.drawable.ic_priority_low), null, null, null)
+                        }
+                        "normal" -> holder.priority!!.visibility = View.GONE
+                        "high" -> {
+                            //                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_high));
+                            holder.priority!!.setTextColor(context!!.resources.getColor(R.color.yellow))
+                            holder.priority!!.setCompoundDrawablesWithIntrinsicBounds(context!!.resources.getDrawable(R.drawable.ic_priority_high), null, null, null)
+                        }
+                        "urgent" -> {
+                            //                        holder.priority.setBackground(context.getResources().getDrawable(R.drawable.shape_priority_urgent));
+                            holder.priority!!.setTextColor(context!!.resources.getColor(R.color.red))
+                            holder.priority!!.setCompoundDrawablesWithIntrinsicBounds(context!!.resources.getDrawable(R.drawable.ic_task_urgent), null, null, null)
+                        }
+                    }
+                    if (task.epicLinks != null && task.epicLinks.size != 0) {
+                        for (i in task.epicLinks.indices) {
+                            for (j in epicLinksDi!!.epicLinksList.indices) {
+                                if (task.epicLinks[i] == epicLinksDi!!.epicLinksList[j].id) {
+                                    holder.epicLink!!.visibility = View.VISIBLE
+                                    if (task.epicLinks.size > 1) {
+                                        holder.epicLink!!.text = String.format("%s+%d", epicLinksDi!!.epicLinksList[j].name, task.epicLinks.size - 1)
+                                    } else holder.epicLink!!.text = epicLinksDi!!.epicLinksList[j].name
+                                }
+                            }
+                        }
+                    } else holder.epicLink!!.visibility = View.GONE
 
+                    for (i in projects.projects.indices) {
+                        if (task.projectId != null) if (task.projectId == projects.projects[i].id) {
+                            holder.project!!.text = projects.projects[i].name
+                        }
+                    }
+                    holder.priority!!.text = Constants.priority[task.priority]
+                    if (task.deadlineDate != null && task.deadlineDate != "null") holder.deadLine!!.text = DateHelper.getDate(task.deadlineDate) else holder.deadLine!!.visibility = View.GONE
+                }
+            }
+             else {
+                holder.stubText!!.visibility = View.VISIBLE
+            }
     }
 
     override fun changeItemPosition(fromPos: Int, toPos: Int) {
@@ -301,29 +327,39 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
     }
 
 
-    inner class StubViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        var stubText: TextView
-        init{
-            stubText = itemView.findViewById(R.id.calendar_stub_text)
-        }
-    }
+//    inner class StubViewHolder(itemView: View, itemStubCalendar: Int) : DragItemAdapter.ViewHolder(itemView, R.id.item_layout, mDragOnLongPress){
+//        var stubText: TextView = itemView.findViewById(R.id.calendar_stub_text)
+//
+//
+//        override fun onItemClicked(view: View?) {
+//            return
+//        }
+//
+//        override fun onItemLongClicked(view: View?): Boolean {
+//            return false
+//        }
+//
+//        override fun onItemTouch(view: View?, event: MotionEvent?): Boolean {
+//            return true
+//        }
+//    }
 
     inner class ViewHolder(itemView: View) : DragItemAdapter.ViewHolder(itemView, mGrabHandleId, mDragOnLongPress) {
-        var mText: TextView
-        var spentTime: TextView
-        var estimatedTime: TextView
-        var deadLine: TextView
-        var project: TextView
-        var priority: TextView
-        var epicLink: TextView
-        var taskTextCanceled: TextView
-        var cardView: CardView
-        var layout: FrameLayout
-        var isDone: CheckBox
-        var refresh: CheckBox
-        var subTaskLayout: LinearLayout
-        var subTaskCount: TextView
-
+        var mText: TextView? = null
+        var spentTime: TextView? = null
+        var estimatedTime: TextView? = null
+        var deadLine: TextView? = null
+        var project: TextView? = null
+        var priority: TextView? = null
+        var epicLink: TextView? = null
+        var taskTextCanceled: TextView? = null
+        var cardView: CardView? = null
+        var layout: FrameLayout? = null
+        var isDone: CheckBox? = null
+        var refresh: CheckBox? = null
+        var subTaskLayout: LinearLayout? = null
+        var subTaskCount: TextView? = null
+        var stubText: TextView? = null
 
         override fun onItemClicked(view: View) {
             if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
@@ -377,20 +413,24 @@ class ItemAdapter : DragItemAdapter<Pair<Long?, String?>?, ItemAdapter.ViewHolde
         }
 
         init {
-            epicLink = itemView.findViewById(R.id.calendar_task_epic_links)
-            mText = itemView.findViewById<View>(R.id.text) as TextView
-            layout = itemView.findViewById(R.id.item_layout)
-            cardView = itemView.findViewById(R.id.card)
-            spentTime = itemView.findViewById(R.id.item_task_spent_time)
-            estimatedTime = itemView.findViewById(R.id.item_task_estimated_time)
-            priority = itemView.findViewById(R.id.calendar_task_priority)
-            deadLine = itemView.findViewById(R.id.calendar_task_deadline)
-            project = itemView.findViewById(R.id.calendar_task_project)
-            isDone = itemView.findViewById(R.id.task_done)
-            refresh = itemView.findViewById(R.id.task_refresh)
-            taskTextCanceled = itemView.findViewById(R.id.calendar_task_canceled)
-            subTaskCount = itemView.findViewById(R.id.calendar_task_sub_tasks_count)
-            subTaskLayout = itemView.findViewById(R.id.calendar_task_sub_tasks)
+            if (!hasStub) {
+                epicLink = itemView.findViewById(R.id.calendar_task_epic_links)
+                mText = itemView.findViewById<View>(R.id.text) as TextView
+                layout = itemView.findViewById(R.id.item_layout)
+                cardView = itemView.findViewById(R.id.card)
+                spentTime = itemView.findViewById(R.id.item_task_spent_time)
+                estimatedTime = itemView.findViewById(R.id.item_task_estimated_time)
+                priority = itemView.findViewById(R.id.calendar_task_priority)
+                deadLine = itemView.findViewById(R.id.calendar_task_deadline)
+                project = itemView.findViewById(R.id.calendar_task_project)
+                isDone = itemView.findViewById(R.id.task_done)
+                refresh = itemView.findViewById(R.id.task_refresh)
+                taskTextCanceled = itemView.findViewById(R.id.calendar_task_canceled)
+                subTaskCount = itemView.findViewById(R.id.calendar_task_sub_tasks_count)
+                subTaskLayout = itemView.findViewById(R.id.calendar_task_sub_tasks)
+            } else
+             stubText = itemView.findViewById(R.id.calendar_stub_text)
+
         }
     }
 

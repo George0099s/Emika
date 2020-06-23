@@ -20,10 +20,12 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -53,6 +55,7 @@ import com.emika.app.presentation.viewmodel.calendar.TaskInfoViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.activity_auth.*
 import kotlinx.android.synthetic.main.activity_edit_profile.*
 import kotlinx.android.synthetic.main.task_info.*
 import java.text.DecimalFormat
@@ -388,6 +391,14 @@ class TaskInfoActivity : AppCompatActivity() {
             taskInfoViewModel.updateTask(task)
             taskInfoViewModel.addSubTask(subTask)
             subTaskRecycler!!.requestFocus(adapter!!.itemCount - 1)
+//            val e = subTaskRecycler?.getChildAt(adapter!!.itemCount) as ConstraintLayout
+//            val edit = e.findViewById(R.id.sub_task_item_body) as EditText
+//            edit.setOnEditorActionListener { v, actionId, event ->
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                    addSubTask(v)
+//                    true
+//                } else false
+//            }
         } else if (adapter!!.taskList[adapter!!.itemCount - 1]!!.name.isNotEmpty()) {
             adapter!!.addSubTask(subTask)
             adapter!!.notifyItemInserted(adapter!!.itemCount)
@@ -399,6 +410,14 @@ class TaskInfoActivity : AppCompatActivity() {
             taskInfoViewModel.updateTask(task)
             taskInfoViewModel.addSubTask(subTask)
             subTaskRecycler!!.requestFocus(adapter!!.itemCount - 1)
+//            val e = subTaskRecycler!!.getChildAt(adapter!!.itemCount) as ConstraintLayout
+//            val edit = e.findViewById(R.id.sub_task_item_body) as EditText
+//            edit.setOnEditorActionListener { v, actionId, event ->
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                    addSubTask(v)
+//                    true
+//                } else false
+//            }
         } else {
             val myAwesomeSnackbar = Snackbar.make(
                     v,

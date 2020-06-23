@@ -8,83 +8,104 @@
     tools:context=".presentation.ui.auth.AuthFragment">
 
     <TextView
-        android:id="@+id/auth_title"
-        style="@style/subTitle"
-        android:layout_marginTop="16dp"
-        android:text="@string/to_access_emika_please_login_or_sign_up"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="@+id/linear"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/linear"
+        android:id="@+id/textView25"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="40dp"
+        android:text="HELLO!\nGlad to see you!"
+        android:textColor="@color/mainTextColor"
+        android:textSize="32dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/linear"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/auth_title"
+        style="@style/subTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:text="@string/to_access_emika_please_login_or_sign_up"
+        android:textAlignment="textStart"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView25" />
+    <ImageView
+        android:layout_width="304dp"
+        android:layout_height="210dp"
+        android:src="@drawable/emika_layer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        android:orientation="vertical"
+    <EditText
+        android:id="@+id/auth_email"
+        style="@style/inputPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/selector_input"
+        android:elevation="4dp"
+        android:layout_marginTop="144dp"
+        android:hint="@string/enter_your_email"
+        android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/auth_title">
+        app:layout_constraintTop_toBottomOf="@+id/textView25" />
 
-        <EditText
-            android:id="@+id/auth_email"
-            style="@style/inputPlaceholder"
-            android:layout_width="match_parent"
-            android:layout_marginStart="36dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="36dp"
-            android:background="@drawable/selector_input"
-            android:hint="@string/enter_your_email"
-            android:inputType="textEmailAddress"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/auth_title" />
+    <EditText
+        android:id="@+id/auth_pass"
+        style="@style/inputPlaceholder"
+        android:layout_width="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/selector_input"
+        android:elevation="4dp"
+        android:visibility="gone"
+        android:hint="@string/enter_your_password_at_least_6_chars"
+        android:inputType="textPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/auth_email" />
+    <androidx.constraintlayout.widget.Barrier
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="auth_email, auth_pass, auth_next_btn"
 
-        <EditText
-            android:id="@+id/auth_pass"
-            style="@style/inputPlaceholder"
-            android:layout_width="match_parent"
-            android:layout_marginStart="36dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="36dp"
-            android:background="@drawable/selector_input"
-            android:hint="@string/enter_your_password_at_least_6_chars"
-            android:inputType="textPassword"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.4"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/auth_email" />
-    </LinearLayout>
-
+        />
     <TextView
         android:id="@+id/restore_pass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:textColor="@color/blue"
+        android:layout_marginStart="16dp"
         android:text="@string/restore_password"
+        android:textColor="@color/blue"
         app:layout_constraintBottom_toBottomOf="@+id/auth_next_btn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/auth_next_btn" />
 
     <Button
         android:id="@+id/auth_next_btn"
+        style="@style/TextAppearance.AppCompat.Small"
         android:layout_width="wrap_content"
-        android:textColor="@color/white"
         android:layout_height="30dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="36dp"
         android:background="@drawable/shape_next_btn"
         android:text="@string/continue_string"
         android:textAllCaps="false"
-        style="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintEnd_toEndOf="@+id/linear"
-        app:layout_constraintTop_toBottomOf="@+id/linear" />
+        android:layout_marginTop="14dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/auth_pass" />
 
     <TextView
         android:id="@+id/back_btn"
@@ -92,9 +113,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
+        android:background="@drawable/shape_next_btn"
+        android:drawablePadding="4dp"
+        android:gravity="center"
         android:text="@string/back"
         android:textAllCaps="false"
-        android:textColor="@color/grey"
+        android:textColor="@color/white"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/auth_next_btn"
         app:layout_constraintEnd_toStartOf="@+id/auth_next_btn"

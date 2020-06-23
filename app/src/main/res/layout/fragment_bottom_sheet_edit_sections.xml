@@ -43,6 +43,7 @@
             android:imeOptions="actionSend"
             android:inputType="text"
             android:maxLines="1"
+            android:textColorHint="@color/grey"
             android:textColor="@color/mainTextColor"
             app:layout_constraintEnd_toStartOf="@+id/add_section_btn"
             app:layout_constraintStart_toStartOf="@+id/textView4"
